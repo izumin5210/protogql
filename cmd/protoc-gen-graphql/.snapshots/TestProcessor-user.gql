@@ -22,7 +22,7 @@ type User {
 	role: Role!
 }
 type Query {
-	users(page_token: String!, page_size: Int!): [User!]!
+	users(pageToken: String!, pageSize: Int!): [User!]!
 }
 type Mutation {
 	followUser(input: FollowUserInput!): Boolean

@@ -8,6 +8,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
+	"github.com/iancoleman/strcase"
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/formatter"
 
@@ -78,7 +79,7 @@ var GraphQLSchemaGenerator = protoprocessor.GenerateFunc(func(ctx context.Contex
 					}
 					typeWriter.Add(typ)
 					def.Arguments = append(def.Arguments, &ast.ArgumentDefinition{
-						Name: fd.GetName(),
+						Name: strcase.ToLowerCamel(fd.GetName()),
 						Type: typ.GQL,
 					})
 				}
