@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package remixer;
+
+option go_package = "github.com/izumin5210/remixer/options";
+
+import "google/protobuf/descriptor.proto";
+
+message GraphqlQueryOptions {
+  string name = 1;
+  string output = 3;
+}
+
+message GraphqlMutationOptions {
+  string name = 1;
+}
+
+extend google.protobuf.MethodOptions {
+  GraphqlQueryOptions graphql_query = 2056;
+  GraphqlMutationOptions graphql_mutation = 2057;
+}

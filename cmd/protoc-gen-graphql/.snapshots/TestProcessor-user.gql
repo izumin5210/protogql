@@ -1,0 +1,31 @@
+schema {
+	query: Query
+	mutation: Mutation
+}
+input FollowUserRequest {
+	userId: FollowUserRequest!
+	friendId: FollowUserRequest!
+}
+enum Role {
+	ROLE_UNSPECIFIED
+	ADMIN
+}
+input UnfollowUserRequest {
+	userId: UnfollowUserRequest!
+	friendId: UnfollowUserRequest!
+}
+type User {
+	id: [User!]!
+	fullName: [User!]!
+	followeeUserIds: [User!]!
+	followerUserIds: [User!]!
+	role: [User!]!
+}
+type Query {
+	users(page_token: String!, page_size: Int!): [User!]!
+}
+type Mutation {
+	followUser(input: FollowUserRequest!): Boolean
+	unfollowUser(input: UnfollowUserRequest!): Boolean
+}
+

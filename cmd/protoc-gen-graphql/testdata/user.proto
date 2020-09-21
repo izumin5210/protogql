@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package testdata;
+
+import "google/protobuf/empty.proto";
+import "options/graphql.proto";
+
+service UserService {
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option (remixer.graphql_query) = {
+      name: "users"
+      output: "users"
+    };
+  }
+  rpc FollowUser(FollowUserRequest) returns (google.protobuf.Empty) {
+    option (remixer.graphql_mutation) = {
+      name: "followUser"
+    };
+  }
+  rpc UnfollowUser(UnfollowUserRequest) returns (google.protobuf.Empty) {
+    option (remixer.graphql_mutation) = {
+      name: "unfollowUser"
+    };
+  }
+}
+
+message User {
+  uint64 id = 1;
+  string full_name = 2;
+  
+  repeated uint64 followee_user_ids = 11;
+  repeated uint64 follower_user_ids = 12;
+
+  enum Role {
+    ROLE_UNSPECIFIED = 0;
+    ADMIN = 1;
+  }
+
+  Role role = 101;
+}
+
+message ListUsersRequest {
+  optional string page_token = 1;
+  optional int32 page_size = 2;
+}
+
+message ListUsersResponse {
+  repeated User users = 1;
+  int32 total_size = 2;
+  string next_page_token = 3;
+}
+
+message BatchGetUsersRequest {
+  repeated uint64 user_ids = 1;
+}
+
+message BatchGetUsersResponse {
+  repeated User users = 1;
+}
+
+message FollowUserRequest {
+  uint64 user_id = 1;
+  uint64 friend_id = 2;
+}
+
+message UnfollowUserRequest {
+  uint64 user_id = 1;
+  uint64 friend_id = 2;
+}
