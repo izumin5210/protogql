@@ -11,15 +11,11 @@ import (
 )
 
 type TypeWriter struct {
-	usedTypes map[string]*typeWithKind
-	defs      map[string]*ast.Definition
-	types     *protoprocessor.Types
-	gqlTypes  *TypeResolver
-}
-
-type typeWithKind struct {
-	*Type
-	Kind ast.DefinitionKind
+	generalTypes map[string]*Type
+	inputTypes   map[string]*Type
+	defs         map[string]*ast.Definition
+	types        *protoprocessor.Types
+	gqlTypes     *TypeResolver
 }
 
 func NewTypeWriter(
@@ -27,10 +23,11 @@ func NewTypeWriter(
 	gqlTypes *TypeResolver,
 ) *TypeWriter {
 	return &TypeWriter{
-		usedTypes: map[string]*typeWithKind{},
-		defs:      map[string]*ast.Definition{},
-		types:     types,
-		gqlTypes:  gqlTypes,
+		generalTypes: map[string]*Type{},
+		inputTypes:   map[string]*Type{},
+		defs:         map[string]*ast.Definition{},
+		types:        types,
+		gqlTypes:     gqlTypes,
 	}
 }
 
@@ -49,44 +46,40 @@ func (w *TypeWriter) add(typ *Type, kind ast.DefinitionKind) {
 	if ed := w.types.FindEnum(typ.Proto.Name); ed != nil {
 		kind = ast.Enum
 	}
-	w.usedTypes[typ.Proto.Name] = &typeWithKind{Type: typ, Kind: kind}
+	if kind == ast.InputObject {
+		w.inputTypes[typ.Proto.Name] = typ
+	} else {
+		w.generalTypes[typ.Proto.Name] = typ
+	}
 }
 
 func (w *TypeWriter) Definitions() ([]*ast.Definition, error) {
 	for {
 		allOK := true
-		for typeName, typ := range w.usedTypes {
+		for typeName, typ := range w.generalTypes {
 			if _, ok := w.defs[typeName]; ok {
 				continue
 			}
 			allOK = false
 
-			switch typ.Kind {
-			case ast.Object, ast.InputObject:
-				md := w.types.FindMessage(typ.Proto.Name)
-				def := &ast.Definition{Kind: typ.Kind, Name: md.GetName()}
+			if md := w.types.FindMessage(typ.Proto.Name); md != nil {
+				def := &ast.Definition{Kind: ast.Object, Name: md.GetName()}
 
 				for _, fd := range md.GetField() {
 					def.Fields = append(def.Fields, &ast.FieldDefinition{
 						Name: strcase.ToLowerCamel(fd.GetName()),
 						Type: typ.GQL,
 					})
-					subtyp, err := w.gqlTypes.FromFieldDescriptor(fd)
+					subtyp, err := w.gqlTypes.FromProto(fd)
 					if err != nil {
 						// TODO: handling
 						return nil, err
 					}
-					if typ.Kind == ast.InputObject {
-						w.AddInput(subtyp)
-					} else {
-						w.Add(subtyp)
-					}
+					w.Add(subtyp)
 				}
 
 				w.defs[typ.Proto.Name] = def
-
-			case ast.Enum:
-				ed := w.types.FindEnum(typ.Proto.Name)
+			} else if ed := w.types.FindEnum(typ.Proto.Name); ed != nil {
 				def := &ast.Definition{
 					Kind: ast.Enum,
 					Name: ed.GetName(),
@@ -99,10 +92,32 @@ func (w *TypeWriter) Definitions() ([]*ast.Definition, error) {
 				}
 
 				w.defs[typ.Proto.Name] = def
-
-			default:
-				return nil, fmt.Errorf("%s(kind=%s) was cannot proceeded", typ.Proto.Name, typ.Kind)
+			} else {
+				return nil, fmt.Errorf("%s was cannot proceeded", typ.Proto.Name)
 			}
+		}
+		for typeName, typ := range w.inputTypes {
+			if _, ok := w.defs[typeName]; ok {
+				continue
+			}
+			allOK = false
+			md := w.types.FindMessage(typ.Proto.Name)
+			def := &ast.Definition{Kind: ast.InputObject, Name: md.GetName()}
+
+			for _, fd := range md.GetField() {
+				subtyp, err := w.gqlTypes.InputFromProto(fd)
+				if err != nil {
+					// TODO: handling
+					return nil, err
+				}
+				def.Fields = append(def.Fields, &ast.FieldDefinition{
+					Name: strcase.ToLowerCamel(fd.GetName()),
+					Type: subtyp.GQL,
+				})
+				w.AddInput(subtyp)
+			}
+
+			w.defs[typ.Proto.Name] = def
 		}
 		if allOK {
 			break

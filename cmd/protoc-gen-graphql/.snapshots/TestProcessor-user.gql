@@ -3,16 +3,16 @@ schema {
 	mutation: Mutation
 }
 input FollowUserRequest {
-	userId: FollowUserRequest!
-	friendId: FollowUserRequest!
+	userId: String!
+	friendId: String!
 }
 enum Role {
 	ROLE_UNSPECIFIED
 	ADMIN
 }
 input UnfollowUserRequest {
-	userId: UnfollowUserRequest!
-	friendId: UnfollowUserRequest!
+	userId: String!
+	friendId: String!
 }
 type User {
 	id: [User!]!
@@ -25,7 +25,7 @@ type Query {
 	users(page_token: String!, page_size: Int!): [User!]!
 }
 type Mutation {
-	followUser(input: FollowUserRequest!): Boolean
-	unfollowUser(input: UnfollowUserRequest!): Boolean
+	followUser(input: FollowUserInput!): Boolean
+	unfollowUser(input: UnfollowUserInput!): Boolean
 }
 

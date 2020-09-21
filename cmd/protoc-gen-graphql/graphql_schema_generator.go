@@ -49,7 +49,7 @@ var GraphQLSchemaGenerator = protoprocessor.GenerateFunc(func(ctx context.Contex
 				if name := qopts.GetOutput(); name != "" {
 					for _, fd := range outputMsg.GetField() {
 						if fd.GetName() == name {
-							typ, err := typeResolver.FromFieldDescriptor(fd)
+							typ, err := typeResolver.FromProto(fd)
 							if err != nil {
 								// TODO: handing
 								return nil, err
@@ -60,7 +60,7 @@ var GraphQLSchemaGenerator = protoprocessor.GenerateFunc(func(ctx context.Contex
 						}
 					}
 				} else {
-					typ, err := typeResolver.FromMessageTypeName(m.GetOutputType())
+					typ, err := typeResolver.FromProtoName(m.GetOutputType())
 					if err != nil {
 						// TODO: handing
 						return nil, err
@@ -71,12 +71,12 @@ var GraphQLSchemaGenerator = protoprocessor.GenerateFunc(func(ctx context.Contex
 
 				inputMsg := types.FindMessage(m.GetInputType())
 				for _, fd := range inputMsg.GetField() {
-					typ, err := typeResolver.FromFieldDescriptor(fd)
+					typ, err := typeResolver.FromProto(fd)
 					if err != nil {
 						// TODO: handing
 						return nil, err
 					}
-					typeWriter.AddInput(typ)
+					typeWriter.Add(typ)
 					def.Arguments = append(def.Arguments, &ast.ArgumentDefinition{
 						Name: fd.GetName(),
 						Type: typ.GQL,
@@ -91,12 +91,12 @@ var GraphQLSchemaGenerator = protoprocessor.GenerateFunc(func(ctx context.Contex
 				return nil, err
 			}
 			if mopts != nil {
-				inputType, err := typeResolver.FromMessageTypeName(m.GetInputType())
+				inputType, err := typeResolver.InputFromProtoName(m.GetInputType())
 				if err != nil {
 					// TODO: handing
 					return nil, err
 				}
-				outputType, err := typeResolver.FromMessageTypeName(m.GetOutputType())
+				outputType, err := typeResolver.FromProtoName(m.GetOutputType())
 				if err != nil {
 					// TODO: handing
 					return nil, err
