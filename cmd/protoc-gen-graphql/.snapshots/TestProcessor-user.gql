@@ -15,11 +15,11 @@ input UnfollowUserRequest {
 	friendId: String!
 }
 type User {
-	id: [User!]!
-	fullName: [User!]!
-	followeeUserIds: [User!]!
-	followerUserIds: [User!]!
-	role: [User!]!
+	id: String!
+	fullName: String!
+	followeeUserIds: [String!]!
+	followerUserIds: [String!]!
+	role: Role!
 }
 type Query {
 	users(page_token: String!, page_size: Int!): [User!]!

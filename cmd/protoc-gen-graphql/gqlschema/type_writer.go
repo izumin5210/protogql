@@ -66,15 +66,15 @@ func (w *TypeWriter) Definitions() ([]*ast.Definition, error) {
 				def := &ast.Definition{Kind: ast.Object, Name: md.GetName()}
 
 				for _, fd := range md.GetField() {
-					def.Fields = append(def.Fields, &ast.FieldDefinition{
-						Name: strcase.ToLowerCamel(fd.GetName()),
-						Type: typ.GQL,
-					})
 					subtyp, err := w.gqlTypes.FromProto(fd)
 					if err != nil {
 						// TODO: handling
 						return nil, err
 					}
+					def.Fields = append(def.Fields, &ast.FieldDefinition{
+						Name: strcase.ToLowerCamel(fd.GetName()),
+						Type: subtyp.GQL,
+					})
 					w.Add(subtyp)
 				}
 
