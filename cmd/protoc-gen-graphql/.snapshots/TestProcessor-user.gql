@@ -4,7 +4,7 @@ schema {
 }
 directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
 directive @protobuf(type: String!) on OBJECT | ENUM | INPUT_OBJECT
-input FollowUserRequest @protobuf(type: ".testdata.FollowUserRequest") {
+input FollowUserInput @protobuf(type: ".testdata.FollowUserRequest") {
 	userId: String!
 	friendId: String!
 }
@@ -12,7 +12,7 @@ enum Role @protobuf(type: ".testdata.User.Role") {
 	ROLE_UNSPECIFIED
 	ADMIN
 }
-input UnfollowUserRequest @protobuf(type: ".testdata.UnfollowUserRequest") {
+input UnfollowUserInput @protobuf(type: ".testdata.UnfollowUserRequest") {
 	userId: String!
 	friendId: String!
 }

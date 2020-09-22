@@ -117,7 +117,7 @@ func (w *TypeWriter) Definitions() ([]*ast.Definition, error) {
 			md := w.types.FindMessage(typ.Proto.Name)
 			def := &ast.Definition{
 				Kind: ast.InputObject,
-				Name: md.GetName(),
+				Name: typ.GQL.Name(),
 				Directives: ast.DirectiveList{
 					{Name: "protobuf", Arguments: ast.ArgumentList{
 						{Name: "type", Value: &ast.Value{Raw: typ.Proto.Name, Kind: ast.StringValue}},
