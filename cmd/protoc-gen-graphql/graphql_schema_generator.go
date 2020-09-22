@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/golang/protobuf/proto"
@@ -18,7 +19,27 @@ import (
 )
 
 var GraphQLSchemaGenerator = protoprocessor.GenerateFunc(func(ctx context.Context, file string, types *protoprocessor.Types) (*plugin.CodeGeneratorResponse_File, error) {
-	schema := &ast.SchemaDocument{}
+	schema := &ast.SchemaDocument{
+		Directives: ast.DirectiveDefinitionList{
+			{
+				Name: "grpc",
+				Arguments: ast.ArgumentDefinitionList{
+					{Name: "service", Type: ast.NonNullNamedType("String", nil)},
+					{Name: "rpc", Type: ast.NonNullNamedType("String", nil)},
+				},
+				Locations: []ast.DirectiveLocation{ast.LocationFieldDefinition},
+				Position:  &ast.Position{Src: new(ast.Source)},
+			},
+			{
+				Name: "protobuf",
+				Arguments: ast.ArgumentDefinitionList{
+					{Name: "type", Type: ast.NonNullNamedType("String", nil)},
+				},
+				Locations: []ast.DirectiveLocation{ast.LocationObject, ast.LocationEnum, ast.LocationInputObject},
+				Position:  &ast.Position{Src: new(ast.Source)},
+			},
+		},
+	}
 	query := &ast.Definition{
 		Kind: ast.Object,
 		Name: "Query",
@@ -43,6 +64,12 @@ var GraphQLSchemaGenerator = protoprocessor.GenerateFunc(func(ctx context.Contex
 			if qopts != nil {
 				def := &ast.FieldDefinition{
 					Name: qopts.GetName(),
+					Directives: ast.DirectiveList{
+						{Name: "grpc", Arguments: ast.ArgumentList{
+							{Name: "service", Value: &ast.Value{Raw: fmt.Sprintf(".%s.%s", fd.GetPackage(), s.GetName()), Kind: ast.StringValue}},
+							{Name: "rpc", Value: &ast.Value{Raw: m.GetName(), Kind: ast.StringValue}},
+						}},
+					},
 				}
 
 				outputMsg := types.FindMessage(m.GetOutputType())
@@ -112,6 +139,12 @@ var GraphQLSchemaGenerator = protoprocessor.GenerateFunc(func(ctx context.Contex
 						{Name: "input", Type: inputType.GQL},
 					},
 					Type: outputType.GQL,
+					Directives: ast.DirectiveList{
+						{Name: "grpc", Arguments: ast.ArgumentList{
+							{Name: "service", Value: &ast.Value{Raw: fmt.Sprintf(".%s.%s", fd.GetPackage(), s.GetName()), Kind: ast.StringValue}},
+							{Name: "rpc", Value: &ast.Value{Raw: m.GetName(), Kind: ast.StringValue}},
+						}},
+					},
 				})
 			}
 		}

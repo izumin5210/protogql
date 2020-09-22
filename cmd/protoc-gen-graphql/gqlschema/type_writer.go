@@ -63,7 +63,15 @@ func (w *TypeWriter) Definitions() ([]*ast.Definition, error) {
 			allOK = false
 
 			if md := w.types.FindMessage(typ.Proto.Name); md != nil {
-				def := &ast.Definition{Kind: ast.Object, Name: md.GetName()}
+				def := &ast.Definition{
+					Kind: ast.Object,
+					Name: md.GetName(),
+					Directives: ast.DirectiveList{
+						{Name: "protobuf", Arguments: ast.ArgumentList{
+							{Name: "type", Value: &ast.Value{Raw: typ.Proto.Name, Kind: ast.StringValue}},
+						}},
+					},
+				}
 
 				for _, fd := range md.GetField() {
 					subtyp, err := w.gqlTypes.FromProto(fd)
@@ -83,6 +91,11 @@ func (w *TypeWriter) Definitions() ([]*ast.Definition, error) {
 				def := &ast.Definition{
 					Kind: ast.Enum,
 					Name: ed.GetName(),
+					Directives: ast.DirectiveList{
+						{Name: "protobuf", Arguments: ast.ArgumentList{
+							{Name: "type", Value: &ast.Value{Raw: typ.Proto.Name, Kind: ast.StringValue}},
+						}},
+					},
 				}
 
 				for _, evd := range ed.GetValue() {
@@ -102,7 +115,15 @@ func (w *TypeWriter) Definitions() ([]*ast.Definition, error) {
 			}
 			allOK = false
 			md := w.types.FindMessage(typ.Proto.Name)
-			def := &ast.Definition{Kind: ast.InputObject, Name: md.GetName()}
+			def := &ast.Definition{
+				Kind: ast.InputObject,
+				Name: md.GetName(),
+				Directives: ast.DirectiveList{
+					{Name: "protobuf", Arguments: ast.ArgumentList{
+						{Name: "type", Value: &ast.Value{Raw: typ.Proto.Name, Kind: ast.StringValue}},
+					}},
+				},
+			}
 
 			for _, fd := range md.GetField() {
 				subtyp, err := w.gqlTypes.InputFromProto(fd)
