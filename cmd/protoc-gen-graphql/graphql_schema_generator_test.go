@@ -60,8 +60,14 @@ func testGenerate(t *testing.T, fixture string) {
 		schemata := []*ast.Source{{Input: BaseSchema}}
 
 		for _, filename := range types.Files() {
+			if !strings.HasPrefix(filename, filepath.Join("testdata", fixture)) {
+				continue
+			}
+
 			filename := filename
 			name := filename[strings.LastIndex(filename, "/")+1:]
+			name = strings.TrimSuffix(name, ".proto")
+			name = name + ".gql"
 
 			t.Run(name, func(t *testing.T) {
 				file, err := GraphQLSchemaGenerator.Generate(context.Background(), filename, types)
