@@ -26,6 +26,14 @@ func (p typePath) Join(path string) typePath {
 	return p + "." + typePath(path)
 }
 
+func (t *Types) Files() []string {
+	names := make([]string, 0, len(t.files))
+	for n := range t.files {
+		names = append(names, n)
+	}
+	return names
+}
+
 func (t *Types) FindFile(file string) *descriptor.FileDescriptorProto {
 	return t.files[file]
 }
