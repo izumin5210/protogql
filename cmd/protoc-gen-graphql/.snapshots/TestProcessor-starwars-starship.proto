@@ -1,0 +1,8 @@
+type Starship @protobuf(type: ".testdata.starwars.Starship") {
+	id: String!
+	name: String!
+}
+extend type Query {
+	starship(id: String!): Starship! @grpc(service: ".testdata.starwars.StarshipService", rpc: "GetStarship")
+}
+

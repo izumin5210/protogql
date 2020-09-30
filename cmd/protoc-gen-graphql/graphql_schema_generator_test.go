@@ -18,50 +18,8 @@ import (
 )
 
 func TestProcessor(t *testing.T) {
-	t.Run("user.gql", func(t *testing.T) {
-		types := getFixtureTypes(t, "user.protoset")
-
-		file, err := GraphQLSchemaGenerator.Generate(context.Background(), "testdata/user.proto", types)
-		if err != nil {
-			t.Errorf("Generate() returns %v, want nil", err)
-		}
-
-		if file == nil {
-			t.Error("user.gql was not generated")
-		} else {
-			cupaloy.SnapshotT(t, file.GetContent())
-
-			_, gqlErr := gqlparser.LoadSchema(&ast.Source{Name: file.GetName(), Input: file.GetContent()})
-			if gqlErr != nil {
-				t.Errorf("generated schema has some violations:\n%v", gqlErr)
-			}
-		}
-	})
-	t.Run("starwars", func(t *testing.T) {
-		types := getFixtureTypes(t, "starwars.protoset")
-
-		for _, filename := range types.Files() {
-			filename := filename
-			name := filename[strings.LastIndex(filename, "/")+1:]
-			t.Run(name, func(t *testing.T) {
-				file, err := GraphQLSchemaGenerator.Generate(context.Background(), filename, types)
-				if err != nil {
-					t.Errorf("Generate() returns %v, want nil", err)
-				}
-
-				if file == nil {
-					t.Error("not generated")
-				} else {
-					cupaloy.SnapshotT(t, file.GetContent())
-
-					_, gqlErr := gqlparser.LoadSchema(&ast.Source{Name: file.GetName(), Input: file.GetContent()})
-					if gqlErr != nil {
-						t.Errorf("generated schema has some violations:\n%v", gqlErr)
-					}
-				}
-			})
-		}
-	})
+	testGenerate(t, "user")
+	testGenerate(t, "starwars")
 }
 
 func getFixtureTypes(t *testing.T, protosetName string) *protoprocessor.Types {
@@ -93,4 +51,36 @@ func pickFile(name string, files []*plugin.CodeGeneratorResponse_File) (picked *
 		}
 	}
 	return
+}
+
+func testGenerate(t *testing.T, fixture string) {
+	t.Run(fixture, func(t *testing.T) {
+		types := getFixtureTypes(t, fixture+".protoset")
+
+		schemata := []*ast.Source{{Input: BaseSchema}}
+
+		for _, filename := range types.Files() {
+			filename := filename
+			name := filename[strings.LastIndex(filename, "/")+1:]
+
+			t.Run(name, func(t *testing.T) {
+				file, err := GraphQLSchemaGenerator.Generate(context.Background(), filename, types)
+				if err != nil {
+					t.Errorf("Generate() returns %v, want nil", err)
+				}
+
+				if file == nil {
+					return
+				}
+
+				cupaloy.SnapshotT(t, file.GetContent())
+				schemata = append(schemata, &ast.Source{Input: file.GetContent()})
+			})
+		}
+
+		_, gqlErr := gqlparser.LoadSchema(schemata...)
+		if gqlErr != nil {
+			t.Errorf("generated schema has some violations:\n%v", gqlErr)
+		}
+	})
 }

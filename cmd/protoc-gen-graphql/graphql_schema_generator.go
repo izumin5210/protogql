@@ -17,28 +17,30 @@ import (
 	"github.com/izumin5210/remixer/options"
 )
 
+var BaseSchema = `schema {
+	query: Query
+	mutation: Mutation
+}
+type Query {
+	node(id: ID!): Node
+}
+type Mutation {
+	noop(input: NoopInput): NoopPayload
+}
+interface Node {
+	id: ID!
+}
+input NoopInput {
+	clientMutationId: String
+}
+type NoopPayload {
+	clientMutationId: String
+}
+directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
+directive @protobuf(type: String!) on OBJECT | ENUM | INPUT_OBJECT`
+
 var GraphQLSchemaGenerator = protoprocessor.GenerateFunc(func(ctx context.Context, file string, types *protoprocessor.Types) (*plugin.CodeGeneratorResponse_File, error) {
-	schema := &ast.SchemaDocument{
-		Directives: ast.DirectiveDefinitionList{
-			{
-				Name: "grpc",
-				Arguments: ast.ArgumentDefinitionList{
-					{Name: "service", Type: ast.NonNullNamedType("String", nil)},
-					{Name: "rpc", Type: ast.NonNullNamedType("String", nil)},
-				},
-				Locations: []ast.DirectiveLocation{ast.LocationFieldDefinition},
-				Position:  &ast.Position{Src: new(ast.Source)},
-			},
-			{
-				Name: "protobuf",
-				Arguments: ast.ArgumentDefinitionList{
-					{Name: "type", Type: ast.NonNullNamedType("String", nil)},
-				},
-				Locations: []ast.DirectiveLocation{ast.LocationObject, ast.LocationEnum, ast.LocationInputObject},
-				Position:  &ast.Position{Src: new(ast.Source)},
-			},
-		},
-	}
+	schema := &ast.SchemaDocument{}
 	query := &ast.Definition{
 		Kind: ast.Object,
 		Name: "Query",
@@ -147,21 +149,18 @@ var GraphQLSchemaGenerator = protoprocessor.GenerateFunc(func(ctx context.Contex
 		// TODO: handling
 		return nil, err
 	}
+
 	schema.Definitions = append(schema.Definitions, defs...)
 
-	schemaDef := &ast.SchemaDefinition{}
-
 	if len(query.Fields) > 0 {
-		schema.Definitions = append(schema.Definitions, query)
-		schemaDef.OperationTypes = append(schemaDef.OperationTypes, &ast.OperationTypeDefinition{Operation: ast.Query, Type: query.Name})
+		schema.Extensions = append(schema.Extensions, query)
 	}
 	if len(mutation.Fields) > 0 {
-		schema.Definitions = append(schema.Definitions, mutation)
-		schemaDef.OperationTypes = append(schemaDef.OperationTypes, &ast.OperationTypeDefinition{Operation: ast.Mutation, Type: mutation.Name})
+		schema.Extensions = append(schema.Extensions, mutation)
 	}
 
-	if len(schemaDef.OperationTypes) > 0 {
-		schema.Schema = append(schema.Schema, schemaDef)
+	if len(schema.Definitions) == 0 && len(schema.Extensions) == 0 {
+		return nil, nil
 	}
 
 	var buf bytes.Buffer

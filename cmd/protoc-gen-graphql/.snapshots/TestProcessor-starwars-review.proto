@@ -1,0 +1,27 @@
+input ColorInput @protobuf(type: ".testdata.starwars.Color") {
+	red: Int!
+	green: Int!
+	blue: Int!
+}
+input CreateReviewInput @protobuf(type: ".testdata.starwars.CreateReviewRequest") {
+	episode: EpisodeInput!
+	review: ReviewInput!
+	favoriteColor: ColorInput!
+}
+enum Episode @protobuf(type: ".testdata.starwars.Episode") {
+	EPISODE_UNSPECIFIED
+	NEWHOPE
+	EMPIRE
+	JEDI
+}
+type Review @protobuf(type: ".testdata.starwars.Review") {
+	stars: Int!
+	commentary: String!
+}
+extend type Query {
+	reviews(episode: Episode!): [Review!]! @grpc(service: ".testdata.starwars.ReviewService", rpc: "ListReviews")
+}
+extend type Mutation {
+	createReview(input: CreateReviewInput!): Review! @grpc(service: ".testdata.starwars.ReviewService", rpc: "CreateReview")
+}
+
