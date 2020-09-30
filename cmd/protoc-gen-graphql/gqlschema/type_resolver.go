@@ -2,7 +2,6 @@ package gqlschema
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -20,53 +19,10 @@ var (
 
 	// custom scalar types
 	gqlVoidType = func() *ast.Type { return ast.NamedType("Boolean", nil) }
-
-	scalarTypes = map[string]struct{}{
-		gqlFloatType().Name():   {},
-		gqlIntType().Name():     {},
-		gqlStringType().Name():  {},
-		gqlBooleanType().Name(): {},
-		gqlIDType().Name():      {},
-	}
 )
 
 func NewTypeResolver(types *protoprocessor.Types) *TypeResolver {
 	return &TypeResolver{types: types}
-}
-
-func gqlTypeToInput(t *ast.Type) *ast.Type {
-	if t.NamedType == "" {
-		t.Elem = gqlTypeToInput(t.Elem)
-		return t
-	}
-	if strings.HasSuffix(t.NamedType, "Request") {
-		t.NamedType = strings.TrimSuffix(t.NamedType, "Request")
-	}
-	t.NamedType += "Input"
-	return t
-}
-
-type Type struct {
-	GQL   *ast.Type
-	Proto *ProtoType
-}
-
-func (t *Type) IsScalar() bool {
-	_, ok := scalarTypes[t.GQL.Name()]
-	return ok
-}
-
-func (t *Type) Input() *Type {
-	if t.IsScalar() {
-		return t
-	}
-	t.GQL = gqlTypeToInput(t.GQL)
-	return t
-}
-
-type ProtoType struct {
-	Name            string
-	FieldDescriptor *descriptor.FieldDescriptorProto
 }
 
 type TypeResolver struct {
@@ -79,7 +35,7 @@ func (r *TypeResolver) FromProto(fd *descriptor.FieldDescriptorProto) (*Type, er
 		// TODO: handling
 		return nil, err
 	}
-	return &Type{GQL: typ, Proto: &ProtoType{Name: fd.GetTypeName(), FieldDescriptor: fd}}, nil
+	return typeFromFieldDescriptor(typ, fd), nil
 }
 
 func (r *TypeResolver) InputFromProto(fd *descriptor.FieldDescriptorProto) (*Type, error) {
@@ -146,13 +102,13 @@ func (r *TypeResolver) fromProto(fd *descriptor.FieldDescriptorProto) (typ *ast.
 	}
 }
 
-func (r *TypeResolver) FromProtoName(msgName string) (*Type, error) {
-	typ, err := r.fromProtoName(msgName)
+func (r *TypeResolver) FromProtoName(msgTypeName string) (*Type, error) {
+	typ, err := r.fromProtoName(msgTypeName)
 	if err != nil {
 		// TODO: handling
 		return nil, err
 	}
-	return &Type{GQL: typ, Proto: &ProtoType{Name: msgName}}, nil
+	return typeFromMessageTypeName(typ, msgTypeName), nil
 }
 
 func (r *TypeResolver) InputFromProtoName(msgName string) (*Type, error) {

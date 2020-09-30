@@ -9,7 +9,6 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
-	"github.com/iancoleman/strcase"
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/formatter"
 
@@ -61,15 +60,16 @@ var GraphQLSchemaGenerator = protoprocessor.GenerateFunc(func(ctx context.Contex
 				// TODO: handing
 				return nil, err
 			}
+			directives := ast.DirectiveList{
+				{Name: "grpc", Arguments: ast.ArgumentList{
+					{Name: "service", Value: &ast.Value{Raw: fmt.Sprintf(".%s.%s", fd.GetPackage(), s.GetName()), Kind: ast.StringValue}},
+					{Name: "rpc", Value: &ast.Value{Raw: m.GetName(), Kind: ast.StringValue}},
+				}},
+			}
 			if qopts != nil {
 				def := &ast.FieldDefinition{
-					Name: qopts.GetName(),
-					Directives: ast.DirectiveList{
-						{Name: "grpc", Arguments: ast.ArgumentList{
-							{Name: "service", Value: &ast.Value{Raw: fmt.Sprintf(".%s.%s", fd.GetPackage(), s.GetName()), Kind: ast.StringValue}},
-							{Name: "rpc", Value: &ast.Value{Raw: m.GetName(), Kind: ast.StringValue}},
-						}},
-					},
+					Name:       qopts.GetName(),
+					Directives: directives,
 				}
 
 				outputMsg := types.FindMessage(m.GetOutputType())
@@ -105,10 +105,7 @@ var GraphQLSchemaGenerator = protoprocessor.GenerateFunc(func(ctx context.Contex
 						return nil, err
 					}
 					typeWriter.Add(typ)
-					def.Arguments = append(def.Arguments, &ast.ArgumentDefinition{
-						Name: strcase.ToLowerCamel(fd.GetName()),
-						Type: typ.GQL,
-					})
+					def.Arguments = append(def.Arguments, typ.GQLArgumentDefinition())
 				}
 
 				query.Fields = append(query.Fields, def)
@@ -138,13 +135,8 @@ var GraphQLSchemaGenerator = protoprocessor.GenerateFunc(func(ctx context.Contex
 					Arguments: []*ast.ArgumentDefinition{
 						{Name: "input", Type: inputType.GQL},
 					},
-					Type: outputType.GQL,
-					Directives: ast.DirectiveList{
-						{Name: "grpc", Arguments: ast.ArgumentList{
-							{Name: "service", Value: &ast.Value{Raw: fmt.Sprintf(".%s.%s", fd.GetPackage(), s.GetName()), Kind: ast.StringValue}},
-							{Name: "rpc", Value: &ast.Value{Raw: m.GetName(), Kind: ast.StringValue}},
-						}},
-					},
+					Type:       outputType.GQL,
+					Directives: directives,
 				})
 			}
 		}
