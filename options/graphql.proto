@@ -19,3 +19,27 @@ extend google.protobuf.MethodOptions {
   GraphqlQueryOptions graphql_query = 2056;
   GraphqlMutationOptions graphql_mutation = 2057;
 }
+
+message GraphqlFieldOptions {
+  bool id = 1;
+}
+
+extend google.protobuf.FieldOptions {
+  GraphqlFieldOptions graphql_field = 2056;
+}
+
+extend google.protobuf.MessageOptions {
+  GraphqlMessageOptions graphql_object = 2056;
+}
+
+message GraphqlMessageOptions {
+  string delegate_to = 1;
+}
+
+extend google.protobuf.OneofOptions {
+  GraphqlOneofInterfaceOptions graphql_interface = 2056;
+}
+
+message GraphqlOneofInterfaceOptions {
+  repeated string fields = 1;
+}

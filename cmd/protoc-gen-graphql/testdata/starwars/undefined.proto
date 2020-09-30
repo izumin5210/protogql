@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package testdata.starwars;
+
+// https://github.com/apollographql/apollo-tooling/blob/apollo%402.30.3/__fixtures__/starwars/schema.graphql
+
+// schema {
+//   query: Query
+//   mutation: Mutation
+// }
+// # The query type, represents all of the entry points into our object graph
+// type Query {
+//   hero(episode: Episode): Character
+//   search(text: String): [SearchResult]
+// }
+// # A connection object for a character's friends
+// type FriendsConnection {
+//   # The total number of friends
+//   totalCount: Int
+//   # The edges for each of the character's friends.
+//   edges: [FriendsEdge]
+//   # A list of the friends, as a convenience when edges are not needed.
+//   friends: [Character]
+//   # Information for paginating this connection
+//   pageInfo: PageInfo!
+// }
+// # An edge object for a character's friends
+// type FriendsEdge {
+//   # A cursor used for pagination
+//   cursor: ID!
+//   # The character represented by this friendship edge
+//   node: Character
+// }
+// # Information for paginating this connection
+// type PageInfo {
+//   startCursor: ID
+//   endCursor: ID
+//   hasNextPage: Boolean!
+// }
+// union SearchResult = Human | Droid | Starship

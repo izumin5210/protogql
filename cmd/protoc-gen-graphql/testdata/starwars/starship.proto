@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package testdata.starwars;
+
+import "options/graphql.proto";
+// import "testdata/starwars/type.proto";
+
+// https://github.com/apollographql/apollo-tooling/blob/apollo%402.30.3/__fixtures__/starwars/schema.graphql
+
+service StarshipService {
+  rpc GetStarship(GetStarshipRequest) returns (Starship) {
+    option (remixer.graphql_query) = {
+      name: "starship"
+    };
+  }
+}
+
+message Starship {
+  // The ID of the starship
+  uint64 id = 1 [(remixer.graphql_field).id = true];
+  // The name of the starship
+  string name = 2;
+
+  // # Length of the starship, along the longest axis
+  // length(unit: LengthUnit = METER): Float
+  // coordinates: [[Float!]!]
+}
+
+message GetStarshipRequest {
+  uint64 id = 1 [(remixer.graphql_field).id = true];
+}

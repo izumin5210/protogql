@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package testdata.starwars;
+
+import "options/graphql.proto";
+import "testdata/starwars/type.proto";
+
+// https://github.com/apollographql/apollo-tooling/blob/apollo%402.30.3/__fixtures__/starwars/schema.graphql
+
+service ReviewService {
+  rpc ListReviews(ListReviewsRequest) returns (ListReviewsResponse) {
+    option (remixer.graphql_query) = {
+      name: "reviews"
+      output: "reviews"
+    };
+  }
+  rpc CreateReview(CreateReviewRequest) returns (Review) {
+    option (remixer.graphql_mutation) = {
+      name: "createReview"
+    };
+  }
+}
+
+// Represents a review for a movie
+message Review {
+  // The number of stars this review gave, 1-5
+  int32 stars = 1;
+  // Comment about the movie
+  string commentary = 2;
+}
+
+message ListReviewsRequest {
+  Episode episode = 1;
+}
+
+message ListReviewsResponse {
+  repeated Review reviews = 1;
+}
+
+message CreateReviewRequest {
+  Episode episode = 1;
+
+  // The input object sent when someone is creating a new review
+  Review review = 2;
+
+  // Favorite color, optional
+  Color favorite_color = 3;
+}
+
+// The input object sent when passing in a color
+message Color{
+  int32 red = 1;
+  int32 green = 2;
+  int32 blue = 3;
+}

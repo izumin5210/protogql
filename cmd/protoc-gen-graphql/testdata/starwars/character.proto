@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+package testdata.starwars;
+
+import "options/graphql.proto";
+import "testdata/starwars/starship.proto";
+import "testdata/starwars/type.proto";
+
+// https://github.com/apollographql/apollo-tooling/blob/apollo%402.30.3/__fixtures__/starwars/schema.graphql
+
+service CharacterService {
+  rpc GetCharacter(GetCharacterRequest) returns (Character) {
+    option (remixer.graphql_query) = {
+      name: "character"
+    };
+  }
+  rpc GetDroid(GetDroidRequest) returns (Droid) {
+    option (remixer.graphql_query) = {
+      name: "droid"
+    };
+  }
+  rpc GetHuman(GetHumanRequest) returns (Human) {
+    option (remixer.graphql_query) = {
+      name: "human"
+    };
+  }
+}
+
+// A character from the Star Wars universe
+message Character {
+  option (remixer.graphql_object) = {
+    delegate_to: "character";
+  };
+
+  oneof character {
+    option (remixer.graphql_interface) = {
+      fields: ["id", "name", "friends", "friends_connection", "appears_in"];
+    };
+
+    Human human = 1;
+    Droid droid = 2;
+  }
+}
+
+// A humanoid creature from the Star Wars universe
+message Human {
+  // The ID of the human
+  uint64 id = 1 [(remixer.graphql_field).id = true];
+  // What this human calls themselves
+  string name = 2;
+  // The home planet of the human, or null if unknown
+  string homePlanet = 3;
+
+  // # Height in the preferred unit, default is meters
+  // height(unit: LengthUnit = METER): Float
+
+  // Mass in kilograms, or null if unknown
+  float mass = 5;
+
+  // This human's friends, or an empty list if they have none
+  repeated Character friends = 6;
+
+  // # The friends of the human exposed as a connection with edges
+  // friendsConnection(first: Int, after: ID): FriendsConnection!
+
+  // The movies this human appears in
+  repeated Episode appears_in = 8;
+  // A list of starships this person has piloted, or an empty list if none
+  repeated Starship tarships = 9;
+}
+
+// An autonomous mechanical character in the Star Wars universe
+message Droid {
+  // The ID of the droid
+  uint64 id = 1 [(remixer.graphql_field).id = true];
+  // What others call this droid
+  string name = 2;
+
+  // This droid's friends, or an empty list if they have none
+  repeated Character friends = 3;
+
+  // # The friends of the droid exposed as a connection with edges
+  // friendsConnection(first: Int, after: ID): FriendsConnection!
+
+  // The movies this droid appears in
+  repeated Episode appears_in = 5;
+  // This droid's primary function
+  string primary_function = 6;
+}
+
+message GetCharacterRequest {
+  // The ID of the character
+  uint64 id = 1 [(remixer.graphql_field).id = true];
+}
+
+message GetHumanRequest {
+  // The ID of the human
+  uint64 id = 1 [(remixer.graphql_field).id = true];
+}
+
+message GetDroidRequest {
+  // The ID of the droid
+  uint64 id = 1 [(remixer.graphql_field).id = true];
+}

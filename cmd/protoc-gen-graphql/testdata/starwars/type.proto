@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package testdata.starwars;
+
+// The episodes in the Star Wars trilogy
+enum Episode {
+  EPISODE_UNSPECIFIED = 0;
+  // Star Wars Episode IV: A New Hope, released in 1977.
+  NEWHOPE = 1;
+  // Star Wars Episode V: The Empire Strikes Back, released in 1980.
+  EMPIRE = 2;
+  // Star Wars Episode VI: Return of the Jedi, released in 1983.
+  JEDI = 3;
+}
+
+// Units of height
+enum LengthUnit {
+  LENGTH_UNIT_UNSPECIFIED = 0;
+  // The standard unit around the world
+  METER = 1;
+  // Primarily used in the United States
+  FOOT = 2;
+  // DEPRECATED. Test deprecated enum case.
+  // Ancient unit used during the Middle Ages
+  CUBIT = 3 [deprecated = true];
+}
