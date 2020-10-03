@@ -1,79 +1,99 @@
 package protoprocessor
 
 import (
-	"github.com/golang/protobuf/protoc-gen-go/descriptor"
+	"fmt"
+
+	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/reflect/protoregistry"
 )
 
 type Types struct {
-	files          map[string]*descriptor.FileDescriptorProto
-	msgByFullname  map[typePath]*descriptor.DescriptorProto
-	svcByFullname  map[typePath]*descriptor.ServiceDescriptorProto
-	enumByFullname map[typePath]*descriptor.EnumDescriptorProto
+	descriptorByName map[protoreflect.FullName]interface{}
 }
 
 func NewTypes() *Types {
 	return &Types{
-		files:          map[string]*descriptor.FileDescriptorProto{},
-		msgByFullname:  map[typePath]*descriptor.DescriptorProto{},
-		svcByFullname:  map[typePath]*descriptor.ServiceDescriptorProto{},
-		enumByFullname: map[typePath]*descriptor.EnumDescriptorProto{},
+		descriptorByName: map[protoreflect.FullName]interface{}{},
 	}
 }
 
-type typePath string
-
-func (p typePath) Join(path string) typePath {
-	return p + "." + typePath(path)
+func (t *Types) RegisterFromFiles(files *protoregistry.Files) {
+	files.RangeFiles(func(f protoreflect.FileDescriptor) bool {
+		t.RegisterFromFile(f)
+		return true
+	})
 }
 
-func (t *Types) Files() []string {
-	names := make([]string, 0, len(t.files))
-	for n := range t.files {
-		names = append(names, n)
-	}
-	return names
+func (t *Types) RegisterFromFile(fd protoreflect.FileDescriptor) {
+	t.registerDescriptors(fd)
 }
 
-func (t *Types) FindFile(file string) *descriptor.FileDescriptorProto {
-	return t.files[file]
+func (t *Types) registerDescriptors(d interface {
+	Enums() protoreflect.EnumDescriptors
+	Messages() protoreflect.MessageDescriptors
+	Extensions() protoreflect.ExtensionDescriptors
+}) {
+	t.registerMessages(d.Messages())
+	t.registerEnums(d.Enums())
 }
 
-func (t *Types) FindMessage(path string) *descriptor.DescriptorProto {
-	return t.msgByFullname[typePath(path)]
-}
-
-func (t *Types) FindEnum(path string) *descriptor.EnumDescriptorProto {
-	return t.enumByFullname[typePath(path)]
-}
-
-func (t *Types) AddFile(fd *descriptor.FileDescriptorProto) {
-	t.files[fd.GetName()] = fd
-
-	path := typePath("." + fd.GetPackage())
-
-	t.addSvcs(fd.GetService(), path)
-	t.addMsgs(fd.GetMessageType(), path)
-	t.addEnums(fd.GetEnumType(), path)
-}
-
-func (t *Types) addSvcs(sds []*descriptor.ServiceDescriptorProto, path typePath) {
-	for _, sd := range sds {
-		t.svcByFullname[path.Join(sd.GetName())] = sd
+func (t *Types) registerEnums(ds protoreflect.EnumDescriptors) {
+	n := ds.Len()
+	for i := 0; i < n; i++ {
+		d := ds.Get(i)
+		t.descriptorByName[d.FullName()] = d
 	}
 }
 
-func (t *Types) addMsgs(mds []*descriptor.DescriptorProto, path typePath) {
-	for _, md := range mds {
-		path := path.Join(md.GetName())
-
-		t.msgByFullname[path] = md
-		t.addMsgs(md.GetNestedType(), path)
-		t.addEnums(md.GetEnumType(), path)
+func (t *Types) registerMessages(ds protoreflect.MessageDescriptors) {
+	n := ds.Len()
+	for i := 0; i < n; i++ {
+		d := ds.Get(i)
+		t.descriptorByName[d.FullName()] = d
+		t.registerDescriptors(d)
 	}
 }
 
-func (t *Types) addEnums(eds []*descriptor.EnumDescriptorProto, path typePath) {
-	for _, ed := range eds {
-		t.enumByFullname[path.Join(ed.GetName())] = ed
+func (t *Types) registerExtensions(ds protoreflect.ExtensionDescriptors) {
+	n := ds.Len()
+	for i := 0; i < n; i++ {
+		d := ds.Get(i)
+		t.descriptorByName[d.FullName()] = d
 	}
+}
+
+func (t *Types) FindEnumByName(name protoreflect.FullName) (protoreflect.EnumDescriptor, error) {
+	d, ok := t.descriptorByName[name]
+	if !ok {
+		return nil, fmt.Errorf("enum %s is not found", name)
+	}
+	ed, ok := d.(protoreflect.EnumDescriptor)
+	if !ok {
+		return nil, fmt.Errorf("enum %s is not found", name)
+	}
+	return ed, nil
+}
+
+func (t *Types) FindMessageByName(name protoreflect.FullName) (protoreflect.MessageDescriptor, error) {
+	d, ok := t.descriptorByName[name]
+	if !ok {
+		return nil, fmt.Errorf("enum %s is not found", name)
+	}
+	md, ok := d.(protoreflect.MessageDescriptor)
+	if !ok {
+		return nil, fmt.Errorf("enum %s is not found", name)
+	}
+	return md, nil
+}
+
+func (t *Types) FindExtensionByName(name protoreflect.FullName) (protoreflect.ExtensionDescriptor, error) {
+	d, ok := t.descriptorByName[name]
+	if !ok {
+		return nil, fmt.Errorf("extension %s is not found", name)
+	}
+	ed, ok := d.(protoreflect.ExtensionDescriptor)
+	if !ok {
+		return nil, fmt.Errorf("extension %s is not found", name)
+	}
+	return ed, nil
 }

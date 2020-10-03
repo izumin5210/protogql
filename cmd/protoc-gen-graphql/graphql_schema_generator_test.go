@@ -8,11 +8,14 @@ import (
 	"testing"
 
 	"github.com/bradleyjkemp/cupaloy/v2"
-	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/protoc-gen-go/descriptor"
-	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
 	"github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protodesc"
+	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/reflect/protoregistry"
+	"google.golang.org/protobuf/types/descriptorpb"
+	"google.golang.org/protobuf/types/pluginpb"
 
 	"github.com/izumin5210/remixer/cmd/protoc-gen-graphql/protoprocessor"
 )
@@ -22,27 +25,27 @@ func TestProcessor(t *testing.T) {
 	testGenerate(t, "starwars")
 }
 
-func getFixtureTypes(t *testing.T, protosetName string) *protoprocessor.Types {
+func getFixtureFiles(t *testing.T, protosetName string) *protoregistry.Files {
 	f, err := ioutil.ReadFile(filepath.Join("testdata", protosetName))
 	if err != nil {
 		t.Fatalf("failed to open fixture: %v", err)
 	}
 
-	var set descriptor.FileDescriptorSet
+	var set descriptorpb.FileDescriptorSet
 	err = proto.Unmarshal(f, &set)
 	if err != nil {
 		t.Fatalf("failed to parse fixture: %v", err)
 	}
 
-	types := protoprocessor.NewTypes()
-	for _, f := range set.GetFile() {
-		types.AddFile(f)
+	files, err := protodesc.NewFiles(&set)
+	if err != nil {
+		t.Fatalf("failed to parse fixture: %v", err)
 	}
 
-	return types
+	return files
 }
 
-func pickFile(name string, files []*plugin.CodeGeneratorResponse_File) (picked *plugin.CodeGeneratorResponse_File, rest []*plugin.CodeGeneratorResponse_File) {
+func pickFile(name string, files []*pluginpb.CodeGeneratorResponse_File) (picked *pluginpb.CodeGeneratorResponse_File, rest []*pluginpb.CodeGeneratorResponse_File) {
 	for _, f := range files {
 		if f.GetName() == name {
 			picked = f
@@ -55,22 +58,24 @@ func pickFile(name string, files []*plugin.CodeGeneratorResponse_File) (picked *
 
 func testGenerate(t *testing.T, fixture string) {
 	t.Run(fixture, func(t *testing.T) {
-		types := getFixtureTypes(t, fixture+".protoset")
+		files := getFixtureFiles(t, fixture+".protoset")
+		types := protoprocessor.NewTypes()
+		types.RegisterFromFiles(files)
 
 		schemata := []*ast.Source{{Input: BaseSchema}}
 
-		for _, filename := range types.Files() {
-			if !strings.HasPrefix(filename, filepath.Join("testdata", fixture)) {
-				continue
+		files.RangeFiles(func(fd protoreflect.FileDescriptor) bool {
+			if !strings.HasPrefix(fd.Path(), filepath.Join("testdata", fixture)) {
+				return true
 			}
 
-			filename := filename
+			filename := fd.Path()
 			name := filename[strings.LastIndex(filename, "/")+1:]
 			name = strings.TrimSuffix(name, ".proto")
 			name = name + ".gql"
 
 			t.Run(name, func(t *testing.T) {
-				file, err := GraphQLSchemaGenerator.Generate(context.Background(), filename, types)
+				file, err := GraphQLSchemaGenerator.Generate(context.Background(), fd, types)
 				if err != nil {
 					t.Errorf("Generate() returns %v, want nil", err)
 				}
@@ -82,7 +87,9 @@ func testGenerate(t *testing.T, fixture string) {
 				cupaloy.SnapshotT(t, file.GetContent())
 				schemata = append(schemata, &ast.Source{Input: file.GetContent()})
 			})
-		}
+
+			return true
+		})
 
 		_, gqlErr := gqlparser.LoadSchema(schemata...)
 		if gqlErr != nil {

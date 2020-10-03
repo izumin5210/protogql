@@ -5,6 +5,7 @@ import (
 	"sort"
 
 	"github.com/vektah/gqlparser/v2/ast"
+	"google.golang.org/protobuf/reflect/protoreflect"
 
 	"github.com/izumin5210/remixer/cmd/protoc-gen-graphql/protoprocessor"
 )
@@ -44,7 +45,7 @@ func (w *TypeWriter) add(typ *Type, kind ast.DefinitionKind) {
 	if typ.IsScalar() {
 		return
 	}
-	if ed := w.types.FindEnum(typ.Proto.Name); ed != nil {
+	if _, err := w.types.FindEnumByName(protoreflect.FullName(typ.Proto.Name)); err == nil {
 		kind = ast.Enum
 	}
 	switch kind {
@@ -108,20 +109,23 @@ func (w *TypeWriter) buildDefinitionsRecursively(types map[string]*Type, build f
 }
 
 func (w *TypeWriter) buildEnumDefinition(typ *Type) (*ast.Definition, error) {
-	ed := w.types.FindEnum(typ.Proto.Name)
-	if ed == nil {
+	ed, err := w.types.FindEnumByName(protoreflect.FullName(typ.Proto.Name))
+	if err != nil {
 		return nil, fmt.Errorf("enum %s is not found", typ.Proto.Name)
 	}
 
 	def := &ast.Definition{
 		Kind:       ast.Enum,
-		Name:       ed.GetName(),
+		Name:       string(ed.Name()),
 		Directives: typ.GQLDirectives(),
 	}
 
-	for _, evd := range ed.GetValue() {
+	values := ed.Values()
+	n := values.Len()
+	for i := 0; i < n; i++ {
+		evd := values.Get(i)
 		def.EnumValues = append(def.EnumValues, &ast.EnumValueDefinition{
-			Name: evd.GetName(),
+			Name: string(evd.Name()),
 		})
 	}
 
@@ -129,18 +133,21 @@ func (w *TypeWriter) buildEnumDefinition(typ *Type) (*ast.Definition, error) {
 }
 
 func (w *TypeWriter) buildObjectDefinition(typ *Type) (*ast.Definition, error) {
-	md := w.types.FindMessage(typ.Proto.Name)
-	if md == nil {
+	md, err := w.types.FindMessageByName(protoreflect.FullName(typ.Proto.Name))
+	if err != nil {
 		return nil, fmt.Errorf("message %s is not found", typ.Proto.Name)
 	}
 
 	def := &ast.Definition{
 		Kind:       ast.Object,
-		Name:       md.GetName(),
+		Name:       string(md.Name()),
 		Directives: typ.GQLDirectives(),
 	}
 
-	for _, fd := range md.GetField() {
+	fields := md.Fields()
+	n := fields.Len()
+	for i := 0; i < n; i++ {
+		fd := fields.Get(i)
 		subtyp, err := w.gqlTypes.FromProto(fd)
 		if err != nil {
 			// TODO: handling
@@ -154,8 +161,8 @@ func (w *TypeWriter) buildObjectDefinition(typ *Type) (*ast.Definition, error) {
 }
 
 func (w *TypeWriter) buildInputObjectDefinition(typ *Type) (*ast.Definition, error) {
-	md := w.types.FindMessage(typ.Proto.Name)
-	if md == nil {
+	md, err := w.types.FindMessageByName(protoreflect.FullName(typ.Proto.Name))
+	if err != nil {
 		return nil, fmt.Errorf("message %s is not found", typ.Proto.Name)
 	}
 
@@ -165,7 +172,10 @@ func (w *TypeWriter) buildInputObjectDefinition(typ *Type) (*ast.Definition, err
 		Directives: typ.GQLDirectives(),
 	}
 
-	for _, fd := range md.GetField() {
+	fields := md.Fields()
+	n := fields.Len()
+	for i := 0; i < n; i++ {
+		fd := fields.Get(i)
 		subtyp, err := w.gqlTypes.InputFromProto(fd)
 		if err != nil {
 			// TODO: handling

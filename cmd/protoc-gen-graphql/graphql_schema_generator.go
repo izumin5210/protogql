@@ -3,17 +3,17 @@ package main
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"strings"
 
-	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/protoc-gen-go/descriptor"
-	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/formatter"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/types/pluginpb"
 
 	"github.com/izumin5210/remixer/cmd/protoc-gen-graphql/gqlschema"
 	"github.com/izumin5210/remixer/cmd/protoc-gen-graphql/protoprocessor"
+	"github.com/izumin5210/remixer/cmd/protoc-gen-graphql/protoutil"
 	"github.com/izumin5210/remixer/options"
 )
 
@@ -39,7 +39,7 @@ type NoopPayload {
 directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
 directive @protobuf(type: String!) on OBJECT | ENUM | INPUT_OBJECT`
 
-var GraphQLSchemaGenerator = protoprocessor.GenerateFunc(func(ctx context.Context, file string, types *protoprocessor.Types) (*plugin.CodeGeneratorResponse_File, error) {
+var GraphQLSchemaGenerator = protoprocessor.GenerateFunc(func(ctx context.Context, fd protoreflect.FileDescriptor, types *protoprocessor.Types) (*pluginpb.CodeGeneratorResponse_File, error) {
 	schema := &ast.SchemaDocument{}
 	query := &ast.Definition{
 		Kind: ast.Object,
@@ -53,19 +53,17 @@ var GraphQLSchemaGenerator = protoprocessor.GenerateFunc(func(ctx context.Contex
 	typeResolver := gqlschema.NewTypeResolver(types)
 	typeWriter := gqlschema.NewTypeWriter(types, typeResolver)
 
-	fd := types.FindFile(file)
-
-	for _, s := range fd.GetService() {
-		for _, m := range s.GetMethod() {
+	protoutil.RangeServices(fd, func(s protoreflect.ServiceDescriptor) error {
+		protoutil.RangeMethods(s, func(m protoreflect.MethodDescriptor) error {
 			qopts, err := getQueryOptions(m)
 			if err != nil {
 				// TODO: handing
-				return nil, err
+				return err
 			}
 			directives := ast.DirectiveList{
 				{Name: "grpc", Arguments: ast.ArgumentList{
-					{Name: "service", Value: &ast.Value{Raw: fmt.Sprintf(".%s.%s", fd.GetPackage(), s.GetName()), Kind: ast.StringValue}},
-					{Name: "rpc", Value: &ast.Value{Raw: m.GetName(), Kind: ast.StringValue}},
+					{Name: "service", Value: &ast.Value{Raw: string(s.FullName()), Kind: ast.StringValue}},
+					{Name: "rpc", Value: &ast.Value{Raw: string(m.Name()), Kind: ast.StringValue}},
 				}},
 			}
 			if qopts != nil {
@@ -74,59 +72,58 @@ var GraphQLSchemaGenerator = protoprocessor.GenerateFunc(func(ctx context.Contex
 					Directives: directives,
 				}
 
-				outputMsg := types.FindMessage(m.GetOutputType())
-
 				if name := qopts.GetOutput(); name != "" {
-					for _, fd := range outputMsg.GetField() {
-						if fd.GetName() == name {
+					protoutil.RangeFields(m.Output(), func(fd protoreflect.FieldDescriptor) error {
+						if string(fd.Name()) == name {
 							typ, err := typeResolver.FromProto(fd)
 							if err != nil {
 								// TODO: handing
-								return nil, err
+								return err
 							}
 							typeWriter.Add(typ)
 							def.Type = typ.GQL
-							break
+							return protoutil.BreakRange
 						}
-					}
+						return nil
+					})
 				} else {
-					typ, err := typeResolver.FromProtoName(m.GetOutputType())
+					typ, err := typeResolver.FromMessage(m.Output())
 					if err != nil {
 						// TODO: handing
-						return nil, err
+						return err
 					}
 					typeWriter.Add(typ)
 					def.Type = typ.GQL
 				}
 
-				inputMsg := types.FindMessage(m.GetInputType())
-				for _, fd := range inputMsg.GetField() {
+				protoutil.RangeFields(m.Input(), func(fd protoreflect.FieldDescriptor) error {
 					typ, err := typeResolver.FromProto(fd)
 					if err != nil {
 						// TODO: handing
-						return nil, err
+						return err
 					}
 					typeWriter.Add(typ)
 					def.Arguments = append(def.Arguments, typ.GQLArgumentDefinition())
-				}
+					return nil
+				})
 
 				query.Fields = append(query.Fields, def)
 			}
 			mopts, err := getMutationOptions(m)
 			if err != nil {
 				// TODO: handing
-				return nil, err
+				return err
 			}
 			if mopts != nil {
-				inputType, err := typeResolver.InputFromProtoName(m.GetInputType())
+				inputType, err := typeResolver.InputFromMessage(m.Input())
 				if err != nil {
 					// TODO: handing
-					return nil, err
+					return err
 				}
-				outputType, err := typeResolver.FromProtoName(m.GetOutputType())
+				outputType, err := typeResolver.FromMessage(m.Output())
 				if err != nil {
 					// TODO: handing
-					return nil, err
+					return err
 				}
 
 				typeWriter.AddInput(inputType)
@@ -141,8 +138,11 @@ var GraphQLSchemaGenerator = protoprocessor.GenerateFunc(func(ctx context.Contex
 					Directives: directives,
 				})
 			}
-		}
-	}
+			return nil
+		})
+
+		return nil
+	})
 
 	defs, err := typeWriter.Definitions()
 	if err != nil {
@@ -167,32 +167,18 @@ var GraphQLSchemaGenerator = protoprocessor.GenerateFunc(func(ctx context.Contex
 	f := formatter.NewFormatter(&buf)
 	f.FormatSchemaDocument(schema)
 
-	return &plugin.CodeGeneratorResponse_File{
-		Name:    proto.String(strings.TrimSuffix(file, ".proto") + ".gql"),
+	return &pluginpb.CodeGeneratorResponse_File{
+		Name:    proto.String(strings.TrimSuffix(fd.Path(), ".proto") + ".gql"),
 		Content: proto.String(buf.String()),
 	}, nil
 })
 
-func getQueryOptions(md *descriptor.MethodDescriptorProto) (*options.GraphqlQueryOptions, error) {
-	ext, err := proto.GetExtension(md.GetOptions(), options.E_GraphqlQuery)
-	if err == proto.ErrMissingExtension {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, err
-	}
-
+func getQueryOptions(md protoreflect.MethodDescriptor) (*options.GraphqlQueryOptions, error) {
+	ext := proto.GetExtension(md.Options(), options.E_GraphqlQuery)
 	return ext.(*options.GraphqlQueryOptions), nil
 }
 
-func getMutationOptions(md *descriptor.MethodDescriptorProto) (*options.GraphqlMutationOptions, error) {
-	ext, err := proto.GetExtension(md.GetOptions(), options.E_GraphqlMutation)
-	if err == proto.ErrMissingExtension {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, err
-	}
-
+func getMutationOptions(md protoreflect.MethodDescriptor) (*options.GraphqlMutationOptions, error) {
+	ext := proto.GetExtension(md.Options(), options.E_GraphqlMutation)
 	return ext.(*options.GraphqlMutationOptions), nil
 }

@@ -3,9 +3,9 @@ package gqlschema
 import (
 	"strings"
 
-	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 	"github.com/iancoleman/strcase"
 	"github.com/vektah/gqlparser/v2/ast"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 var (
@@ -30,8 +30,17 @@ func gqlTypeToInput(t *ast.Type) *ast.Type {
 	return t
 }
 
-func typeFromFieldDescriptor(gqlType *ast.Type, fd *descriptor.FieldDescriptorProto) *Type {
-	return &Type{GQL: gqlType, Proto: &ProtoType{Name: fd.GetTypeName(), FieldDescriptor: fd}}
+func typeFromFieldDescriptor(gqlType *ast.Type, fd protoreflect.FieldDescriptor) *Type {
+	var name string
+	switch fd.Kind() {
+	case protoreflect.MessageKind:
+		name = string(fd.Message().FullName())
+	case protoreflect.EnumKind:
+		name = string(fd.Enum().FullName())
+	default:
+		name = fd.Kind().String()
+	}
+	return &Type{GQL: gqlType, Proto: &ProtoType{Name: name, FieldDescriptor: fd}}
 }
 
 func typeFromMessageTypeName(gqlType *ast.Type, msgTypeName string) *Type {
@@ -58,7 +67,7 @@ func (t *Type) Input() *Type {
 
 type ProtoType struct {
 	Name            string
-	FieldDescriptor *descriptor.FieldDescriptorProto
+	FieldDescriptor protoreflect.FieldDescriptor
 }
 
 func (t *Type) GQLDirectives() ast.DirectiveList {
@@ -71,14 +80,14 @@ func (t *Type) GQLDirectives() ast.DirectiveList {
 
 func (t *Type) GQLArgumentDefinition() *ast.ArgumentDefinition {
 	return &ast.ArgumentDefinition{
-		Name: strcase.ToLowerCamel(t.Proto.FieldDescriptor.GetName()),
+		Name: strcase.ToLowerCamel(string(t.Proto.FieldDescriptor.Name())),
 		Type: t.GQL,
 	}
 }
 
 func (t *Type) GQLFieldDefinition() *ast.FieldDefinition {
 	return &ast.FieldDefinition{
-		Name: strcase.ToLowerCamel(t.Proto.FieldDescriptor.GetName()),
+		Name: strcase.ToLowerCamel(string(t.Proto.FieldDescriptor.Name())),
 		Type: t.GQL,
 	}
 }

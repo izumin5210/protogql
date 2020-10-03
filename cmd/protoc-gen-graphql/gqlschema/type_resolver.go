@@ -3,8 +3,8 @@ package gqlschema
 import (
 	"fmt"
 
-	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 	"github.com/vektah/gqlparser/v2/ast"
+	"google.golang.org/protobuf/reflect/protoreflect"
 
 	"github.com/izumin5210/remixer/cmd/protoc-gen-graphql/protoprocessor"
 )
@@ -29,7 +29,7 @@ type TypeResolver struct {
 	types *protoprocessor.Types
 }
 
-func (r *TypeResolver) FromProto(fd *descriptor.FieldDescriptorProto) (*Type, error) {
+func (r *TypeResolver) FromProto(fd protoreflect.FieldDescriptor) (*Type, error) {
 	typ, err := r.fromProto(fd)
 	if err != nil {
 		// TODO: handling
@@ -38,7 +38,7 @@ func (r *TypeResolver) FromProto(fd *descriptor.FieldDescriptorProto) (*Type, er
 	return typeFromFieldDescriptor(typ, fd), nil
 }
 
-func (r *TypeResolver) InputFromProto(fd *descriptor.FieldDescriptorProto) (*Type, error) {
+func (r *TypeResolver) InputFromProto(fd protoreflect.FieldDescriptor) (*Type, error) {
 	typ, err := r.FromProto(fd)
 	if err != nil {
 		// TODO: handling
@@ -47,72 +47,69 @@ func (r *TypeResolver) InputFromProto(fd *descriptor.FieldDescriptorProto) (*Typ
 	return typ.Input(), nil
 }
 
-func (r *TypeResolver) fromProto(fd *descriptor.FieldDescriptorProto) (typ *ast.Type, err error) {
+func (r *TypeResolver) fromProto(fd protoreflect.FieldDescriptor) (typ *ast.Type, err error) {
 	defer func() {
-		if fd.GetLabel() == descriptor.FieldDescriptorProto_LABEL_REPEATED {
+		if fd.IsList() {
 			typ = ast.NonNullListType(typ, nil)
 		}
-		if fd.GetProto3Optional() {
+		if fd.HasOptionalKeyword() {
 			typ.NonNull = false
 		}
 	}()
 
-	switch fd.GetType() {
-	case descriptor.FieldDescriptorProto_TYPE_DOUBLE:
+	switch fd.Kind() {
+	case protoreflect.DoubleKind:
 		return gqlFloatType(), nil
-	case descriptor.FieldDescriptorProto_TYPE_FLOAT:
+	case protoreflect.FloatKind:
 		return gqlFloatType(), nil
-	case descriptor.FieldDescriptorProto_TYPE_INT64:
+	case protoreflect.Int64Kind:
 		return gqlStringType(), nil
-	case descriptor.FieldDescriptorProto_TYPE_UINT64:
+	case protoreflect.Uint64Kind:
 		return gqlStringType(), nil
-	case descriptor.FieldDescriptorProto_TYPE_INT32:
+	case protoreflect.Int32Kind:
 		return gqlIntType(), nil
-	case descriptor.FieldDescriptorProto_TYPE_FIXED64:
+	case protoreflect.Fixed64Kind:
 		return gqlStringType(), nil
-	case descriptor.FieldDescriptorProto_TYPE_FIXED32:
+	case protoreflect.Fixed32Kind:
 		return gqlIntType(), nil
-	case descriptor.FieldDescriptorProto_TYPE_BOOL:
+	case protoreflect.BoolKind:
 		return gqlBooleanType(), nil
-	case descriptor.FieldDescriptorProto_TYPE_STRING:
+	case protoreflect.StringKind:
 		return gqlStringType(), nil
-	case descriptor.FieldDescriptorProto_TYPE_GROUP:
-		return nil, fmt.Errorf("%s is not supported", fd.GetType())
-	case descriptor.FieldDescriptorProto_TYPE_MESSAGE:
-		return r.fromProtoName(fd.GetTypeName())
-	case descriptor.FieldDescriptorProto_TYPE_BYTES:
+	case protoreflect.GroupKind:
+		return nil, fmt.Errorf("%s is not supported", fd.Kind())
+	case protoreflect.MessageKind:
+		return r.fromMessage(fd.Message())
+	case protoreflect.BytesKind:
 		return gqlStringType(), nil
-	case descriptor.FieldDescriptorProto_TYPE_UINT32:
+	case protoreflect.Uint32Kind:
 		return gqlIntType(), nil
-	case descriptor.FieldDescriptorProto_TYPE_ENUM:
-		if d := r.types.FindEnum(fd.GetTypeName()); d != nil {
-			return ast.NonNullNamedType(d.GetName(), nil), nil
-		}
-		return nil, fmt.Errorf("%s is not found", fd.GetTypeName())
-	case descriptor.FieldDescriptorProto_TYPE_SFIXED32:
+	case protoreflect.EnumKind:
+		return ast.NonNullNamedType(string(fd.Enum().Name()), nil), nil
+	case protoreflect.Sfixed32Kind:
 		return gqlIntType(), nil
-	case descriptor.FieldDescriptorProto_TYPE_SFIXED64:
+	case protoreflect.Sfixed64Kind:
 		return gqlStringType(), nil
-	case descriptor.FieldDescriptorProto_TYPE_SINT32:
+	case protoreflect.Sint32Kind:
 		return gqlIntType(), nil
-	case descriptor.FieldDescriptorProto_TYPE_SINT64:
+	case protoreflect.Sint64Kind:
 		return gqlStringType(), nil
 	default:
-		return nil, fmt.Errorf("%s is unknown", fd.GetType())
+		return nil, fmt.Errorf("%s is unknown", fd.Kind())
 	}
 }
 
-func (r *TypeResolver) FromProtoName(msgTypeName string) (*Type, error) {
-	typ, err := r.fromProtoName(msgTypeName)
+func (r *TypeResolver) FromMessage(msg protoreflect.MessageDescriptor) (*Type, error) {
+	typ, err := r.fromMessage(msg)
 	if err != nil {
 		// TODO: handling
 		return nil, err
 	}
-	return typeFromMessageTypeName(typ, msgTypeName), nil
+	return typeFromMessageTypeName(typ, string(msg.FullName())), nil
 }
 
-func (r *TypeResolver) InputFromProtoName(msgName string) (*Type, error) {
-	typ, err := r.FromProtoName(msgName)
+func (r *TypeResolver) InputFromMessage(msg protoreflect.MessageDescriptor) (*Type, error) {
+	typ, err := r.FromMessage(msg)
 	if err != nil {
 		// TODO: handling
 		return nil, err
@@ -120,16 +117,13 @@ func (r *TypeResolver) InputFromProtoName(msgName string) (*Type, error) {
 	return typ.Input(), nil
 }
 
-func (r *TypeResolver) fromProtoName(msgName string) (typ *ast.Type, err error) {
-	switch msgName {
-	case ".google.protobuf.Empty":
+func (r *TypeResolver) fromMessage(md protoreflect.MessageDescriptor) (typ *ast.Type, err error) {
+	switch md.FullName() {
+	case "google.protobuf.Empty":
 		return gqlVoidType(), nil
 	default:
 		// TODO: wrapper types
 		// TODO: google.protobuf.Timestamp
-		if d := r.types.FindMessage(msgName); d != nil {
-			return ast.NonNullNamedType(d.GetName(), nil), nil
-		}
-		return nil, fmt.Errorf("%s is not found", msgName)
+		return ast.NonNullNamedType(string(md.Name()), nil), nil
 	}
 }
