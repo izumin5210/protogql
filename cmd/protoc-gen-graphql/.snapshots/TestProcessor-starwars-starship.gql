@@ -1,3 +1,6 @@
+type GetStarshipRequest @protobuf(type: "testdata.starwars.GetStarshipRequest") {
+	id: String!
+}
 type Starship @protobuf(type: "testdata.starwars.Starship") {
 	id: String!
 	name: String!

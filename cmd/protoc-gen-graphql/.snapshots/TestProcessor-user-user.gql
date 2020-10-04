@@ -1,12 +1,31 @@
+type BatchGetUsersRequest @protobuf(type: "testdata.BatchGetUsersRequest") {
+	userIds: [String!]!
+}
+type BatchGetUsersResponse @protobuf(type: "testdata.BatchGetUsersResponse") {
+	users: [User!]!
+}
 input FollowUserInput @protobuf(type: "testdata.FollowUserRequest") {
 	userId: String!
 	friendId: String!
 }
-enum Role @protobuf(type: "testdata.User.Role") {
-	ROLE_UNSPECIFIED
-	ADMIN
+type FollowUserRequest @protobuf(type: "testdata.FollowUserRequest") {
+	userId: String!
+	friendId: String!
+}
+type ListUsersRequest @protobuf(type: "testdata.ListUsersRequest") {
+	pageToken: String!
+	pageSize: Int!
+}
+type ListUsersResponse @protobuf(type: "testdata.ListUsersResponse") {
+	users: [User!]!
+	totalSize: Int!
+	nextPageToken: String!
 }
 input UnfollowUserInput @protobuf(type: "testdata.UnfollowUserRequest") {
+	userId: String!
+	friendId: String!
+}
+type UnfollowUserRequest @protobuf(type: "testdata.UnfollowUserRequest") {
 	userId: String!
 	friendId: String!
 }
@@ -15,7 +34,11 @@ type User @protobuf(type: "testdata.User") {
 	fullName: String!
 	followeeUserIds: [String!]!
 	followerUserIds: [String!]!
-	role: Role!
+	role: UserRole!
+}
+enum UserRole @protobuf(type: "testdata.User.Role") {
+	ROLE_UNSPECIFIED
+	ADMIN
 }
 extend type Query {
 	users(pageToken: String!, pageSize: Int!): [User!]! @grpc(service: "testdata.UserService", rpc: "ListUsers")

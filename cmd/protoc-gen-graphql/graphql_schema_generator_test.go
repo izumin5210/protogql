@@ -16,8 +16,6 @@ import (
 	"google.golang.org/protobuf/reflect/protoregistry"
 	"google.golang.org/protobuf/types/descriptorpb"
 	"google.golang.org/protobuf/types/pluginpb"
-
-	"github.com/izumin5210/remixer/cmd/protoc-gen-graphql/protoprocessor"
 )
 
 func TestProcessor(t *testing.T) {
@@ -59,8 +57,6 @@ func pickFile(name string, files []*pluginpb.CodeGeneratorResponse_File) (picked
 func testGenerate(t *testing.T, fixture string) {
 	t.Run(fixture, func(t *testing.T) {
 		files := getFixtureFiles(t, fixture+".protoset")
-		types := protoprocessor.NewTypes()
-		types.RegisterFromFiles(files)
 
 		schemata := []*ast.Source{{Input: BaseSchema}}
 
@@ -75,7 +71,7 @@ func testGenerate(t *testing.T, fixture string) {
 			name = name + ".gql"
 
 			t.Run(name, func(t *testing.T) {
-				file, err := GraphQLSchemaGenerator.Generate(context.Background(), fd, types)
+				file, err := GraphQLSchemaGenerator.Generate(context.Background(), fd)
 				if err != nil {
 					t.Errorf("Generate() returns %v, want nil", err)
 				}

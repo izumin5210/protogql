@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"sort"
 	"strings"
 
 	"github.com/vektah/gqlparser/v2/ast"
@@ -11,7 +12,7 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/pluginpb"
 
-	"github.com/izumin5210/remixer/cmd/protoc-gen-graphql/gqlschema"
+	"github.com/izumin5210/remixer/cmd/protoc-gen-graphql/gqls"
 	"github.com/izumin5210/remixer/cmd/protoc-gen-graphql/protoprocessor"
 	"github.com/izumin5210/remixer/cmd/protoc-gen-graphql/protoutil"
 	"github.com/izumin5210/remixer/options"
@@ -39,7 +40,7 @@ type NoopPayload {
 directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
 directive @protobuf(type: String!) on OBJECT | ENUM | INPUT_OBJECT`
 
-var GraphQLSchemaGenerator = protoprocessor.GenerateFunc(func(ctx context.Context, fd protoreflect.FileDescriptor, types *protoprocessor.Types) (*pluginpb.CodeGeneratorResponse_File, error) {
+var GraphQLSchemaGenerator = protoprocessor.GenerateFunc(func(ctx context.Context, fd protoreflect.FileDescriptor) (*pluginpb.CodeGeneratorResponse_File, error) {
 	schema := &ast.SchemaDocument{}
 	query := &ast.Definition{
 		Kind: ast.Object,
@@ -50,107 +51,113 @@ var GraphQLSchemaGenerator = protoprocessor.GenerateFunc(func(ctx context.Contex
 		Name: "Mutation",
 	}
 
-	typeResolver := gqlschema.NewTypeResolver(types)
-	typeWriter := gqlschema.NewTypeWriter(types, typeResolver)
+	typeDescriptors, err := protoutil.TypeDFS(fd)
+	if err != nil {
+		return nil, err
+	}
+	gqlTypes := map[string]interface {
+		gqls.Type
+		gqls.Definable
+	}{}
+	addGQLType := func(t gqls.Type) error {
+		dt, ok := t.(interface {
+			gqls.Type
+			gqls.Definable
+		})
+		if !ok {
+			return nil
+		}
+		// TODO: should handle collisions
+		gqlTypes[dt.Name()] = dt
+		return nil
+	}
 
-	protoutil.RangeServices(fd, func(s protoreflect.ServiceDescriptor) error {
-		protoutil.RangeMethods(s, func(m protoreflect.MethodDescriptor) error {
-			qopts, err := getQueryOptions(m)
-			if err != nil {
-				// TODO: handing
-				return err
-			}
-			directives := ast.DirectiveList{
-				{Name: "grpc", Arguments: ast.ArgumentList{
-					{Name: "service", Value: &ast.Value{Raw: string(s.FullName()), Kind: ast.StringValue}},
-					{Name: "rpc", Value: &ast.Value{Raw: string(m.Name()), Kind: ast.StringValue}},
-				}},
-			}
-			if qopts != nil {
-				def := &ast.FieldDefinition{
-					Name:       qopts.GetName(),
-					Directives: directives,
+	for _, td := range typeDescriptors {
+		t, err := gqls.TypeFromProto(td)
+		if err != nil {
+			return nil, err
+		}
+		err = addGQLType(t)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	inputTypes := []*gqls.InputObjectType{}
+
+	err = protoutil.RangeServices(fd, func(sd protoreflect.ServiceDescriptor) error {
+		err := protoutil.RangeMethods(sd, func(md protoreflect.MethodDescriptor) error {
+			if q, ok := gqls.NewQuery(md); ok {
+				def, err := q.FieldDefinitionAST()
+				if err != nil {
+					return err
 				}
-
-				if name := qopts.GetOutput(); name != "" {
-					protoutil.RangeFields(m.Output(), func(fd protoreflect.FieldDescriptor) error {
-						if string(fd.Name()) == name {
-							typ, err := typeResolver.FromProto(fd)
-							if err != nil {
-								// TODO: handing
-								return err
-							}
-							typeWriter.Add(typ)
-							def.Type = typ.GQL
-							return protoutil.BreakRange
-						}
-						return nil
-					})
-				} else {
-					typ, err := typeResolver.FromMessage(m.Output())
-					if err != nil {
-						// TODO: handing
-						return err
-					}
-					typeWriter.Add(typ)
-					def.Type = typ.GQL
-				}
-
-				protoutil.RangeFields(m.Input(), func(fd protoreflect.FieldDescriptor) error {
-					typ, err := typeResolver.FromProto(fd)
-					if err != nil {
-						// TODO: handing
-						return err
-					}
-					typeWriter.Add(typ)
-					def.Arguments = append(def.Arguments, typ.GQLArgumentDefinition())
-					return nil
-				})
-
 				query.Fields = append(query.Fields, def)
 			}
-			mopts, err := getMutationOptions(m)
-			if err != nil {
-				// TODO: handing
-				return err
-			}
-			if mopts != nil {
-				inputType, err := typeResolver.InputFromMessage(m.Input())
+			if m, ok := gqls.NewMutation(md); ok {
+				def, err := m.FieldDefinitionAST()
 				if err != nil {
-					// TODO: handing
 					return err
 				}
-				outputType, err := typeResolver.FromMessage(m.Output())
+				typ, err := m.Input()
 				if err != nil {
-					// TODO: handing
 					return err
 				}
-
-				typeWriter.AddInput(inputType)
-				typeWriter.Add(outputType)
-
-				mutation.Fields = append(mutation.Fields, &ast.FieldDefinition{
-					Name: mopts.GetName(),
-					Arguments: []*ast.ArgumentDefinition{
-						{Name: "input", Type: inputType.GQL},
-					},
-					Type:       outputType.GQL,
-					Directives: directives,
-				})
+				if inputType, ok := typ.(*gqls.InputObjectType); ok {
+					inputTypes = append(inputTypes, inputType)
+				}
+				mutation.Fields = append(mutation.Fields, def)
 			}
 			return nil
 		})
-
+		if err != nil {
+			return err
+		}
 		return nil
 	})
-
-	defs, err := typeWriter.Definitions()
 	if err != nil {
-		// TODO: handling
 		return nil, err
 	}
 
-	schema.Definitions = append(schema.Definitions, defs...)
+	for _, it := range inputTypes {
+		err := addGQLType(it)
+		if err != nil {
+			return nil, err
+		}
+
+		itds, err := protoutil.TypeDFS(it.ProtoDescriptor())
+		if err != nil {
+			return nil, err
+		}
+		for _, itd := range itds {
+			t, err := gqls.TypeFromProto(itd)
+			if err != nil {
+				return nil, err
+			}
+			if it, ok := t.(*gqls.ObjectType); ok {
+				err := addGQLType(it)
+				if err != nil {
+					return nil, err
+				}
+			}
+		}
+	}
+
+	var typeNamesWillExported []string
+	for n, t := range gqlTypes {
+		if t.ProtoDescriptor().ParentFile() == fd {
+			typeNamesWillExported = append(typeNamesWillExported, n)
+		}
+	}
+	sort.StringSlice(typeNamesWillExported).Sort()
+
+	for _, n := range typeNamesWillExported {
+		def, err := gqlTypes[n].DefinitionAST()
+		if err != nil {
+			return nil, err
+		}
+		schema.Definitions = append(schema.Definitions, def)
+	}
 
 	if len(query.Fields) > 0 {
 		schema.Extensions = append(schema.Extensions, query)

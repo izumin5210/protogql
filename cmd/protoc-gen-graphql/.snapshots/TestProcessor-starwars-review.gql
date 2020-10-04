@@ -1,18 +1,23 @@
-input ColorInput @protobuf(type: "testdata.starwars.Color") {
+type Color @protobuf(type: "testdata.starwars.Color") {
 	red: Int!
 	green: Int!
 	blue: Int!
 }
 input CreateReviewInput @protobuf(type: "testdata.starwars.CreateReviewRequest") {
-	episode: EpisodeInput!
+	episode: Episode!
 	review: ReviewInput!
 	favoriteColor: ColorInput!
 }
-enum Episode @protobuf(type: "testdata.starwars.Episode") {
-	EPISODE_UNSPECIFIED
-	NEWHOPE
-	EMPIRE
-	JEDI
+type CreateReviewRequest @protobuf(type: "testdata.starwars.CreateReviewRequest") {
+	episode: Episode!
+	review: Review!
+	favoriteColor: Color!
+}
+type ListReviewsRequest @protobuf(type: "testdata.starwars.ListReviewsRequest") {
+	episode: Episode!
+}
+type ListReviewsResponse @protobuf(type: "testdata.starwars.ListReviewsResponse") {
+	reviews: [Review!]!
 }
 type Review @protobuf(type: "testdata.starwars.Review") {
 	stars: Int!

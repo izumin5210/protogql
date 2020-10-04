@@ -12,14 +12,14 @@ import (
 	"google.golang.org/protobuf/types/pluginpb"
 )
 
-type GenerateFunc func(ctx context.Context, fd protoreflect.FileDescriptor, types *Types) (*pluginpb.CodeGeneratorResponse_File, error)
+type GenerateFunc func(ctx context.Context, fd protoreflect.FileDescriptor) (*pluginpb.CodeGeneratorResponse_File, error)
 
-func (f GenerateFunc) Generate(ctx context.Context, fd protoreflect.FileDescriptor, types *Types) (*pluginpb.CodeGeneratorResponse_File, error) {
-	return f(ctx, fd, types)
+func (f GenerateFunc) Generate(ctx context.Context, fd protoreflect.FileDescriptor) (*pluginpb.CodeGeneratorResponse_File, error) {
+	return f(ctx, fd)
 }
 
 type Generator interface {
-	Generate(context.Context, protoreflect.FileDescriptor, *Types) (*pluginpb.CodeGeneratorResponse_File, error)
+	Generate(context.Context, protoreflect.FileDescriptor) (*pluginpb.CodeGeneratorResponse_File, error)
 }
 
 func New(g Generator) *Processor {
@@ -71,9 +71,6 @@ func (p *Processor) processEach(ctx context.Context, req *pluginpb.CodeGenerator
 		}
 	}
 
-	types := NewTypes()
-	types.RegisterFromFiles(files)
-
 	var resp pluginpb.CodeGeneratorResponse
 	var errs []error
 	for _, file := range req.GetFileToGenerate() {
@@ -82,7 +79,7 @@ func (p *Processor) processEach(ctx context.Context, req *pluginpb.CodeGenerator
 			errs = append(errs, err)
 			continue
 		}
-		out, err := p.g.Generate(ctx, fd, types)
+		out, err := p.g.Generate(ctx, fd)
 		if err != nil {
 			errs = append(errs, err)
 			continue

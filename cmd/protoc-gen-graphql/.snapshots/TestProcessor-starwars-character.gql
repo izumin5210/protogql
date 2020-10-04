@@ -9,11 +9,14 @@ type Droid @protobuf(type: "testdata.starwars.Droid") {
 	appearsIn: [Episode!]!
 	primaryFunction: String!
 }
-enum Episode @protobuf(type: "testdata.starwars.Episode") {
-	EPISODE_UNSPECIFIED
-	NEWHOPE
-	EMPIRE
-	JEDI
+type GetCharacterRequest @protobuf(type: "testdata.starwars.GetCharacterRequest") {
+	id: String!
+}
+type GetDroidRequest @protobuf(type: "testdata.starwars.GetDroidRequest") {
+	id: String!
+}
+type GetHumanRequest @protobuf(type: "testdata.starwars.GetHumanRequest") {
+	id: String!
 }
 type Human @protobuf(type: "testdata.starwars.Human") {
 	id: String!
@@ -23,10 +26,6 @@ type Human @protobuf(type: "testdata.starwars.Human") {
 	friends: [Character!]!
 	appearsIn: [Episode!]!
 	tarships: [Starship!]!
-}
-type Starship @protobuf(type: "testdata.starwars.Starship") {
-	id: String!
-	name: String!
 }
 extend type Query {
 	character(id: String!): Character! @grpc(service: "testdata.starwars.CharacterService", rpc: "GetCharacter")

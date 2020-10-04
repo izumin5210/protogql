@@ -1,0 +1,13 @@
+enum Episode @protobuf(type: "testdata.starwars.Episode") {
+	EPISODE_UNSPECIFIED
+	NEWHOPE
+	EMPIRE
+	JEDI
+}
+enum LengthUnit @protobuf(type: "testdata.starwars.LengthUnit") {
+	LENGTH_UNIT_UNSPECIFIED
+	METER
+	FOOT
+	CUBIT
+}
+
