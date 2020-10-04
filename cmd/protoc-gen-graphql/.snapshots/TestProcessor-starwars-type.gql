@@ -10,5 +10,4 @@ enum LengthUnit @protobuf(type: "testdata.starwars.LengthUnit") {
 	FOOT
 	CUBIT
 }
-extend type Mutation
 

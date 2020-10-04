@@ -76,6 +76,9 @@ func (s *SchemaAST) queriesDefinitionAST() (*ast.Definition, error) {
 }
 
 func (s *SchemaAST) mutationsDefinitionAST() (*ast.Definition, error) {
+	if len(s.Mutations) == 0 {
+		return nil, nil
+	}
 	def := &ast.Definition{
 		Kind: ast.Object,
 		Name: "Mutation",

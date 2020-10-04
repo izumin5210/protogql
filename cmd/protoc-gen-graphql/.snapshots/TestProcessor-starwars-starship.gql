@@ -15,5 +15,4 @@ input StarshipInput @protobuf(type: "testdata.starwars.Starship") {
 extend type Query {
 	starship(id: String!): Starship! @grpc(service: "testdata.starwars.StarshipService", rpc: "GetStarship")
 }
-extend type Mutation
 

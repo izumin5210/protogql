@@ -61,5 +61,4 @@ extend type Query {
 	droid(id: String!): Droid! @grpc(service: "testdata.starwars.CharacterService", rpc: "GetDroid")
 	human(id: String!): Human! @grpc(service: "testdata.starwars.CharacterService", rpc: "GetHuman")
 }
-extend type Mutation
 
