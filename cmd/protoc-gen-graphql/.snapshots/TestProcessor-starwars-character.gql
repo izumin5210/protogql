@@ -2,6 +2,10 @@ type Character @protobuf(type: "testdata.starwars.Character") {
 	human: Human!
 	droid: Droid!
 }
+input CharacterInput @protobuf(type: "testdata.starwars.Character") {
+	human: HumanInput!
+	droid: DroidInput!
+}
 type Droid @protobuf(type: "testdata.starwars.Droid") {
 	id: String!
 	name: String!
@@ -9,10 +13,26 @@ type Droid @protobuf(type: "testdata.starwars.Droid") {
 	appearsIn: [Episode!]!
 	primaryFunction: String!
 }
+input DroidInput @protobuf(type: "testdata.starwars.Droid") {
+	id: String!
+	name: String!
+	friends: [Character!]!
+	appearsIn: [Episode!]!
+	primaryFunction: String!
+}
+input GetCharacterInput @protobuf(type: "testdata.starwars.GetCharacterRequest") {
+	id: String!
+}
 type GetCharacterRequest @protobuf(type: "testdata.starwars.GetCharacterRequest") {
 	id: String!
 }
+input GetDroidInput @protobuf(type: "testdata.starwars.GetDroidRequest") {
+	id: String!
+}
 type GetDroidRequest @protobuf(type: "testdata.starwars.GetDroidRequest") {
+	id: String!
+}
+input GetHumanInput @protobuf(type: "testdata.starwars.GetHumanRequest") {
 	id: String!
 }
 type GetHumanRequest @protobuf(type: "testdata.starwars.GetHumanRequest") {
@@ -27,9 +47,19 @@ type Human @protobuf(type: "testdata.starwars.Human") {
 	appearsIn: [Episode!]!
 	tarships: [Starship!]!
 }
+input HumanInput @protobuf(type: "testdata.starwars.Human") {
+	id: String!
+	name: String!
+	homePlanet: String!
+	mass: Float!
+	friends: [Character!]!
+	appearsIn: [Episode!]!
+	tarships: [Starship!]!
+}
 extend type Query {
 	character(id: String!): Character! @grpc(service: "testdata.starwars.CharacterService", rpc: "GetCharacter")
 	droid(id: String!): Droid! @grpc(service: "testdata.starwars.CharacterService", rpc: "GetDroid")
 	human(id: String!): Human! @grpc(service: "testdata.starwars.CharacterService", rpc: "GetHuman")
 }
+extend type Mutation
 

@@ -3,6 +3,11 @@ type Color @protobuf(type: "testdata.starwars.Color") {
 	green: Int!
 	blue: Int!
 }
+input ColorInput @protobuf(type: "testdata.starwars.Color") {
+	red: Int!
+	green: Int!
+	blue: Int!
+}
 input CreateReviewInput @protobuf(type: "testdata.starwars.CreateReviewRequest") {
 	episode: Episode!
 	review: ReviewInput!
@@ -13,13 +18,23 @@ type CreateReviewRequest @protobuf(type: "testdata.starwars.CreateReviewRequest"
 	review: Review!
 	favoriteColor: Color!
 }
+input ListReviewsInput @protobuf(type: "testdata.starwars.ListReviewsRequest") {
+	episode: Episode!
+}
 type ListReviewsRequest @protobuf(type: "testdata.starwars.ListReviewsRequest") {
 	episode: Episode!
 }
 type ListReviewsResponse @protobuf(type: "testdata.starwars.ListReviewsResponse") {
 	reviews: [Review!]!
 }
+input ListReviewsResponseInput @protobuf(type: "testdata.starwars.ListReviewsResponse") {
+	reviews: [Review!]!
+}
 type Review @protobuf(type: "testdata.starwars.Review") {
+	stars: Int!
+	commentary: String!
+}
+input ReviewInput @protobuf(type: "testdata.starwars.Review") {
 	stars: Int!
 	commentary: String!
 }

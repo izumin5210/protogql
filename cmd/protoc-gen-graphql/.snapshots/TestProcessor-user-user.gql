@@ -1,7 +1,13 @@
+input BatchGetUsersInput @protobuf(type: "testdata.BatchGetUsersRequest") {
+	userIds: [String!]!
+}
 type BatchGetUsersRequest @protobuf(type: "testdata.BatchGetUsersRequest") {
 	userIds: [String!]!
 }
 type BatchGetUsersResponse @protobuf(type: "testdata.BatchGetUsersResponse") {
+	users: [User!]!
+}
+input BatchGetUsersResponseInput @protobuf(type: "testdata.BatchGetUsersResponse") {
 	users: [User!]!
 }
 input FollowUserInput @protobuf(type: "testdata.FollowUserRequest") {
@@ -12,11 +18,20 @@ type FollowUserRequest @protobuf(type: "testdata.FollowUserRequest") {
 	userId: String!
 	friendId: String!
 }
+input ListUsersInput @protobuf(type: "testdata.ListUsersRequest") {
+	pageToken: String!
+	pageSize: Int!
+}
 type ListUsersRequest @protobuf(type: "testdata.ListUsersRequest") {
 	pageToken: String!
 	pageSize: Int!
 }
 type ListUsersResponse @protobuf(type: "testdata.ListUsersResponse") {
+	users: [User!]!
+	totalSize: Int!
+	nextPageToken: String!
+}
+input ListUsersResponseInput @protobuf(type: "testdata.ListUsersResponse") {
 	users: [User!]!
 	totalSize: Int!
 	nextPageToken: String!
@@ -30,6 +45,13 @@ type UnfollowUserRequest @protobuf(type: "testdata.UnfollowUserRequest") {
 	friendId: String!
 }
 type User @protobuf(type: "testdata.User") {
+	id: String!
+	fullName: String!
+	followeeUserIds: [String!]!
+	followerUserIds: [String!]!
+	role: UserRole!
+}
+input UserInput @protobuf(type: "testdata.User") {
 	id: String!
 	fullName: String!
 	followeeUserIds: [String!]!

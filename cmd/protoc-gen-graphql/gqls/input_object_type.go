@@ -4,9 +4,10 @@ import (
 	"strings"
 
 	"github.com/iancoleman/strcase"
-	"github.com/izumin5210/remixer/cmd/protoc-gen-graphql/protoutil"
 	"github.com/vektah/gqlparser/v2/ast"
 	"google.golang.org/protobuf/reflect/protoreflect"
+
+	"github.com/izumin5210/remixer/cmd/protoc-gen-graphql/protoutil"
 )
 
 var (
