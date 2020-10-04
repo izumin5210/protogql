@@ -28,7 +28,7 @@ type ListReviewsResponse @protobuf(type: "testdata.starwars.ListReviewsResponse"
 	reviews: [Review!]!
 }
 input ListReviewsResponseInput @protobuf(type: "testdata.starwars.ListReviewsResponse") {
-	reviews: [Review!]!
+	reviews: [ReviewInput!]!
 }
 type Review @protobuf(type: "testdata.starwars.Review") {
 	stars: Int!

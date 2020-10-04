@@ -8,7 +8,7 @@ type BatchGetUsersResponse @protobuf(type: "testdata.BatchGetUsersResponse") {
 	users: [User!]!
 }
 input BatchGetUsersResponseInput @protobuf(type: "testdata.BatchGetUsersResponse") {
-	users: [User!]!
+	users: [UserInput!]!
 }
 input FollowUserInput @protobuf(type: "testdata.FollowUserRequest") {
 	userId: String!
@@ -32,7 +32,7 @@ type ListUsersResponse @protobuf(type: "testdata.ListUsersResponse") {
 	nextPageToken: String!
 }
 input ListUsersResponseInput @protobuf(type: "testdata.ListUsersResponse") {
-	users: [User!]!
+	users: [UserInput!]!
 	totalSize: Int!
 	nextPageToken: String!
 }

@@ -46,9 +46,24 @@ func (t *InputObjectType) DefinitionAST() (*ast.Definition, error) {
 		if err != nil {
 			return err
 		}
-		if ot, ok := ft.(*ObjectType); ok {
-			ft = NewInputObjectType(ot)
+		origType := ft
+		for {
+			if mt, ok := origType.(ModifiedType); ok {
+				origType = mt.Original()
+			} else {
+				break
+			}
 		}
+		if ot, ok := origType.(*ObjectType); ok {
+			origType = NewInputObjectType(ot)
+		}
+		if ft.IsNullable() {
+			origType = NullableType(origType)
+		}
+		if ft.IsList() {
+			origType = ListType(origType)
+		}
+		ft = origType
 		def.Fields = append(def.Fields, &ast.FieldDefinition{
 			Name: strcase.ToLowerCamel(string(fd.Name())),
 			Type: ft.TypeAST(),

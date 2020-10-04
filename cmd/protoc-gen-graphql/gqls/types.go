@@ -21,6 +21,15 @@ type Definable interface {
 	ProtoDescriptor() protoreflect.Descriptor
 }
 
+type ModifiedType interface {
+	Original() Type
+}
+
+var (
+	_ ModifiedType = (*nullableType)(nil)
+	_ ModifiedType = (*listType)(nil)
+)
+
 func TypeFromProto(d protoreflect.Descriptor) (Type, error) {
 	switch d := d.(type) {
 	case protoreflect.MessageDescriptor:
@@ -83,6 +92,7 @@ func (t *nullableType) TypeAST() *ast.Type {
 	typ.NonNull = false
 	return typ
 }
+func (t *nullableType) Original() Type { return t.Type }
 
 type listType struct {
 	Type
@@ -91,6 +101,7 @@ type listType struct {
 func ListType(el Type) Type            { return &listType{Type: el} }
 func (t *listType) IsList() bool       { return true }
 func (t *listType) TypeAST() *ast.Type { return ast.NonNullListType(t.Type.TypeAST(), nil) }
+func (t *listType) Original() Type     { return t.Type }
 
 func nameWithParent(d protoreflect.Descriptor) string {
 	name := string(d.Name())
