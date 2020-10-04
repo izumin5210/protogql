@@ -1,21 +1,21 @@
-type Character @protobuf(type: ".testdata.starwars.Character") {
+type Character @protobuf(type: "testdata.starwars.Character") {
 	human: Human!
 	droid: Droid!
 }
-type Droid @protobuf(type: ".testdata.starwars.Droid") {
+type Droid @protobuf(type: "testdata.starwars.Droid") {
 	id: String!
 	name: String!
 	friends: [Character!]!
 	appearsIn: [Episode!]!
 	primaryFunction: String!
 }
-enum Episode @protobuf(type: ".testdata.starwars.Episode") {
+enum Episode @protobuf(type: "testdata.starwars.Episode") {
 	EPISODE_UNSPECIFIED
 	NEWHOPE
 	EMPIRE
 	JEDI
 }
-type Human @protobuf(type: ".testdata.starwars.Human") {
+type Human @protobuf(type: "testdata.starwars.Human") {
 	id: String!
 	name: String!
 	homePlanet: String!
@@ -24,13 +24,13 @@ type Human @protobuf(type: ".testdata.starwars.Human") {
 	appearsIn: [Episode!]!
 	tarships: [Starship!]!
 }
-type Starship @protobuf(type: ".testdata.starwars.Starship") {
+type Starship @protobuf(type: "testdata.starwars.Starship") {
 	id: String!
 	name: String!
 }
 extend type Query {
-	character(id: String!): Character! @grpc(service: ".testdata.starwars.CharacterService", rpc: "GetCharacter")
-	droid(id: String!): Droid! @grpc(service: ".testdata.starwars.CharacterService", rpc: "GetDroid")
-	human(id: String!): Human! @grpc(service: ".testdata.starwars.CharacterService", rpc: "GetHuman")
+	character(id: String!): Character! @grpc(service: "testdata.starwars.CharacterService", rpc: "GetCharacter")
+	droid(id: String!): Droid! @grpc(service: "testdata.starwars.CharacterService", rpc: "GetDroid")
+	human(id: String!): Human! @grpc(service: "testdata.starwars.CharacterService", rpc: "GetHuman")
 }
 

@@ -1,16 +1,16 @@
-input FollowUserInput @protobuf(type: ".testdata.FollowUserRequest") {
+input FollowUserInput @protobuf(type: "testdata.FollowUserRequest") {
 	userId: String!
 	friendId: String!
 }
-enum Role @protobuf(type: ".testdata.User.Role") {
+enum Role @protobuf(type: "testdata.User.Role") {
 	ROLE_UNSPECIFIED
 	ADMIN
 }
-input UnfollowUserInput @protobuf(type: ".testdata.UnfollowUserRequest") {
+input UnfollowUserInput @protobuf(type: "testdata.UnfollowUserRequest") {
 	userId: String!
 	friendId: String!
 }
-type User @protobuf(type: ".testdata.User") {
+type User @protobuf(type: "testdata.User") {
 	id: String!
 	fullName: String!
 	followeeUserIds: [String!]!
@@ -18,10 +18,10 @@ type User @protobuf(type: ".testdata.User") {
 	role: Role!
 }
 extend type Query {
-	users(pageToken: String!, pageSize: Int!): [User!]! @grpc(service: ".testdata.UserService", rpc: "ListUsers")
+	users(pageToken: String!, pageSize: Int!): [User!]! @grpc(service: "testdata.UserService", rpc: "ListUsers")
 }
 extend type Mutation {
-	followUser(input: FollowUserInput!): Boolean @grpc(service: ".testdata.UserService", rpc: "FollowUser")
-	unfollowUser(input: UnfollowUserInput!): Boolean @grpc(service: ".testdata.UserService", rpc: "UnfollowUser")
+	followUser(input: FollowUserInput!): Boolean @grpc(service: "testdata.UserService", rpc: "FollowUser")
+	unfollowUser(input: UnfollowUserInput!): Boolean @grpc(service: "testdata.UserService", rpc: "UnfollowUser")
 }
 
