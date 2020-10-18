@@ -1,19 +1,19 @@
-type Color @protobuf(type: "testdata.starwars.Color") {
-	red: Int!
-	green: Int!
-	blue: Int!
+type Color @protobuf(type: "testdata.starwars.Color") @goModel(model: "testdata/starwars.Color") {
+	red: Int! @goField(name: "Red", forceResolver: false)
+	green: Int! @goField(name: "Green", forceResolver: false)
+	blue: Int! @goField(name: "Blue", forceResolver: false)
 }
-input ColorInput @protobuf(type: "testdata.starwars.Color") {
-	red: Int!
-	green: Int!
-	blue: Int!
+input ColorInput @protobuf(type: "testdata.starwars.Color") @goModel(model: "testdata/starwars.Color") {
+	red: Int! @goField(name: "Red")
+	green: Int! @goField(name: "Green")
+	blue: Int! @goField(name: "Blue")
 }
-type Review @protobuf(type: "testdata.starwars.Review") {
-	stars: Int!
-	commentary: String!
+type Review @protobuf(type: "testdata.starwars.Review") @goModel(model: "testdata/starwars.Review") {
+	stars: Int! @goField(name: "Stars", forceResolver: false)
+	commentary: String! @goField(name: "Commentary", forceResolver: false)
 }
-input ReviewInput @protobuf(type: "testdata.starwars.Review") {
-	stars: Int!
-	commentary: String!
+input ReviewInput @protobuf(type: "testdata.starwars.Review") @goModel(model: "testdata/starwars.Review") {
+	stars: Int! @goField(name: "Stars")
+	commentary: String! @goField(name: "Commentary")
 }
 

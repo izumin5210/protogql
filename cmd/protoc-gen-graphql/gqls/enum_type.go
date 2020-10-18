@@ -26,7 +26,7 @@ func (t *EnumType) DefinitionAST() (*ast.Definition, error) {
 	def := &ast.Definition{
 		Kind:       ast.Enum,
 		Name:       string(t.Name()),
-		Directives: definitionDelectivesAST(t.Proto.Desc),
+		Directives: enumDirectivesAST(t.Proto),
 	}
 
 	for _, ev := range t.Proto.Values {

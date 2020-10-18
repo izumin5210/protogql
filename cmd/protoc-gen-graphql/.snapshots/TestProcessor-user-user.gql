@@ -1,30 +1,30 @@
-type BatchGetUsersRequest @protobuf(type: "testdata.BatchGetUsersRequest") {
-	userIds: [String!]!
+type BatchGetUsersRequest @protobuf(type: "testdata.BatchGetUsersRequest") @goModel(model: "testdata/user.BatchGetUsersRequest") {
+	userIds: [String!]! @goField(name: "UserIds", forceResolver: false)
 }
-input BatchGetUsersRequestInput @protobuf(type: "testdata.BatchGetUsersRequest") {
-	userIds: [String!]!
+input BatchGetUsersRequestInput @protobuf(type: "testdata.BatchGetUsersRequest") @goModel(model: "testdata/user.BatchGetUsersRequest") {
+	userIds: [String!]! @goField(name: "UserIds")
 }
-type BatchGetUsersResponse @protobuf(type: "testdata.BatchGetUsersResponse") {
-	users: [User!]!
+type BatchGetUsersResponse @protobuf(type: "testdata.BatchGetUsersResponse") @goModel(model: "testdata/user.BatchGetUsersResponse") {
+	users: [User!]! @goField(name: "Users", forceResolver: false)
 }
-input BatchGetUsersResponseInput @protobuf(type: "testdata.BatchGetUsersResponse") {
-	users: [UserInput!]!
+input BatchGetUsersResponseInput @protobuf(type: "testdata.BatchGetUsersResponse") @goModel(model: "testdata/user.BatchGetUsersResponse") {
+	users: [UserInput!]! @goField(name: "Users")
 }
-type User @protobuf(type: "testdata.User") {
-	id: String!
-	fullName: String!
-	followeeUserIds: [String!]!
-	followerUserIds: [String!]!
-	role: UserRole!
+type User @protobuf(type: "testdata.User") @goModel(model: "testdata/user.User") {
+	id: String! @goField(name: "Id", forceResolver: false)
+	fullName: String! @goField(name: "FullName", forceResolver: false)
+	followeeUserIds: [String!]! @goField(name: "FolloweeUserIds", forceResolver: false)
+	followerUserIds: [String!]! @goField(name: "FollowerUserIds", forceResolver: false)
+	role: UserRole! @goField(name: "Role", forceResolver: false)
 }
-input UserInput @protobuf(type: "testdata.User") {
-	id: String!
-	fullName: String!
-	followeeUserIds: [String!]!
-	followerUserIds: [String!]!
-	role: UserRole!
+input UserInput @protobuf(type: "testdata.User") @goModel(model: "testdata/user.User") {
+	id: String! @goField(name: "Id")
+	fullName: String! @goField(name: "FullName")
+	followeeUserIds: [String!]! @goField(name: "FolloweeUserIds")
+	followerUserIds: [String!]! @goField(name: "FollowerUserIds")
+	role: UserRole! @goField(name: "Role")
 }
-enum UserRole @protobuf(type: "testdata.User.Role") {
+enum UserRole @protobuf(type: "testdata.User.Role") @goModel(model: "testdata/user.User_Role") {
 	ROLE_UNSPECIFIED
 	ADMIN
 }

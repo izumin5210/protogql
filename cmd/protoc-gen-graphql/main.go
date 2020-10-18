@@ -66,4 +66,16 @@ type NoopPayload {
 	clientMutationId: String
 }
 directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
-directive @protobuf(type: String!) on OBJECT | ENUM | INPUT_OBJECT`
+directive @protobuf(type: String!) on OBJECT | ENUM | INPUT_OBJECT
+
+# from https://gqlgen.com/config/#inline-config-with-directives
+directive @goModel(model: String, models: [String!]) on OBJECT
+    | INPUT_OBJECT
+    | SCALAR
+    | ENUM
+    | INTERFACE
+    | UNION
+
+# from https://gqlgen.com/config/#inline-config-with-directives
+directive @goField(forceResolver: Boolean = true, name: String) on INPUT_FIELD_DEFINITION
+    | FIELD_DEFINITION`

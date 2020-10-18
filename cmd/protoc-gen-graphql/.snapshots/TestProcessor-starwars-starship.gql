@@ -1,9 +1,9 @@
-type Starship @protobuf(type: "testdata.starwars.Starship") {
-	id: String!
-	name: String!
+type Starship @protobuf(type: "testdata.starwars.Starship") @goModel(model: "testdata/starwars.Starship") {
+	id: String! @goField(name: "Id", forceResolver: false)
+	name: String! @goField(name: "Name", forceResolver: false)
 }
-input StarshipInput @protobuf(type: "testdata.starwars.Starship") {
-	id: String!
-	name: String!
+input StarshipInput @protobuf(type: "testdata.starwars.Starship") @goModel(model: "testdata/starwars.Starship") {
+	id: String! @goField(name: "Id")
+	name: String! @goField(name: "Name")
 }
 

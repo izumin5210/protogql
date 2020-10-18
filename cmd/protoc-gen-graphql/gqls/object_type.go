@@ -27,7 +27,7 @@ func (t *ObjectType) DefinitionAST() (*ast.Definition, error) {
 	def := &ast.Definition{
 		Kind:       ast.Object,
 		Name:       string(t.Name()),
-		Directives: definitionDelectivesAST(t.Proto.Desc),
+		Directives: messageDirectivesAST(t.Proto),
 	}
 
 	for _, f := range t.Proto.Fields {
@@ -36,8 +36,9 @@ func (t *ObjectType) DefinitionAST() (*ast.Definition, error) {
 			return nil, err
 		}
 		def.Fields = append(def.Fields, &ast.FieldDefinition{
-			Name: strcase.ToLowerCamel(string(f.Desc.Name())),
-			Type: ft.TypeAST(),
+			Name:       strcase.ToLowerCamel(string(f.Desc.Name())),
+			Type:       ft.TypeAST(),
+			Directives: fieldDirectivesAST(f),
 		})
 	}
 
