@@ -1,15 +1,12 @@
 package main
 
 import (
-	"bytes"
-	"context"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/bradleyjkemp/cupaloy/v2"
-	"github.com/izumin5210/remixer/cmd/protoc-gen-graphql/protoutil"
 	"github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 	"google.golang.org/protobuf/proto"
@@ -50,37 +47,30 @@ func newCodeGeneratorRequestFromDescriptorSet(set *descriptorpb.FileDescriptorSe
 	return req
 }
 
-func testProtocGen(t *testing.T, protocGen *protoutil.ProtocGen, descriptorSetPath, fileToGeneratePrefix string) *pluginpb.CodeGeneratorResponse {
+func testProtocGen(t *testing.T, descriptorSetPath, fileToGeneratePrefix string) *pluginpb.CodeGeneratorResponse {
 	t.Helper()
 
-	reqData, err := proto.Marshal(newCodeGeneratorRequestFromDescriptorSet(
+	req := newCodeGeneratorRequestFromDescriptorSet(
 		loadDescriptorSet(t, descriptorSetPath),
 		fileToGeneratePrefix,
-	))
+	)
+
+	plugin, err := options.New(req)
 	if err != nil {
-		t.Fatalf("faield to marshal request: %v", err)
+		t.Fatalf("faield to create plugin: %v", err)
 	}
 
-	var reqR, respW bytes.Buffer
-	reqR.Write(reqData)
-
-	err = protocGen.Run(context.Background(), &reqR, &respW)
+	err = run(plugin)
 	if err != nil {
 		t.Errorf("Generator returns %v, want nil", err)
 	}
 
-	resp := new(pluginpb.CodeGeneratorResponse)
-	err = proto.Unmarshal(respW.Bytes(), resp)
-	if err != nil {
-		t.Fatalf("failed to unmarshal generator response: %v", err)
-	}
-
-	return resp
+	return plugin.Response()
 }
 
 func testGenerate(t *testing.T, fixture string) {
 	t.Run(fixture, func(t *testing.T) {
-		resp := testProtocGen(t, ProtocGenGraphQL, fixture+".protoset", filepath.Join("testdata", fixture))
+		resp := testProtocGen(t, fixture+".protoset", filepath.Join("testdata", fixture))
 
 		schemata := []*ast.Source{{Input: BaseSchema}}
 		for _, f := range resp.GetFile() {

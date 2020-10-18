@@ -6,6 +6,8 @@ import "options/graphql.proto";
 import "testdata/starwars/starship.proto";
 import "testdata/starwars/type.proto";
 
+option go_package = "testdata/starwars";
+
 // https://github.com/apollographql/apollo-tooling/blob/apollo%402.30.3/__fixtures__/starwars/schema.graphql
 
 service CharacterService {

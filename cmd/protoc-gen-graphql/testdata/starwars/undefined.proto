@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package testdata.starwars;
 
+option go_package = "testdata/starwars";
+
 // https://github.com/apollographql/apollo-tooling/blob/apollo%402.30.3/__fixtures__/starwars/schema.graphql
 
 // schema {

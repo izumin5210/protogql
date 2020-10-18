@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package testdata.starwars;
 
+option go_package = "testdata/starwars";
+
 // The episodes in the Star Wars trilogy
 enum Episode {
   EPISODE_UNSPECIFIED = 0;
