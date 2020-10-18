@@ -35,7 +35,7 @@ func run(p *protogen.Plugin) error {
 		}
 
 		file := p.NewGeneratedFile(
-			strings.TrimSuffix(f.Desc.Path(), ".proto")+".gql",
+			strings.TrimSuffix(f.Desc.Path(), ".proto")+".pb.graphqls",
 			f.GoImportPath,
 		)
 
