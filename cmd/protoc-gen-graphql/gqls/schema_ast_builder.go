@@ -25,18 +25,6 @@ func (s *SchemaAST) Build() (*ast.SchemaDocument, error) {
 	}
 	doc.Definitions = append(doc.Definitions, defs...)
 
-	if def, err := s.queriesDefinitionAST(); err != nil {
-		return nil, err
-	} else if def != nil {
-		doc.Extensions = append(doc.Extensions, def)
-	}
-
-	if def, err := s.mutationsDefinitionAST(); err != nil {
-		return nil, err
-	} else if def != nil {
-		doc.Extensions = append(doc.Extensions, def)
-	}
-
 	return doc, nil
 }
 

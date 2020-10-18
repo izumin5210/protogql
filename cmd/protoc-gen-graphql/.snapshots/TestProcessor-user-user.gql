@@ -1,7 +1,7 @@
-input BatchGetUsersInput @protobuf(type: "testdata.BatchGetUsersRequest") {
+type BatchGetUsersRequest @protobuf(type: "testdata.BatchGetUsersRequest") {
 	userIds: [String!]!
 }
-type BatchGetUsersRequest @protobuf(type: "testdata.BatchGetUsersRequest") {
+input BatchGetUsersRequestInput @protobuf(type: "testdata.BatchGetUsersRequest") {
 	userIds: [String!]!
 }
 type BatchGetUsersResponse @protobuf(type: "testdata.BatchGetUsersResponse") {
@@ -9,40 +9,6 @@ type BatchGetUsersResponse @protobuf(type: "testdata.BatchGetUsersResponse") {
 }
 input BatchGetUsersResponseInput @protobuf(type: "testdata.BatchGetUsersResponse") {
 	users: [UserInput!]!
-}
-input FollowUserInput @protobuf(type: "testdata.FollowUserRequest") {
-	userId: String!
-	friendId: String!
-}
-type FollowUserRequest @protobuf(type: "testdata.FollowUserRequest") {
-	userId: String!
-	friendId: String!
-}
-input ListUsersInput @protobuf(type: "testdata.ListUsersRequest") {
-	pageToken: String!
-	pageSize: Int!
-}
-type ListUsersRequest @protobuf(type: "testdata.ListUsersRequest") {
-	pageToken: String!
-	pageSize: Int!
-}
-type ListUsersResponse @protobuf(type: "testdata.ListUsersResponse") {
-	users: [User!]!
-	totalSize: Int!
-	nextPageToken: String!
-}
-input ListUsersResponseInput @protobuf(type: "testdata.ListUsersResponse") {
-	users: [UserInput!]!
-	totalSize: Int!
-	nextPageToken: String!
-}
-input UnfollowUserInput @protobuf(type: "testdata.UnfollowUserRequest") {
-	userId: String!
-	friendId: String!
-}
-type UnfollowUserRequest @protobuf(type: "testdata.UnfollowUserRequest") {
-	userId: String!
-	friendId: String!
 }
 type User @protobuf(type: "testdata.User") {
 	id: String!
@@ -61,12 +27,5 @@ input UserInput @protobuf(type: "testdata.User") {
 enum UserRole @protobuf(type: "testdata.User.Role") {
 	ROLE_UNSPECIFIED
 	ADMIN
-}
-extend type Query {
-	users(pageToken: String!, pageSize: Int!): [User!]! @grpc(service: "testdata.UserService", rpc: "ListUsers")
-}
-extend type Mutation {
-	followUser(input: FollowUserInput!): Boolean @grpc(service: "testdata.UserService", rpc: "FollowUser")
-	unfollowUser(input: UnfollowUserInput!): Boolean @grpc(service: "testdata.UserService", rpc: "UnfollowUser")
 }
 

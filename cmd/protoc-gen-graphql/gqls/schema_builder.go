@@ -42,6 +42,12 @@ func (b *SchemaBuilder) Build(fd protoreflect.FileDescriptor) (*Schema, error) {
 			if m, ok := NewMutation(md); ok {
 				b.AddMutation(m)
 			}
+			if md.Input().Name() == md.Name()+"Request" {
+				delete(b.Types, string(md.Input().Name()))
+			}
+			if md.Output().Name() == md.Name()+"Response" {
+				delete(b.Types, string(md.Output().Name()))
+			}
 			return nil
 		})
 		if err != nil {
@@ -51,6 +57,13 @@ func (b *SchemaBuilder) Build(fd protoreflect.FileDescriptor) (*Schema, error) {
 	})
 	if err != nil {
 		return nil, err
+	}
+
+	for _, t := range b.Types {
+		if ot, ok := t.(*ObjectType); ok {
+			it := NewInputObjectType(ot)
+			b.Types[it.Name()] = it
+		}
 	}
 
 	return b.Schema, nil
@@ -69,11 +82,6 @@ func (b *SchemaBuilder) AddType(t Type) error {
 	}
 	// TODO: should handle collisions
 	b.Types[dt.Name()] = dt
-
-	if ot, ok := dt.(*ObjectType); ok {
-		it := NewInputObjectType(ot)
-		b.Types[it.Name()] = it
-	}
 
 	return nil
 }

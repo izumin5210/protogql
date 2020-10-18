@@ -8,28 +8,6 @@ input ColorInput @protobuf(type: "testdata.starwars.Color") {
 	green: Int!
 	blue: Int!
 }
-input CreateReviewInput @protobuf(type: "testdata.starwars.CreateReviewRequest") {
-	episode: Episode!
-	review: ReviewInput!
-	favoriteColor: ColorInput!
-}
-type CreateReviewRequest @protobuf(type: "testdata.starwars.CreateReviewRequest") {
-	episode: Episode!
-	review: Review!
-	favoriteColor: Color!
-}
-input ListReviewsInput @protobuf(type: "testdata.starwars.ListReviewsRequest") {
-	episode: Episode!
-}
-type ListReviewsRequest @protobuf(type: "testdata.starwars.ListReviewsRequest") {
-	episode: Episode!
-}
-type ListReviewsResponse @protobuf(type: "testdata.starwars.ListReviewsResponse") {
-	reviews: [Review!]!
-}
-input ListReviewsResponseInput @protobuf(type: "testdata.starwars.ListReviewsResponse") {
-	reviews: [ReviewInput!]!
-}
 type Review @protobuf(type: "testdata.starwars.Review") {
 	stars: Int!
 	commentary: String!
@@ -37,11 +15,5 @@ type Review @protobuf(type: "testdata.starwars.Review") {
 input ReviewInput @protobuf(type: "testdata.starwars.Review") {
 	stars: Int!
 	commentary: String!
-}
-extend type Query {
-	reviews(episode: Episode!): [Review!]! @grpc(service: "testdata.starwars.ReviewService", rpc: "ListReviews")
-}
-extend type Mutation {
-	createReview(input: CreateReviewInput!): Review! @grpc(service: "testdata.starwars.ReviewService", rpc: "CreateReview")
 }
 

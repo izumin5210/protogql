@@ -1,9 +1,3 @@
-input GetStarshipInput @protobuf(type: "testdata.starwars.GetStarshipRequest") {
-	id: String!
-}
-type GetStarshipRequest @protobuf(type: "testdata.starwars.GetStarshipRequest") {
-	id: String!
-}
 type Starship @protobuf(type: "testdata.starwars.Starship") {
 	id: String!
 	name: String!
@@ -11,8 +5,5 @@ type Starship @protobuf(type: "testdata.starwars.Starship") {
 input StarshipInput @protobuf(type: "testdata.starwars.Starship") {
 	id: String!
 	name: String!
-}
-extend type Query {
-	starship(id: String!): Starship! @grpc(service: "testdata.starwars.StarshipService", rpc: "GetStarship")
 }
 

@@ -1,8 +1,6 @@
 package gqls
 
 import (
-	"strings"
-
 	"github.com/iancoleman/strcase"
 	"github.com/vektah/gqlparser/v2/ast"
 	"google.golang.org/protobuf/reflect/protoreflect"
@@ -25,7 +23,6 @@ type InputObjectType struct {
 
 func (t *InputObjectType) Name() string {
 	n := t.base.Name()
-	n = strings.TrimSuffix(n, "Request")
 	return n + "Input"
 }
 
