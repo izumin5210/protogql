@@ -18,16 +18,14 @@ func newSchema() *Schema {
 }
 
 type Schema struct {
-	Queries   []*Query
-	Mutations []*Mutation
-	Types     map[string]interface {
+	Types map[string]interface {
 		Type
 		Definable
 	}
 }
 
 func (s *Schema) Empty() bool {
-	return len(s.Types) == 0 && len(s.Queries) == 0 && len(s.Mutations) == 0
+	return len(s.Types) == 0
 }
 
 func (s *Schema) DocumentAST() (*ast.SchemaDocument, error) {

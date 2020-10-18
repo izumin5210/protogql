@@ -36,12 +36,6 @@ func (b *SchemaBuilder) Build(fd protoreflect.FileDescriptor) (*Schema, error) {
 
 	err = protoutil.RangeServices(fd, func(sd protoreflect.ServiceDescriptor) error {
 		err := protoutil.RangeMethods(sd, func(md protoreflect.MethodDescriptor) error {
-			if q, ok := NewQuery(md); ok {
-				b.AddQuery(q)
-			}
-			if m, ok := NewMutation(md); ok {
-				b.AddMutation(m)
-			}
 			if md.Input().Name() == md.Name()+"Request" {
 				delete(b.Types, string(md.Input().Name()))
 			}
@@ -84,12 +78,4 @@ func (b *SchemaBuilder) AddType(t Type) error {
 	b.Types[dt.Name()] = dt
 
 	return nil
-}
-
-func (b *SchemaBuilder) AddQuery(q *Query) {
-	b.Queries = append(b.Queries, q)
-}
-
-func (b *SchemaBuilder) AddMutation(m *Mutation) {
-	b.Mutations = append(b.Mutations, m)
 }

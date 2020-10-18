@@ -44,39 +44,3 @@ func (s *SchemaAST) typeDefinitionsAST() ([]*ast.Definition, error) {
 
 	return defs, nil
 }
-
-func (s *SchemaAST) queriesDefinitionAST() (*ast.Definition, error) {
-	if len(s.Queries) == 0 {
-		return nil, nil
-	}
-	def := &ast.Definition{
-		Kind: ast.Object,
-		Name: "Query",
-	}
-	for _, q := range s.Queries {
-		f, err := q.FieldDefinitionAST()
-		if err != nil {
-			return nil, err
-		}
-		def.Fields = append(def.Fields, f)
-	}
-	return def, nil
-}
-
-func (s *SchemaAST) mutationsDefinitionAST() (*ast.Definition, error) {
-	if len(s.Mutations) == 0 {
-		return nil, nil
-	}
-	def := &ast.Definition{
-		Kind: ast.Object,
-		Name: "Mutation",
-	}
-	for _, m := range s.Mutations {
-		f, err := m.FieldDefinitionAST()
-		if err != nil {
-			return nil, err
-		}
-		def.Fields = append(def.Fields, f)
-	}
-	return def, nil
-}
