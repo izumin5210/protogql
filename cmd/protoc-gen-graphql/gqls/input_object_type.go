@@ -4,8 +4,6 @@ import (
 	"github.com/iancoleman/strcase"
 	"github.com/vektah/gqlparser/v2/ast"
 	"google.golang.org/protobuf/reflect/protoreflect"
-
-	"github.com/izumin5210/remixer/cmd/protoc-gen-graphql/protoutil"
 )
 
 var (
@@ -29,19 +27,19 @@ func (t *InputObjectType) Name() string {
 func (t *InputObjectType) IsNullable() bool                         { return t.base.IsNullable() }
 func (t *InputObjectType) IsList() bool                             { return t.base.IsList() }
 func (t *InputObjectType) TypeAST() *ast.Type                       { return ast.NonNullNamedType(t.Name(), nil) }
-func (t *InputObjectType) ProtoDescriptor() protoreflect.Descriptor { return t.base.Proto }
+func (t *InputObjectType) ProtoDescriptor() protoreflect.Descriptor { return t.base.Proto.Desc }
 
 func (t *InputObjectType) DefinitionAST() (*ast.Definition, error) {
 	def := &ast.Definition{
 		Kind:       ast.InputObject,
 		Name:       string(t.Name()),
-		Directives: definitionDelectivesAST(t.base.Proto),
+		Directives: definitionDelectivesAST(t.base.Proto.Desc),
 	}
 
-	err := protoutil.RangeFields(t.base.Proto, func(fd protoreflect.FieldDescriptor) error {
-		ft, err := TypeFromProtoField(fd)
+	for _, f := range t.base.Proto.Fields {
+		ft, err := TypeFromProtoField(f)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		origType := ft
 		for {
@@ -62,13 +60,9 @@ func (t *InputObjectType) DefinitionAST() (*ast.Definition, error) {
 		}
 		ft = origType
 		def.Fields = append(def.Fields, &ast.FieldDefinition{
-			Name: strcase.ToLowerCamel(string(fd.Name())),
+			Name: strcase.ToLowerCamel(string(f.Desc.Name())),
 			Type: ft.TypeAST(),
 		})
-		return nil
-	})
-	if err != nil {
-		return nil, err
 	}
 
 	return def, nil

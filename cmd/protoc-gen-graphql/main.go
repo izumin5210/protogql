@@ -20,7 +20,7 @@ func run(p *protogen.Plugin) error {
 			continue
 		}
 
-		schema, err := gqls.BuildSchema(f.Desc)
+		schema, err := gqls.BuildSchema(f)
 		if err != nil {
 			return err
 		}

@@ -2,11 +2,11 @@ package gqls
 
 import (
 	"github.com/vektah/gqlparser/v2/ast"
-	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/compiler/protogen"
 )
 
-func BuildSchema(fd protoreflect.FileDescriptor) (*Schema, error) {
-	return NewSchemaBuilder().Build(fd)
+func BuildSchema(f *protogen.File) (*Schema, error) {
+	return NewSchemaBuilder().Build(f)
 }
 
 func newSchema() *Schema {

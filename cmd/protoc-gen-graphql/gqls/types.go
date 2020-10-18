@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/vektah/gqlparser/v2/ast"
+	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/reflect/protoreflect"
 
 	"github.com/izumin5210/remixer/cmd/protoc-gen-graphql/protoutil"
@@ -30,55 +31,42 @@ var (
 	_ ModifiedType = (*listType)(nil)
 )
 
-func TypeFromProto(d protoreflect.Descriptor) (Type, error) {
-	switch d := d.(type) {
-	case protoreflect.MessageDescriptor:
-		return typeFromProtoMessage(d)
-	case protoreflect.EnumDescriptor:
-		return newEnumType(d), nil
-	case protoreflect.FieldDescriptor:
-		return TypeFromProtoField(d)
-	default:
-		return nil, fmt.Errorf("unsupported descriptor: %s", d.FullName())
-	}
-}
-
-func TypeFromProtoField(fd protoreflect.FieldDescriptor) (Type, error) {
-	typ, err := rawTypeFromProtoField(fd)
+func TypeFromProtoField(f *protogen.Field) (Type, error) {
+	typ, err := rawTypeFromProtoField(f)
 	if err != nil {
 		return nil, err
 	}
-	if fd.IsList() {
+	if f.Desc.IsList() {
 		typ = ListType(typ)
 	}
-	if fd.HasOptionalKeyword() {
+	if f.Desc.HasOptionalKeyword() {
 		typ = NullableType(typ)
 	}
 	return typ, nil
 }
 
-func rawTypeFromProtoField(fd protoreflect.FieldDescriptor) (Type, error) {
-	switch fd.Kind() {
+func rawTypeFromProtoField(f *protogen.Field) (Type, error) {
+	switch f.Desc.Kind() {
 	case protoreflect.MessageKind:
-		return typeFromProtoMessage(fd.Message())
+		return TypeFromProtoMessage(f.Message)
 	case protoreflect.EnumKind:
-		return newEnumType(fd.Enum()), nil
+		return NewEnumType(f.Enum), nil
 	default:
-		typ, ok := scalarTypeMap[protoutil.JSONKindFrom(fd.Kind())]
+		typ, ok := scalarTypeMap[protoutil.JSONKindFrom(f.Desc.Kind())]
 		if !ok {
-			return nil, fmt.Errorf("unsupported kind: %s", fd.Kind())
+			return nil, fmt.Errorf("unsupported kind: %s", f.Desc.Kind())
 		}
 		return typ, nil
 	}
 }
 
-func typeFromProtoMessage(md protoreflect.MessageDescriptor) (Type, error) {
-	switch md.FullName() {
+func TypeFromProtoMessage(m *protogen.Message) (Type, error) {
+	switch m.Desc.FullName() {
 	case protoreflect.FullName("google.protobuf").Append("Empty"):
 		return NullableType(BooleanType), nil
 	}
 	// TODO: handle other well-known types
-	return newObjectType(md), nil
+	return newObjectType(m), nil
 }
 
 type nullableType struct {
