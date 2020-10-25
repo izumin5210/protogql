@@ -1,0 +1,14 @@
+type User @protobuf(type: "testdata.tasks.User") @goModel(model: "testdata/task/graph/model.User") {
+	id: Int! @goField(name: "Id", forceResolver: false)
+	fullName: String! @goField(name: "FullName", forceResolver: false)
+	role: UserRole! @goField(name: "Role", forceResolver: false)
+}
+input UserInput @protobuf(type: "testdata.tasks.User") @goModel(model: "testdata/task/graph/model.User") {
+	id: Int! @goField(name: "Id")
+	fullName: String! @goField(name: "FullName")
+	role: UserRole! @goField(name: "Role")
+}
+enum UserRole @protobuf(type: "testdata.tasks.User.Role") @goModel(model: "testdata/task/graph/model.UserRole") {
+	ROLE_UNSPECIFIED
+	ADMIN
+}

@@ -1,0 +1,18 @@
+type Task @protobuf(type: "testdata.task.Task") @goModel(model: "testdata/task/graph/model.Task") {
+	id: Int! @goField(name: "Id", forceResolver: false)
+	title: String! @goField(name: "Title", forceResolver: false)
+	status: TaskStatus! @goField(name: "Status", forceResolver: false)
+	assigneeIds: [Int!]! @goField(name: "AssigneeIds", forceResolver: false)
+}
+input TaskInput @protobuf(type: "testdata.task.Task") @goModel(model: "testdata/task/graph/model.Task") {
+	id: Int! @goField(name: "Id")
+	title: String! @goField(name: "Title")
+	status: TaskStatus! @goField(name: "Status")
+	assigneeIds: [Int!]! @goField(name: "AssigneeIds")
+}
+enum TaskStatus @protobuf(type: "testdata.task.Task.Status") @goModel(model: "testdata/task/graph/model.TaskStatus") {
+	STATUS_UNSPECIFIED
+	TODO
+	IN_PROGRESS
+	DONE
+}

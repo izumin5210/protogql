@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package testdata.task;
+
+option go_package = "testdata/task/api";
+
+service TaskService {
+  rpc ListTasks(ListTasksRequest) returns (ListTasksResponse);
+}
+
+message Task {
+  uint64 id = 1;
+  string title = 2;
+
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+    TODO = 1;
+    IN_PROGRESS = 2;
+    DONE = 3;
+  }
+
+  Status status = 3;
+  repeated uint64 assignee_ids = 4;
+}
+
+message ListTasksRequest {
+  string page_token = 1;
+  int32 page_size = 2;
+}
+
+message ListTasksResponse {
+  repeated Task tasks = 1;
+  int32 total_size = 2;
+  string next_page_token = 3;
+}

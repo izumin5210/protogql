@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package testdata.tasks;
+
+option go_package = "testdata/task/api";
+
+service UserService {
+  rpc BatchGetUsers(BatchGetUsersRequest) returns (BatchGetUsersResponse);
+}
+
+message User {
+  uint64 id = 1;
+  string full_name = 2;
+
+  enum Role {
+    ROLE_UNSPECIFIED = 0;
+    ADMIN = 1;
+  }
+
+  Role role = 101;
+}
+
+message BatchGetUsersRequest {
+  repeated uint64 user_ids = 1;
+}
+
+message BatchGetUsersResponse {
+  repeated User users = 1;
+}
