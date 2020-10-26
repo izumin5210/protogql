@@ -1,19 +1,19 @@
 type Color @proto(fullName: "testdata.starwars.Color", package: "testdata.starwars", name: "Color", goPackage: "testdata/starwars", goName: "Color") {
-	red: Int! @protoField(name: "red", goName: "Red")
-	green: Int! @protoField(name: "green", goName: "Green")
-	blue: Int! @protoField(name: "blue", goName: "Blue")
+	red: Int! @protoField(name: "red", type: "int32", goName: "Red", goType: "int32")
+	green: Int! @protoField(name: "green", type: "int32", goName: "Green", goType: "int32")
+	blue: Int! @protoField(name: "blue", type: "int32", goName: "Blue", goType: "int32")
 }
 input ColorInput @proto(fullName: "testdata.starwars.Color", package: "testdata.starwars", name: "Color", goPackage: "testdata/starwars", goName: "Color") {
-	red: Int! @protoField(name: "red", goName: "Red")
-	green: Int! @protoField(name: "green", goName: "Green")
-	blue: Int! @protoField(name: "blue", goName: "Blue")
+	red: Int! @protoField(name: "red", type: "int32", goName: "Red", goType: "int32")
+	green: Int! @protoField(name: "green", type: "int32", goName: "Green", goType: "int32")
+	blue: Int! @protoField(name: "blue", type: "int32", goName: "Blue", goType: "int32")
 }
 type Review @proto(fullName: "testdata.starwars.Review", package: "testdata.starwars", name: "Review", goPackage: "testdata/starwars", goName: "Review") {
-	stars: Int! @protoField(name: "stars", goName: "Stars")
-	commentary: String! @protoField(name: "commentary", goName: "Commentary")
+	stars: Int! @protoField(name: "stars", type: "int32", goName: "Stars", goType: "int32")
+	commentary: String! @protoField(name: "commentary", type: "string", goName: "Commentary", goType: "string")
 }
 input ReviewInput @proto(fullName: "testdata.starwars.Review", package: "testdata.starwars", name: "Review", goPackage: "testdata/starwars", goName: "Review") {
-	stars: Int! @protoField(name: "stars", goName: "Stars")
-	commentary: String! @protoField(name: "commentary", goName: "Commentary")
+	stars: Int! @protoField(name: "stars", type: "int32", goName: "Stars", goType: "int32")
+	commentary: String! @protoField(name: "commentary", type: "string", goName: "Commentary", goType: "string")
 }
 

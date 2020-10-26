@@ -2,6 +2,7 @@ package gqls
 
 import (
 	"github.com/vektah/gqlparser/v2/ast"
+	"google.golang.org/protobuf/reflect/protoreflect"
 
 	"github.com/izumin5210/remixer/cmd/protoc-gen-graphql/protoutil"
 )
@@ -13,21 +14,46 @@ var (
 	BooleanType = newScalarType("Boolean")
 	IDType      = newScalarType("ID")
 
-	scalarTypeMap = map[protoutil.JSONKind]Type{
-		protoutil.JSONInt:          IntType,
-		protoutil.JSONFloat:        FloatType,
-		protoutil.JSONString:       StringType,
-		protoutil.JSONBoolean:      BooleanType,
-		protoutil.JSONBase64String: StringType,
-	}
+	scalarTypeMap = map[protoreflect.Kind]Type{}
 )
 
-type scalarType struct {
-	name string
+func init() {
+	for protoKind, jsonKind := range protoutil.JSONKindMap {
+		var name string
+		switch jsonKind {
+		case protoutil.JSONFloat:
+			name = "Float"
+		case protoutil.JSONInt:
+			name = "Int"
+		case protoutil.JSONString:
+			name = "String"
+		case protoutil.JSONBoolean:
+			name = "Boolean"
+		case protoutil.JSONBase64String:
+			name = "String"
+		}
+
+		if name == "" {
+			continue
+		}
+
+		goKind := protoutil.GoKindMap[protoKind]
+		if goKind == 0 {
+			continue
+		}
+
+		scalarTypeMap[protoKind] = &ScalarType{name: name, ProtoName: protoKind.String(), GoName: goKind.String()}
+	}
 }
 
-func newScalarType(name string) Type     { return &scalarType{name: name} }
-func (t *scalarType) Name() string       { return t.name }
-func (t *scalarType) IsNullable() bool   { return false }
-func (t *scalarType) IsList() bool       { return false }
-func (t *scalarType) TypeAST() *ast.Type { return ast.NonNullNamedType(t.Name(), nil) }
+type ScalarType struct {
+	name      string
+	ProtoName string
+	GoName    string
+}
+
+func newScalarType(name string) Type     { return &ScalarType{name: name} }
+func (t *ScalarType) Name() string       { return t.name }
+func (t *ScalarType) IsNullable() bool   { return false }
+func (t *ScalarType) IsList() bool       { return false }
+func (t *ScalarType) TypeAST() *ast.Type { return ast.NonNullNamedType(t.Name(), nil) }

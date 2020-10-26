@@ -1,6 +1,8 @@
 package gqls
 
 import (
+	"fmt"
+
 	"github.com/vektah/gqlparser/v2/ast"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/reflect/protoreflect"
@@ -18,15 +20,15 @@ func enumDirectivesAST(e *protogen.Enum) ast.DirectiveList {
 	}
 }
 
-func fieldDirectivesAST(f *protogen.Field) ast.DirectiveList {
+func fieldDirectivesAST(f *protogen.Field, typ Type) ast.DirectiveList {
 	return ast.DirectiveList{
-		protobufFieldDirectiveAST(f),
+		protobufFieldDirectiveAST(f, typ),
 	}
 }
 
-func inputFieldDirectivesAST(f *protogen.Field) ast.DirectiveList {
+func inputFieldDirectivesAST(f *protogen.Field, typ Type) ast.DirectiveList {
 	return ast.DirectiveList{
-		protobufFieldDirectiveAST(f),
+		protobufFieldDirectiveAST(f, typ),
 	}
 }
 
@@ -43,12 +45,31 @@ func protobufTypeDirectiveAST(desc protoreflect.Descriptor, goIdent protogen.GoI
 	}
 }
 
-func protobufFieldDirectiveAST(f *protogen.Field) *ast.Directive {
+func protobufFieldDirectiveAST(f *protogen.Field, typ Type) *ast.Directive {
+	var protoType, goType string
+	switch typ := UnwrapType(typ).(type) {
+	case *ScalarType:
+		protoType = typ.ProtoName
+		goType = typ.GoName
+	case *ObjectType:
+		protoType = string(typ.Proto.Desc.FullName())
+		goType = fmt.Sprintf("%s.%s", typ.Proto.GoIdent.GoImportPath, typ.Proto.GoIdent.GoName)
+	case *InputObjectType:
+		protoType = string(typ.base.Proto.Desc.FullName())
+		goType = fmt.Sprintf("%s.%s", typ.base.Proto.GoIdent.GoImportPath, typ.base.Proto.GoIdent.GoName)
+	case *EnumType:
+		protoType = string(typ.Proto.Desc.FullName())
+		goType = fmt.Sprintf("%s.%s", typ.Proto.GoIdent.GoImportPath, typ.Proto.GoIdent.GoName)
+	default:
+		panic("unreachable")
+	}
 	return &ast.Directive{
 		Name: "protoField",
 		Arguments: ast.ArgumentList{
 			{Name: "name", Value: &ast.Value{Raw: string(f.Desc.Name()), Kind: ast.StringValue}},
+			{Name: "type", Value: &ast.Value{Raw: protoType, Kind: ast.StringValue}},
 			{Name: "goName", Value: &ast.Value{Raw: f.GoName, Kind: ast.StringValue}},
+			{Name: "goType", Value: &ast.Value{Raw: goType, Kind: ast.StringValue}},
 		},
 	}
 }

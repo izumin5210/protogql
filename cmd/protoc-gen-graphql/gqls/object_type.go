@@ -38,7 +38,7 @@ func (t *ObjectType) DefinitionAST() (*ast.Definition, error) {
 		def.Fields = append(def.Fields, &ast.FieldDefinition{
 			Name:       strcase.ToLowerCamel(string(f.Desc.Name())),
 			Type:       ft.TypeAST(),
-			Directives: fieldDirectivesAST(f),
+			Directives: fieldDirectivesAST(f, ft),
 		})
 	}
 

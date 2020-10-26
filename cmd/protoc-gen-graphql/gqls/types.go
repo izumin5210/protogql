@@ -6,8 +6,6 @@ import (
 	"github.com/vektah/gqlparser/v2/ast"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/reflect/protoreflect"
-
-	"github.com/izumin5210/remixer/cmd/protoc-gen-graphql/protoutil"
 )
 
 type Type interface {
@@ -52,7 +50,7 @@ func rawTypeFromProtoField(f *protogen.Field) (Type, error) {
 	case protoreflect.EnumKind:
 		return NewEnumType(f.Enum), nil
 	default:
-		typ, ok := scalarTypeMap[protoutil.JSONKindFrom(f.Desc.Kind())]
+		typ, ok := scalarTypeMap[f.Desc.Kind()]
 		if !ok {
 			return nil, fmt.Errorf("unsupported kind: %s", f.Desc.Kind())
 		}
@@ -100,4 +98,14 @@ func nameWithParent(d protoreflect.Descriptor) string {
 		name = string(parent.Name()) + name
 	}
 	return name
+}
+
+func UnwrapType(t Type) Type {
+	for {
+		if modified, ok := t.(ModifiedType); ok {
+			t = modified.Original()
+		} else {
+			return t
+		}
+	}
 }

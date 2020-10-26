@@ -1,41 +1,41 @@
 type Character @proto(fullName: "testdata.starwars.Character", package: "testdata.starwars", name: "Character", goPackage: "testdata/starwars", goName: "Character") {
-	human: Human! @protoField(name: "human", goName: "Human")
-	droid: Droid! @protoField(name: "droid", goName: "Droid")
+	human: Human! @protoField(name: "human", type: "testdata.starwars.Human", goName: "Human", goType: "\"testdata/starwars\".Human")
+	droid: Droid! @protoField(name: "droid", type: "testdata.starwars.Droid", goName: "Droid", goType: "\"testdata/starwars\".Droid")
 }
 input CharacterInput @proto(fullName: "testdata.starwars.Character", package: "testdata.starwars", name: "Character", goPackage: "testdata/starwars", goName: "Character") {
-	human: HumanInput! @protoField(name: "human", goName: "Human")
-	droid: DroidInput! @protoField(name: "droid", goName: "Droid")
+	human: HumanInput! @protoField(name: "human", type: "testdata.starwars.Human", goName: "Human", goType: "\"testdata/starwars\".Human")
+	droid: DroidInput! @protoField(name: "droid", type: "testdata.starwars.Droid", goName: "Droid", goType: "\"testdata/starwars\".Droid")
 }
 type Droid @proto(fullName: "testdata.starwars.Droid", package: "testdata.starwars", name: "Droid", goPackage: "testdata/starwars", goName: "Droid") {
-	id: String! @protoField(name: "id", goName: "Id")
-	name: String! @protoField(name: "name", goName: "Name")
-	friends: [Character!]! @protoField(name: "friends", goName: "Friends")
-	appearsIn: [Episode!]! @protoField(name: "appears_in", goName: "AppearsIn")
-	primaryFunction: String! @protoField(name: "primary_function", goName: "PrimaryFunction")
+	id: String! @protoField(name: "id", type: "uint64", goName: "Id", goType: "uint64")
+	name: String! @protoField(name: "name", type: "string", goName: "Name", goType: "string")
+	friends: [Character!]! @protoField(name: "friends", type: "testdata.starwars.Character", goName: "Friends", goType: "\"testdata/starwars\".Character")
+	appearsIn: [Episode!]! @protoField(name: "appears_in", type: "testdata.starwars.Episode", goName: "AppearsIn", goType: "\"testdata/starwars\".Episode")
+	primaryFunction: String! @protoField(name: "primary_function", type: "string", goName: "PrimaryFunction", goType: "string")
 }
 input DroidInput @proto(fullName: "testdata.starwars.Droid", package: "testdata.starwars", name: "Droid", goPackage: "testdata/starwars", goName: "Droid") {
-	id: String! @protoField(name: "id", goName: "Id")
-	name: String! @protoField(name: "name", goName: "Name")
-	friends: [CharacterInput!]! @protoField(name: "friends", goName: "Friends")
-	appearsIn: [Episode!]! @protoField(name: "appears_in", goName: "AppearsIn")
-	primaryFunction: String! @protoField(name: "primary_function", goName: "PrimaryFunction")
+	id: String! @protoField(name: "id", type: "uint64", goName: "Id", goType: "uint64")
+	name: String! @protoField(name: "name", type: "string", goName: "Name", goType: "string")
+	friends: [CharacterInput!]! @protoField(name: "friends", type: "testdata.starwars.Character", goName: "Friends", goType: "\"testdata/starwars\".Character")
+	appearsIn: [Episode!]! @protoField(name: "appears_in", type: "testdata.starwars.Episode", goName: "AppearsIn", goType: "\"testdata/starwars\".Episode")
+	primaryFunction: String! @protoField(name: "primary_function", type: "string", goName: "PrimaryFunction", goType: "string")
 }
 type Human @proto(fullName: "testdata.starwars.Human", package: "testdata.starwars", name: "Human", goPackage: "testdata/starwars", goName: "Human") {
-	id: String! @protoField(name: "id", goName: "Id")
-	name: String! @protoField(name: "name", goName: "Name")
-	homePlanet: String! @protoField(name: "homePlanet", goName: "HomePlanet")
-	mass: Float! @protoField(name: "mass", goName: "Mass")
-	friends: [Character!]! @protoField(name: "friends", goName: "Friends")
-	appearsIn: [Episode!]! @protoField(name: "appears_in", goName: "AppearsIn")
-	tarships: [Starship!]! @protoField(name: "tarships", goName: "Tarships")
+	id: String! @protoField(name: "id", type: "uint64", goName: "Id", goType: "uint64")
+	name: String! @protoField(name: "name", type: "string", goName: "Name", goType: "string")
+	homePlanet: String! @protoField(name: "homePlanet", type: "string", goName: "HomePlanet", goType: "string")
+	mass: Float! @protoField(name: "mass", type: "float", goName: "Mass", goType: "float32")
+	friends: [Character!]! @protoField(name: "friends", type: "testdata.starwars.Character", goName: "Friends", goType: "\"testdata/starwars\".Character")
+	appearsIn: [Episode!]! @protoField(name: "appears_in", type: "testdata.starwars.Episode", goName: "AppearsIn", goType: "\"testdata/starwars\".Episode")
+	tarships: [Starship!]! @protoField(name: "tarships", type: "testdata.starwars.Starship", goName: "Tarships", goType: "\"testdata/starwars\".Starship")
 }
 input HumanInput @proto(fullName: "testdata.starwars.Human", package: "testdata.starwars", name: "Human", goPackage: "testdata/starwars", goName: "Human") {
-	id: String! @protoField(name: "id", goName: "Id")
-	name: String! @protoField(name: "name", goName: "Name")
-	homePlanet: String! @protoField(name: "homePlanet", goName: "HomePlanet")
-	mass: Float! @protoField(name: "mass", goName: "Mass")
-	friends: [CharacterInput!]! @protoField(name: "friends", goName: "Friends")
-	appearsIn: [Episode!]! @protoField(name: "appears_in", goName: "AppearsIn")
-	tarships: [StarshipInput!]! @protoField(name: "tarships", goName: "Tarships")
+	id: String! @protoField(name: "id", type: "uint64", goName: "Id", goType: "uint64")
+	name: String! @protoField(name: "name", type: "string", goName: "Name", goType: "string")
+	homePlanet: String! @protoField(name: "homePlanet", type: "string", goName: "HomePlanet", goType: "string")
+	mass: Float! @protoField(name: "mass", type: "float", goName: "Mass", goType: "float32")
+	friends: [CharacterInput!]! @protoField(name: "friends", type: "testdata.starwars.Character", goName: "Friends", goType: "\"testdata/starwars\".Character")
+	appearsIn: [Episode!]! @protoField(name: "appears_in", type: "testdata.starwars.Episode", goName: "AppearsIn", goType: "\"testdata/starwars\".Episode")
+	tarships: [StarshipInput!]! @protoField(name: "tarships", type: "testdata.starwars.Starship", goName: "Tarships", goType: "\"testdata/starwars\".Starship")
 }
 
