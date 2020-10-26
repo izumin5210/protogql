@@ -1,41 +1,41 @@
-type Character @protobuf(type: "testdata.starwars.Character") @goModel(model: "testdata/starwars.Character") {
-	human: Human! @goField(name: "Human", forceResolver: false)
-	droid: Droid! @goField(name: "Droid", forceResolver: false)
+type Character @proto(fullName: "testdata.starwars.Character", package: "testdata.starwars", name: "Character", goPackage: "testdata/starwars", goName: "Character") {
+	human: Human! @protoField(name: "human", goName: "Human")
+	droid: Droid! @protoField(name: "droid", goName: "Droid")
 }
-input CharacterInput @protobuf(type: "testdata.starwars.Character") @goModel(model: "testdata/starwars.Character") {
-	human: HumanInput! @goField(name: "Human")
-	droid: DroidInput! @goField(name: "Droid")
+input CharacterInput @proto(fullName: "testdata.starwars.Character", package: "testdata.starwars", name: "Character", goPackage: "testdata/starwars", goName: "Character") {
+	human: HumanInput! @protoField(name: "human", goName: "Human")
+	droid: DroidInput! @protoField(name: "droid", goName: "Droid")
 }
-type Droid @protobuf(type: "testdata.starwars.Droid") @goModel(model: "testdata/starwars.Droid") {
-	id: String! @goField(name: "Id", forceResolver: false)
-	name: String! @goField(name: "Name", forceResolver: false)
-	friends: [Character!]! @goField(name: "Friends", forceResolver: false)
-	appearsIn: [Episode!]! @goField(name: "AppearsIn", forceResolver: false)
-	primaryFunction: String! @goField(name: "PrimaryFunction", forceResolver: false)
+type Droid @proto(fullName: "testdata.starwars.Droid", package: "testdata.starwars", name: "Droid", goPackage: "testdata/starwars", goName: "Droid") {
+	id: String! @protoField(name: "id", goName: "Id")
+	name: String! @protoField(name: "name", goName: "Name")
+	friends: [Character!]! @protoField(name: "friends", goName: "Friends")
+	appearsIn: [Episode!]! @protoField(name: "appears_in", goName: "AppearsIn")
+	primaryFunction: String! @protoField(name: "primary_function", goName: "PrimaryFunction")
 }
-input DroidInput @protobuf(type: "testdata.starwars.Droid") @goModel(model: "testdata/starwars.Droid") {
-	id: String! @goField(name: "Id")
-	name: String! @goField(name: "Name")
-	friends: [CharacterInput!]! @goField(name: "Friends")
-	appearsIn: [Episode!]! @goField(name: "AppearsIn")
-	primaryFunction: String! @goField(name: "PrimaryFunction")
+input DroidInput @proto(fullName: "testdata.starwars.Droid", package: "testdata.starwars", name: "Droid", goPackage: "testdata/starwars", goName: "Droid") {
+	id: String! @protoField(name: "id", goName: "Id")
+	name: String! @protoField(name: "name", goName: "Name")
+	friends: [CharacterInput!]! @protoField(name: "friends", goName: "Friends")
+	appearsIn: [Episode!]! @protoField(name: "appears_in", goName: "AppearsIn")
+	primaryFunction: String! @protoField(name: "primary_function", goName: "PrimaryFunction")
 }
-type Human @protobuf(type: "testdata.starwars.Human") @goModel(model: "testdata/starwars.Human") {
-	id: String! @goField(name: "Id", forceResolver: false)
-	name: String! @goField(name: "Name", forceResolver: false)
-	homePlanet: String! @goField(name: "HomePlanet", forceResolver: false)
-	mass: Float! @goField(name: "Mass", forceResolver: false)
-	friends: [Character!]! @goField(name: "Friends", forceResolver: false)
-	appearsIn: [Episode!]! @goField(name: "AppearsIn", forceResolver: false)
-	tarships: [Starship!]! @goField(name: "Tarships", forceResolver: false)
+type Human @proto(fullName: "testdata.starwars.Human", package: "testdata.starwars", name: "Human", goPackage: "testdata/starwars", goName: "Human") {
+	id: String! @protoField(name: "id", goName: "Id")
+	name: String! @protoField(name: "name", goName: "Name")
+	homePlanet: String! @protoField(name: "homePlanet", goName: "HomePlanet")
+	mass: Float! @protoField(name: "mass", goName: "Mass")
+	friends: [Character!]! @protoField(name: "friends", goName: "Friends")
+	appearsIn: [Episode!]! @protoField(name: "appears_in", goName: "AppearsIn")
+	tarships: [Starship!]! @protoField(name: "tarships", goName: "Tarships")
 }
-input HumanInput @protobuf(type: "testdata.starwars.Human") @goModel(model: "testdata/starwars.Human") {
-	id: String! @goField(name: "Id")
-	name: String! @goField(name: "Name")
-	homePlanet: String! @goField(name: "HomePlanet")
-	mass: Float! @goField(name: "Mass")
-	friends: [CharacterInput!]! @goField(name: "Friends")
-	appearsIn: [Episode!]! @goField(name: "AppearsIn")
-	tarships: [StarshipInput!]! @goField(name: "Tarships")
+input HumanInput @proto(fullName: "testdata.starwars.Human", package: "testdata.starwars", name: "Human", goPackage: "testdata/starwars", goName: "Human") {
+	id: String! @protoField(name: "id", goName: "Id")
+	name: String! @protoField(name: "name", goName: "Name")
+	homePlanet: String! @protoField(name: "homePlanet", goName: "HomePlanet")
+	mass: Float! @protoField(name: "mass", goName: "Mass")
+	friends: [CharacterInput!]! @protoField(name: "friends", goName: "Friends")
+	appearsIn: [Episode!]! @protoField(name: "appears_in", goName: "AppearsIn")
+	tarships: [StarshipInput!]! @protoField(name: "tarships", goName: "Tarships")
 }
 

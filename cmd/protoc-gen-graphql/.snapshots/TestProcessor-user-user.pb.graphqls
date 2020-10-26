@@ -1,30 +1,30 @@
-type BatchGetUsersRequest @protobuf(type: "testdata.BatchGetUsersRequest") @goModel(model: "testdata/user.BatchGetUsersRequest") {
-	userIds: [String!]! @goField(name: "UserIds", forceResolver: false)
+type BatchGetUsersRequest @proto(fullName: "testdata.BatchGetUsersRequest", package: "testdata", name: "BatchGetUsersRequest", goPackage: "testdata/user", goName: "BatchGetUsersRequest") {
+	userIds: [String!]! @protoField(name: "user_ids", goName: "UserIds")
 }
-input BatchGetUsersRequestInput @protobuf(type: "testdata.BatchGetUsersRequest") @goModel(model: "testdata/user.BatchGetUsersRequest") {
-	userIds: [String!]! @goField(name: "UserIds")
+input BatchGetUsersRequestInput @proto(fullName: "testdata.BatchGetUsersRequest", package: "testdata", name: "BatchGetUsersRequest", goPackage: "testdata/user", goName: "BatchGetUsersRequest") {
+	userIds: [String!]! @protoField(name: "user_ids", goName: "UserIds")
 }
-type BatchGetUsersResponse @protobuf(type: "testdata.BatchGetUsersResponse") @goModel(model: "testdata/user.BatchGetUsersResponse") {
-	users: [User!]! @goField(name: "Users", forceResolver: false)
+type BatchGetUsersResponse @proto(fullName: "testdata.BatchGetUsersResponse", package: "testdata", name: "BatchGetUsersResponse", goPackage: "testdata/user", goName: "BatchGetUsersResponse") {
+	users: [User!]! @protoField(name: "users", goName: "Users")
 }
-input BatchGetUsersResponseInput @protobuf(type: "testdata.BatchGetUsersResponse") @goModel(model: "testdata/user.BatchGetUsersResponse") {
-	users: [UserInput!]! @goField(name: "Users")
+input BatchGetUsersResponseInput @proto(fullName: "testdata.BatchGetUsersResponse", package: "testdata", name: "BatchGetUsersResponse", goPackage: "testdata/user", goName: "BatchGetUsersResponse") {
+	users: [UserInput!]! @protoField(name: "users", goName: "Users")
 }
-type User @protobuf(type: "testdata.User") @goModel(model: "testdata/user.User") {
-	id: String! @goField(name: "Id", forceResolver: false)
-	fullName: String! @goField(name: "FullName", forceResolver: false)
-	followeeUserIds: [String!]! @goField(name: "FolloweeUserIds", forceResolver: false)
-	followerUserIds: [String!]! @goField(name: "FollowerUserIds", forceResolver: false)
-	role: UserRole! @goField(name: "Role", forceResolver: false)
+type User @proto(fullName: "testdata.User", package: "testdata", name: "User", goPackage: "testdata/user", goName: "User") {
+	id: String! @protoField(name: "id", goName: "Id")
+	fullName: String! @protoField(name: "full_name", goName: "FullName")
+	followeeUserIds: [String!]! @protoField(name: "followee_user_ids", goName: "FolloweeUserIds")
+	followerUserIds: [String!]! @protoField(name: "follower_user_ids", goName: "FollowerUserIds")
+	role: UserRole! @protoField(name: "role", goName: "Role")
 }
-input UserInput @protobuf(type: "testdata.User") @goModel(model: "testdata/user.User") {
-	id: String! @goField(name: "Id")
-	fullName: String! @goField(name: "FullName")
-	followeeUserIds: [String!]! @goField(name: "FolloweeUserIds")
-	followerUserIds: [String!]! @goField(name: "FollowerUserIds")
-	role: UserRole! @goField(name: "Role")
+input UserInput @proto(fullName: "testdata.User", package: "testdata", name: "User", goPackage: "testdata/user", goName: "User") {
+	id: String! @protoField(name: "id", goName: "Id")
+	fullName: String! @protoField(name: "full_name", goName: "FullName")
+	followeeUserIds: [String!]! @protoField(name: "followee_user_ids", goName: "FolloweeUserIds")
+	followerUserIds: [String!]! @protoField(name: "follower_user_ids", goName: "FollowerUserIds")
+	role: UserRole! @protoField(name: "role", goName: "Role")
 }
-enum UserRole @protobuf(type: "testdata.User.Role") @goModel(model: "testdata/user.User_Role") {
+enum UserRole @proto(fullName: "testdata.User.Role", package: "testdata", name: "Role", goPackage: "testdata/user", goName: "User_Role") {
 	ROLE_UNSPECIFIED
 	ADMIN
 }

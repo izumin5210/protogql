@@ -1,19 +1,19 @@
-type Color @protobuf(type: "testdata.starwars.Color") @goModel(model: "testdata/starwars.Color") {
-	red: Int! @goField(name: "Red", forceResolver: false)
-	green: Int! @goField(name: "Green", forceResolver: false)
-	blue: Int! @goField(name: "Blue", forceResolver: false)
+type Color @proto(fullName: "testdata.starwars.Color", package: "testdata.starwars", name: "Color", goPackage: "testdata/starwars", goName: "Color") {
+	red: Int! @protoField(name: "red", goName: "Red")
+	green: Int! @protoField(name: "green", goName: "Green")
+	blue: Int! @protoField(name: "blue", goName: "Blue")
 }
-input ColorInput @protobuf(type: "testdata.starwars.Color") @goModel(model: "testdata/starwars.Color") {
-	red: Int! @goField(name: "Red")
-	green: Int! @goField(name: "Green")
-	blue: Int! @goField(name: "Blue")
+input ColorInput @proto(fullName: "testdata.starwars.Color", package: "testdata.starwars", name: "Color", goPackage: "testdata/starwars", goName: "Color") {
+	red: Int! @protoField(name: "red", goName: "Red")
+	green: Int! @protoField(name: "green", goName: "Green")
+	blue: Int! @protoField(name: "blue", goName: "Blue")
 }
-type Review @protobuf(type: "testdata.starwars.Review") @goModel(model: "testdata/starwars.Review") {
-	stars: Int! @goField(name: "Stars", forceResolver: false)
-	commentary: String! @goField(name: "Commentary", forceResolver: false)
+type Review @proto(fullName: "testdata.starwars.Review", package: "testdata.starwars", name: "Review", goPackage: "testdata/starwars", goName: "Review") {
+	stars: Int! @protoField(name: "stars", goName: "Stars")
+	commentary: String! @protoField(name: "commentary", goName: "Commentary")
 }
-input ReviewInput @protobuf(type: "testdata.starwars.Review") @goModel(model: "testdata/starwars.Review") {
-	stars: Int! @goField(name: "Stars")
-	commentary: String! @goField(name: "Commentary")
+input ReviewInput @proto(fullName: "testdata.starwars.Review", package: "testdata.starwars", name: "Review", goPackage: "testdata/starwars", goName: "Review") {
+	stars: Int! @protoField(name: "stars", goName: "Stars")
+	commentary: String! @protoField(name: "commentary", goName: "Commentary")
 }
 

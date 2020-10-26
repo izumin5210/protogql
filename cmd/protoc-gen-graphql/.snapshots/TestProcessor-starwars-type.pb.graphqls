@@ -1,10 +1,10 @@
-enum Episode @protobuf(type: "testdata.starwars.Episode") @goModel(model: "testdata/starwars.Episode") {
+enum Episode @proto(fullName: "testdata.starwars.Episode", package: "testdata.starwars", name: "Episode", goPackage: "testdata/starwars", goName: "Episode") {
 	EPISODE_UNSPECIFIED
 	NEWHOPE
 	EMPIRE
 	JEDI
 }
-enum LengthUnit @protobuf(type: "testdata.starwars.LengthUnit") @goModel(model: "testdata/starwars.LengthUnit") {
+enum LengthUnit @proto(fullName: "testdata.starwars.LengthUnit", package: "testdata.starwars", name: "LengthUnit", goPackage: "testdata/starwars", goName: "LengthUnit") {
 	LENGTH_UNIT_UNSPECIFIED
 	METER
 	FOOT
