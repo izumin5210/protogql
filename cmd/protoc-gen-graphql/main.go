@@ -67,4 +67,4 @@ type NoopPayload {
 }
 directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
 directive @proto(fullName: String!, package: String!, name: String!, goName: String!, goFullName: String!) on OBJECT | INPUT_OBJECT | ENUM
-directive @protoField(name: String!, type String!, goName: String!, goType: String!) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION`
+directive @protoField(name: String!, type: String!, goName: String!, goType: String!) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION`
