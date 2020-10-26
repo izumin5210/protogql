@@ -1,0 +1,65 @@
+{{ reserveImport "fmt" }}
+{{ reserveImport "io" }}
+{{ reserveImport "strconv" }}
+
+{{ range $obj := .Objects }}
+	{{ $pbGoImport := lookupImport $obj.Proto.GoPackage }}
+	{{ $pbGoName := printf "%s.%s" $pbGoImport $obj.Proto.GoName }}
+
+	type {{ $obj.Name }} struct {
+		{{ range $f := $obj.Fields }}
+			{{ $f.Proto.GoName }} {{ if $f.List }}[]{{ end }}{{ findGQLFieldType $f }}
+		{{ end }}
+	}
+
+	func {{ $obj.Name }}ListFromRepeatedProto(in []*{{ $pbGoName }}) []*{{ $obj.Name }} {
+		out := make([]*{{ $obj.Name }}, len(in))
+		for i, m := range in {
+			out[i] = {{ $obj.Name }}FromProto(m)
+		}
+		return out
+	}
+
+	func {{ $obj.Name }}FromProto(in *{{ $pbGoName }}) *{{ $obj.Name }} {
+		return &{{ $obj.Name }}{
+			{{ range $f := $obj.Fields }}
+				{{ $f.Proto.GoName }}: in.{{ $f.Proto.GoName }},
+			{{ end }}
+		}
+	}
+{{ end }}
+
+{{ range $enum := .Enums }}
+	{{ $pbGoImport := lookupImport $enum.Proto.GoPackage }}
+	{{ $pbGoName := printf "%s.%s" $pbGoImport $enum.Proto.GoName }}
+
+	type {{ $enum.Name }} struct {
+		Proto {{ $pbGoName }}
+	}
+
+	func {{ $enum.Name }}ListFromRepeatedProto(in []{{ $pbGoName }}) []*{{ $enum.Name }} {
+		out := make([]*{{ $enum.Name }}, len(in))
+		for i, m := range in {
+			out[i] = {{ $enum.Name }}FromProto(m)
+		}
+		return out
+	}
+
+	func {{ $enum.Name }}FromProto(in {{ $pbGoName }}) *{{ $enum.Name }} {
+		return &{{ $enum.Name }}{Proto: in}
+	}
+
+	func (e *{{ $enum.Name }}) MarshalGQL(w io.Writer) {
+		fmt.Fprint(w, strconv.Quote(e.Proto.String()))
+	}
+
+	func (e *{{ $enum.Name }}) UnmarshalGQL(v interface{}) error {
+		str, ok := v.(string)
+		if !ok {
+			return fmt.Errorf("enums must be strings")
+		}
+
+		e.Proto = {{ $pbGoName }}({{ $pbGoName }}_value[str])
+		return nil
+	}
+{{ end }}

@@ -10,18 +10,14 @@ import (
 	"testdata/task/graph/model"
 )
 
-func (r *taskResolver) ID(ctx context.Context, obj *model.Task) (string, error) {
+func (r *userResolver) ID(ctx context.Context, obj *model.User) (string, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *taskResolver) AssigneeIds(ctx context.Context, obj *model.Task) ([]string, error) {
-	panic(fmt.Errorf("not implemented"))
-}
+// User returns generated.UserResolver implementation.
+func (r *Resolver) User() generated.UserResolver { return &userResolver{r} }
 
-// Task returns generated.TaskResolver implementation.
-func (r *Resolver) Task() generated.TaskResolver { return &taskResolver{r} }
-
-type taskResolver struct{ *Resolver }
+type userResolver struct{ *Resolver }
 
 // !!! WARNING !!!
 // The code below was going to be deleted when updating resolvers. It has been copied here so you have
@@ -29,6 +25,6 @@ type taskResolver struct{ *Resolver }
 //  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //    it when you're done.
 //  - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *taskResolver) Id(ctx context.Context, obj *model.Task) (string, error) {
+func (r *userResolver) Id(ctx context.Context, obj *model.User) (string, error) {
 	panic(fmt.Errorf("not implemented"))
 }

@@ -18,7 +18,7 @@ func (r *queryResolver) Tasks(ctx context.Context) ([]*model.Task, error) {
 	if err != nil {
 		return nil, err
 	}
-	return model.TaskListFromProto(out), nil
+	return model.TaskListFromRepeatedProto(out), nil
 }
 
 func (r *taskResolver) Assignees(ctx context.Context, obj *model.Task) ([]*model.User, error) {
@@ -26,7 +26,7 @@ func (r *taskResolver) Assignees(ctx context.Context, obj *model.Task) ([]*model
 	if err != nil {
 		return nil, err
 	}
-	return model.UserListFromProto(out), nil
+	return model.UserListFromRepeatedProto(out), nil
 }
 
 // Mutation returns generated.MutationResolver implementation.
