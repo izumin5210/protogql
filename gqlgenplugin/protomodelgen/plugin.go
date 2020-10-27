@@ -35,6 +35,18 @@ func (p *Plugin) MutateConfig(cfg *config.Config) error {
 
 	for _, obj := range binding.Objects {
 		cfg.Models.Add(obj.Name, cfg.Model.ImportPath()+"."+obj.Name)
+		for _, f := range obj.Fields {
+			if f.Proto != nil {
+				continue
+			}
+			if cfg.Models[obj.Name].Fields == nil {
+				cfg.Models[obj.Name] = config.TypeMapEntry{
+					Model:  cfg.Models[obj.Name].Model,
+					Fields: map[string]config.TypeMapField{},
+				}
+			}
+			cfg.Models[obj.Name].Fields[f.Name] = config.TypeMapField{FieldName: f.Name, Resolver: true}
+		}
 	}
 	for _, enum := range binding.Enums {
 		cfg.Models.Add(enum.Name, cfg.Model.ImportPath()+"."+enum.Name)
