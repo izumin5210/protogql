@@ -8,7 +8,7 @@
 
 	type {{ $obj.Name }} struct {
 		{{ range $f := $obj.Fields }}
-			{{ go $f.Name }} {{ if $f.List }}[]{{ end }}{{ findGQLFieldType $f }}
+			{{ go $f.Name }} {{ if $f.List }}[]{{ end }}{{ if not $f.IsBuiltinType }}*{{ end }}{{ findGQLFieldType $f }}
 		{{ end }}
 	}
 
@@ -24,7 +24,13 @@
 		return &{{ $obj.Name }}{
 			{{ range $f := $obj.Fields }}
 				{{ if $f.Proto }}
-					{{ go $f.Name }}: in.{{ $f.Proto.GoName }},
+					{{ if $f.IsBuiltinType }}
+						{{ go $f.Name }}: in.{{ $f.Proto.GoName }},
+					{{ else if $f.List }}
+						{{ go $f.Name }}: List{{ findGQLFieldType $f }}FromRepeatedProto(in.{{ $f.Proto.GoName }}),
+					{{ else }}
+						{{ go $f.Name }}: {{ findGQLFieldType $f }}FromProto(in.{{ $f.Proto.GoName }}),
+					{{ end }}
 				{{ end }}
 			{{ end }}
 		}

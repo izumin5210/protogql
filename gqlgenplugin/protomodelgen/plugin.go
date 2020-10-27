@@ -128,7 +128,7 @@ func (b *Binding) FindGQLFieldType(f *Field) (string, error) {
 	}
 
 	// FIXME
-	if strings.ToLower(f.Proto.Type) == f.Proto.Type {
+	if f.IsBuiltinType() {
 		return f.Proto.Type, nil
 	}
 	for _, o := range b.Objects {
@@ -157,15 +157,17 @@ type Field struct {
 	List  bool
 }
 
-func (f *Field) GoType() string {
-	var sb strings.Builder
-	if f.List {
-		sb.WriteString("[]")
+func (f *Field) IsBuiltinType() bool {
+	if f.Proto == nil {
+		// FIXME
+		switch f.GQL.Type.Name() {
+		case "ID", "Int", "Float", "String", "Boolean":
+			return true
+		default:
+			return false
+		}
 	}
-	sb.WriteString("*")
-	// ...
-	sb.WriteString(f.Proto.GoType)
-	return sb.String()
+	return strings.ToLower(f.Proto.Type) == f.Proto.Type
 }
 
 type Enum struct {
