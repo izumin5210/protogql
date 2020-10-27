@@ -22,7 +22,6 @@ func New() *Plugin {
 }
 
 var (
-	// _ plugin.CodeGenerator
 	_ plugin.ConfigMutator
 )
 
