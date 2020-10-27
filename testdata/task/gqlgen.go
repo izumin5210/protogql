@@ -21,7 +21,7 @@ func main() {
 	}
 
 	err = api.Generate(cfg,
-		PrependPlugin(protomodelgen.New()), // This is the magic line
+		PrependPlugin(protomodelgen.New()),
 	)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
