@@ -51,7 +51,7 @@
 		return &{{ $enum.Name }}{Proto: in}
 	}
 
-	func (e *{{ $enum.Name }}) MarshalGQL(w io.Writer) {
+	func (e {{ $enum.Name }}) MarshalGQL(w io.Writer) {
 		fmt.Fprint(w, strconv.Quote(e.Proto.String()))
 	}
 
