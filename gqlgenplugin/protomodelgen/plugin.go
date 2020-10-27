@@ -80,10 +80,7 @@ func createBinding(s *ast.Schema) (*Binding, error) {
 				if err != nil {
 					return nil, err
 				}
-				if proto == nil {
-					continue
-				}
-				obj.Fields = append(obj.Fields, &Field{Name: f.Name, Proto: proto, List: f.Type.NamedType == ""})
+				obj.Fields = append(obj.Fields, &Field{Name: f.Name, GQL: f, Proto: proto, List: f.Type.NamedType == ""})
 			}
 			binding.Objects = append(binding.Objects, obj)
 
@@ -108,6 +105,10 @@ type Binding struct {
 }
 
 func (b *Binding) FindGQLFieldType(f *Field) (string, error) {
+	if f.Proto == nil {
+		return f.GQL.Type.Name(), nil
+	}
+
 	// FIXME
 	if strings.ToLower(f.Proto.Type) == f.Proto.Type {
 		return f.Proto.Type, nil
@@ -133,6 +134,7 @@ type Object struct {
 
 type Field struct {
 	Name  string
+	GQL   *ast.FieldDefinition
 	Proto *ProtoFieldDirective
 	List  bool
 }

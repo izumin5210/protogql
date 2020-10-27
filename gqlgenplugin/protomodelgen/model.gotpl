@@ -8,7 +8,7 @@
 
 	type {{ $obj.Name }} struct {
 		{{ range $f := $obj.Fields }}
-			{{ go $f.Proto.GoName }} {{ if $f.List }}[]{{ end }}{{ findGQLFieldType $f }}
+			{{ go $f.Name }} {{ if $f.List }}[]{{ end }}{{ findGQLFieldType $f }}
 		{{ end }}
 	}
 
@@ -23,7 +23,9 @@
 	func {{ $obj.Name }}FromProto(in *{{ $pbGoName }}) *{{ $obj.Name }} {
 		return &{{ $obj.Name }}{
 			{{ range $f := $obj.Fields }}
-				{{ go $f.Proto.GoName }}: in.{{ $f.Proto.GoName }},
+				{{ if $f.Proto }}
+					{{ go $f.Name }}: in.{{ $f.Proto.GoName }},
+				{{ end }}
 			{{ end }}
 		}
 	}
