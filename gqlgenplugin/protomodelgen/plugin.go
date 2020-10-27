@@ -52,6 +52,12 @@ func (p *Plugin) MutateConfig(cfg *config.Config) error {
 		cfg.Models.Add(enum.Name, cfg.Model.ImportPath()+"."+enum.Name)
 	}
 
+	for _, name := range []string{"Int", "ID"} {
+		model := cfg.Models[name]
+		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime.Uint64")
+		cfg.Models[name] = model
+	}
+
 	return templates.Render(templates.Options{
 		PackageName:     cfg.Model.Package,
 		Filename:        filepath.Join(cfg.Model.Dir(), "protomodels_gen.go"),
