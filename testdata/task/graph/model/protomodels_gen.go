@@ -42,6 +42,27 @@ func TaskFromProto(in *api.Task) *Task {
 	}
 }
 
+func TaskListToRepeatedProto(in []*Task) []*api.Task {
+	out := make([]*api.Task, len(in))
+	for i, m := range in {
+		out[i] = TaskToProto(m)
+	}
+	return out
+}
+
+func TaskToProto(in *Task) *api.Task {
+	return &api.Task{
+
+		Id: in.ID,
+
+		Title: in.Title,
+
+		Status: TaskStatusToProto(in.Status),
+
+		AssigneeIds: in.AssigneeIds,
+	}
+}
+
 type TaskInput struct {
 	ID uint64
 
@@ -68,6 +89,27 @@ func TaskInputFromProto(in *api.Task) *TaskInput {
 		Title: in.Title,
 
 		Status: TaskStatusFromProto(in.Status),
+
+		AssigneeIds: in.AssigneeIds,
+	}
+}
+
+func TaskInputListToRepeatedProto(in []*TaskInput) []*api.Task {
+	out := make([]*api.Task, len(in))
+	for i, m := range in {
+		out[i] = TaskInputToProto(m)
+	}
+	return out
+}
+
+func TaskInputToProto(in *TaskInput) *api.Task {
+	return &api.Task{
+
+		Id: in.ID,
+
+		Title: in.Title,
+
+		Status: TaskStatusToProto(in.Status),
 
 		AssigneeIds: in.AssigneeIds,
 	}
@@ -100,6 +142,25 @@ func UserFromProto(in *api.User) *User {
 	}
 }
 
+func UserListToRepeatedProto(in []*User) []*api.User {
+	out := make([]*api.User, len(in))
+	for i, m := range in {
+		out[i] = UserToProto(m)
+	}
+	return out
+}
+
+func UserToProto(in *User) *api.User {
+	return &api.User{
+
+		Id: in.ID,
+
+		FullName: in.FullName,
+
+		Role: UserRoleToProto(in.Role),
+	}
+}
+
 type UserInput struct {
 	ID uint64
 
@@ -127,6 +188,25 @@ func UserInputFromProto(in *api.User) *UserInput {
 	}
 }
 
+func UserInputListToRepeatedProto(in []*UserInput) []*api.User {
+	out := make([]*api.User, len(in))
+	for i, m := range in {
+		out[i] = UserInputToProto(m)
+	}
+	return out
+}
+
+func UserInputToProto(in *UserInput) *api.User {
+	return &api.User{
+
+		Id: in.ID,
+
+		FullName: in.FullName,
+
+		Role: UserRoleToProto(in.Role),
+	}
+}
+
 type TaskStatus struct {
 	Proto api.Task_Status
 }
@@ -141,6 +221,18 @@ func TaskStatusListFromRepeatedProto(in []api.Task_Status) []*TaskStatus {
 
 func TaskStatusFromProto(in api.Task_Status) *TaskStatus {
 	return &TaskStatus{Proto: in}
+}
+
+func TaskStatusListToRepeatedProto(in []*TaskStatus) []api.Task_Status {
+	out := make([]api.Task_Status, len(in))
+	for i, m := range in {
+		out[i] = TaskStatusToProto(m)
+	}
+	return out
+}
+
+func TaskStatusToProto(in *TaskStatus) api.Task_Status {
+	return in.Proto
 }
 
 func (e TaskStatus) MarshalGQL(w io.Writer) {
@@ -171,6 +263,18 @@ func UserRoleListFromRepeatedProto(in []api.User_Role) []*UserRole {
 
 func UserRoleFromProto(in api.User_Role) *UserRole {
 	return &UserRole{Proto: in}
+}
+
+func UserRoleListToRepeatedProto(in []*UserRole) []api.User_Role {
+	out := make([]api.User_Role, len(in))
+	for i, m := range in {
+		out[i] = UserRoleToProto(m)
+	}
+	return out
+}
+
+func UserRoleToProto(in *UserRole) api.User_Role {
+	return in.Proto
 }
 
 func (e UserRole) MarshalGQL(w io.Writer) {

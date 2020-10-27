@@ -35,6 +35,30 @@
 			{{ end }}
 		}
 	}
+
+	func {{ $obj.Name }}ListToRepeatedProto(in []*{{ $obj.Name }}) []*{{ $pbGoName }} {
+		out := make([]*{{ $pbGoName }}, len(in))
+		for i, m := range in {
+			out[i] = {{ $obj.Name }}ToProto(m)
+		}
+		return out
+	}
+
+	func {{ $obj.Name }}ToProto(in *{{ $obj.Name }}) *{{ $pbGoName }} {
+		return &{{ $pbGoName }}{
+			{{ range $f := $obj.Fields }}
+				{{ if $f.Proto }}
+					{{ if $f.IsBuiltinType }}
+						{{ $f.Proto.GoName }}: in.{{ go $f.Name }},
+					{{ else if $f.List }}
+						{{ $f.Proto.GoName }}: List{{ findGQLFieldType $f }}ToRepeatedProto(in.{{ go $f.Name }}),
+					{{ else }}
+						{{ $f.Proto.GoName }}: {{ findGQLFieldType $f }}ToProto(in.{{ go $f.Name }}),
+					{{ end }}
+				{{ end }}
+			{{ end }}
+		}
+	}
 {{ end }}
 
 {{ range $enum := .Enums }}
@@ -55,6 +79,18 @@
 
 	func {{ $enum.Name }}FromProto(in {{ $pbGoName }}) *{{ $enum.Name }} {
 		return &{{ $enum.Name }}{Proto: in}
+	}
+
+	func {{ $enum.Name }}ListToRepeatedProto(in []*{{ $enum.Name }}) []{{ $pbGoName }} {
+		out := make([]{{ $pbGoName }}, len(in))
+		for i, m := range in {
+			out[i] = {{ $enum.Name }}ToProto(m)
+		}
+		return out
+	}
+
+	func {{ $enum.Name }}ToProto(in *{{ $enum.Name }}) {{ $pbGoName }} {
+		return in.Proto
 	}
 
 	func (e {{ $enum.Name }}) MarshalGQL(w io.Writer) {

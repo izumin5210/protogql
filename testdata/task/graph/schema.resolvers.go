@@ -22,7 +22,7 @@ func (r *queryResolver) Tasks(ctx context.Context) ([]*model.Task, error) {
 }
 
 func (r *taskResolver) Assignees(ctx context.Context, obj *model.Task) ([]*model.User, error) {
-	out, err := r.ProtoResolver.Task().Assignees(ctx, obj.Proto())
+	out, err := r.ProtoResolver.Task().Assignees(ctx, model.TaskToProto(obj))
 	if err != nil {
 		return nil, err
 	}
