@@ -74,7 +74,7 @@ func createBinding(s *ast.Schema) (*Binding, error) {
 		}
 
 		switch typ.Kind {
-		case ast.Object:
+		case ast.Object, ast.InputObject:
 			obj := &Object{Name: typ.Name, Proto: proto}
 			for _, f := range typ.Fields {
 				proto, err := extractProtoFieldDirective(f.Directives)
