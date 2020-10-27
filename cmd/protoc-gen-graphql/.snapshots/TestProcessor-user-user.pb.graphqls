@@ -1,8 +1,8 @@
 type BatchGetUsersRequest @proto(fullName: "testdata.BatchGetUsersRequest", package: "testdata", name: "BatchGetUsersRequest", goPackage: "testdata/user", goName: "BatchGetUsersRequest") {
-	userIds: [String!]! @protoField(name: "user_ids", type: "uint64", goName: "UserIds", goType: "uint64")
+	userIds: [Int!]! @protoField(name: "user_ids", type: "uint64", goName: "UserIds", goType: "uint64")
 }
 input BatchGetUsersRequestInput @proto(fullName: "testdata.BatchGetUsersRequest", package: "testdata", name: "BatchGetUsersRequest", goPackage: "testdata/user", goName: "BatchGetUsersRequest") {
-	userIds: [String!]! @protoField(name: "user_ids", type: "uint64", goName: "UserIds", goType: "uint64")
+	userIds: [Int!]! @protoField(name: "user_ids", type: "uint64", goName: "UserIds", goType: "uint64")
 }
 type BatchGetUsersResponse @proto(fullName: "testdata.BatchGetUsersResponse", package: "testdata", name: "BatchGetUsersResponse", goPackage: "testdata/user", goName: "BatchGetUsersResponse") {
 	users: [User!]! @protoField(name: "users", type: "testdata.User", goName: "Users", goType: "\"testdata/user\".User")
@@ -11,17 +11,17 @@ input BatchGetUsersResponseInput @proto(fullName: "testdata.BatchGetUsersRespons
 	users: [UserInput!]! @protoField(name: "users", type: "testdata.User", goName: "Users", goType: "\"testdata/user\".User")
 }
 type User @proto(fullName: "testdata.User", package: "testdata", name: "User", goPackage: "testdata/user", goName: "User") {
-	id: String! @protoField(name: "id", type: "uint64", goName: "Id", goType: "uint64")
+	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goType: "uint64")
 	fullName: String! @protoField(name: "full_name", type: "string", goName: "FullName", goType: "string")
-	followeeUserIds: [String!]! @protoField(name: "followee_user_ids", type: "uint64", goName: "FolloweeUserIds", goType: "uint64")
-	followerUserIds: [String!]! @protoField(name: "follower_user_ids", type: "uint64", goName: "FollowerUserIds", goType: "uint64")
+	followeeUserIds: [Int!]! @protoField(name: "followee_user_ids", type: "uint64", goName: "FolloweeUserIds", goType: "uint64")
+	followerUserIds: [Int!]! @protoField(name: "follower_user_ids", type: "uint64", goName: "FollowerUserIds", goType: "uint64")
 	role: UserRole! @protoField(name: "role", type: "testdata.User.Role", goName: "Role", goType: "\"testdata/user\".User_Role")
 }
 input UserInput @proto(fullName: "testdata.User", package: "testdata", name: "User", goPackage: "testdata/user", goName: "User") {
-	id: String! @protoField(name: "id", type: "uint64", goName: "Id", goType: "uint64")
+	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goType: "uint64")
 	fullName: String! @protoField(name: "full_name", type: "string", goName: "FullName", goType: "string")
-	followeeUserIds: [String!]! @protoField(name: "followee_user_ids", type: "uint64", goName: "FolloweeUserIds", goType: "uint64")
-	followerUserIds: [String!]! @protoField(name: "follower_user_ids", type: "uint64", goName: "FollowerUserIds", goType: "uint64")
+	followeeUserIds: [Int!]! @protoField(name: "followee_user_ids", type: "uint64", goName: "FolloweeUserIds", goType: "uint64")
+	followerUserIds: [Int!]! @protoField(name: "follower_user_ids", type: "uint64", goName: "FollowerUserIds", goType: "uint64")
 	role: UserRole! @protoField(name: "role", type: "testdata.User.Role", goName: "Role", goType: "\"testdata/user\".User_Role")
 }
 enum UserRole @proto(fullName: "testdata.User.Role", package: "testdata", name: "Role", goPackage: "testdata/user", goName: "User_Role") {

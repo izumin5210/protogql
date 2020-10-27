@@ -1,14 +1,14 @@
 type Task @proto(fullName: "testdata.task.Task", package: "testdata.task", name: "Task", goPackage: "testdata/task/api", goName: "Task") {
-	id: String! @protoField(name: "id", type: "uint64", goName: "Id", goType: "uint64")
+	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goType: "uint64")
 	title: String! @protoField(name: "title", type: "string", goName: "Title", goType: "string")
 	status: TaskStatus! @protoField(name: "status", type: "testdata.task.Task.Status", goName: "Status", goType: "\"testdata/task/api\".Task_Status")
-	assigneeIds: [String!]! @protoField(name: "assignee_ids", type: "uint64", goName: "AssigneeIds", goType: "uint64")
+	assigneeIds: [Int!]! @protoField(name: "assignee_ids", type: "uint64", goName: "AssigneeIds", goType: "uint64")
 }
 input TaskInput @proto(fullName: "testdata.task.Task", package: "testdata.task", name: "Task", goPackage: "testdata/task/api", goName: "Task") {
-	id: String! @protoField(name: "id", type: "uint64", goName: "Id", goType: "uint64")
+	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goType: "uint64")
 	title: String! @protoField(name: "title", type: "string", goName: "Title", goType: "string")
 	status: TaskStatus! @protoField(name: "status", type: "testdata.task.Task.Status", goName: "Status", goType: "\"testdata/task/api\".Task_Status")
-	assigneeIds: [String!]! @protoField(name: "assignee_ids", type: "uint64", goName: "AssigneeIds", goType: "uint64")
+	assigneeIds: [Int!]! @protoField(name: "assignee_ids", type: "uint64", goName: "AssigneeIds", goType: "uint64")
 }
 enum TaskStatus @proto(fullName: "testdata.task.Task.Status", package: "testdata.task", name: "Status", goPackage: "testdata/task/api", goName: "Task_Status") {
 	STATUS_UNSPECIFIED

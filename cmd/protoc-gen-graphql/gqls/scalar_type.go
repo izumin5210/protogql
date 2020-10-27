@@ -1,6 +1,8 @@
 package gqls
 
 import (
+	"strings"
+
 	"github.com/vektah/gqlparser/v2/ast"
 	"google.golang.org/protobuf/reflect/protoreflect"
 
@@ -31,6 +33,10 @@ func init() {
 			name = "Boolean"
 		case protoutil.JSONBase64String:
 			name = "String"
+		}
+
+		if name == "String" && strings.HasSuffix(protoKind.String(), "64") {
+			name = "Int"
 		}
 
 		if name == "" {
