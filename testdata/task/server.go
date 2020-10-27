@@ -19,10 +19,13 @@ func main() {
 	cfg := generated.Config{
 		Resolvers: new(graph.Resolver),
 	}
-	cfg.Directives.Grpc = func(ctx context.Context, obj interface{}, next graphql.Resolver, service, rpc string) (interface{}, error) {
+	cfg.Directives.Grpc = func(ctx context.Context, obj interface{}, next graphql.Resolver, service string, rpc string) (res interface{}, err error) {
 		return next(ctx)
 	}
-	cfg.Directives.Protobuf = func(ctx context.Context, obj interface{}, next graphql.Resolver, typeArg string) (interface{}, error) {
+	cfg.Directives.Proto = func(ctx context.Context, obj interface{}, next graphql.Resolver, fullName string, packageArg string, name string, goPackage string, goName string) (res interface{}, err error) {
+		return next(ctx)
+	}
+	cfg.Directives.ProtoField = func(ctx context.Context, obj interface{}, next graphql.Resolver, name string, typeArg string, goName string, goType string) (res interface{}, err error) {
 		return next(ctx)
 	}
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(cfg))
