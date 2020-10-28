@@ -1,9 +1,9 @@
 type Starship @proto(fullName: "testdata.starwars.Starship", package: "testdata.starwars", name: "Starship", goPackage: "testdata/starwars", goName: "Starship") {
-	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goType: "uint64")
-	name: String! @protoField(name: "name", type: "string", goName: "Name", goType: "string")
+	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
+	name: String! @protoField(name: "name", type: "string", goName: "Name", goTypeName: "string")
 }
 input StarshipInput @proto(fullName: "testdata.starwars.Starship", package: "testdata.starwars", name: "Starship", goPackage: "testdata/starwars", goName: "Starship") {
-	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goType: "uint64")
-	name: String! @protoField(name: "name", type: "string", goName: "Name", goType: "string")
+	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
+	name: String! @protoField(name: "name", type: "string", goName: "Name", goTypeName: "string")
 }
 

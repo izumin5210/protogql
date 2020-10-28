@@ -3,6 +3,8 @@ package gqlutil
 import (
 	"errors"
 	"fmt"
+
+	"github.com/vektah/gqlparser/v2/ast"
 )
 
 var ErrInvalidDirective = errors.New("invalid argument")
@@ -20,14 +22,15 @@ func (d *ProtoDirective) IsValid() bool {
 }
 
 type ProtoFieldDirective struct {
-	Name   string
-	Type   string
-	GoName string
-	GoType string
+	Name          string
+	Type          string
+	GoName        string
+	GoTypeName    string
+	GoTypePackage string
 }
 
 func (d *ProtoFieldDirective) IsValid() bool {
-	return d.Name != "" && d.Type != "" && d.GoName != "" && d.GoType != ""
+	return d.Name != "" && d.Type != "" && d.GoName != "" && d.GoTypeName != ""
 }
 
 func ExtractProtoDirective(directives ast.DirectiveList) (*ProtoDirective, error) {
@@ -69,8 +72,10 @@ func ExtractProtoFieldDirective(directives ast.DirectiveList) (*ProtoFieldDirect
 					out.Type = arg.Value.Raw
 				case arg.Name == "goName" && arg.Value.Kind == ast.StringValue:
 					out.GoName = arg.Value.Raw
-				case arg.Name == "goType" && arg.Value.Kind == ast.StringValue:
-					out.GoType = arg.Value.Raw
+				case arg.Name == "goTypeName" && arg.Value.Kind == ast.StringValue:
+					out.GoTypeName = arg.Value.Raw
+				case arg.Name == "goTypePackage" && arg.Value.Kind == ast.StringValue:
+					out.GoTypePackage = arg.Value.Raw
 				}
 			}
 			if !out.IsValid() {
