@@ -10,5 +10,3 @@ func (r *Resolver) Task() generated.TaskResolver {
 }
 
 type taskProtoResolver struct{ *Resolver }
-
-type taskProtoResolverAdapter struct{ protoResolver *taskProtoResolver }

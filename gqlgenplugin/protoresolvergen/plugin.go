@@ -82,9 +82,10 @@ func (p *Plugin) generatePerSchema(data *codegen.Data) error {
 		}
 	}
 
-	for filename, file := range files.files {
+	for filename, file := range files.Files {
 		err := templates.Render(templates.Options{
 			PackageName: data.Config.Resolver.Package,
+			Template:    templateResolvers,
 			Filename:    filename,
 			Data:        file,
 			Funcs: template.FuncMap{
@@ -97,6 +98,18 @@ func (p *Plugin) generatePerSchema(data *codegen.Data) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	err := templates.Render(templates.Options{
+		PackageName:     data.Config.Resolver.Package,
+		GeneratedHeader: true,
+		Template:        templateResolverAdapters,
+		Filename:        strings.TrimSuffix(data.Config.Resolver.Filename, filepath.Ext(data.Config.Resolver.Filename)) + ".adapters" + filepath.Ext(data.Config.Resolver.Filename),
+		Data:            files,
+		Packages:        data.Config.Packages,
+	})
+	if err != nil {
+		return err
 	}
 
 	if _, err := os.Stat(data.Config.Resolver.Filename); errors.Is(err, os.ErrNotExist) {
@@ -119,20 +132,20 @@ func (p *Plugin) generatePerSchema(data *codegen.Data) error {
 }
 
 type Files struct {
-	files map[string]*File
+	Files map[string]*File
 	cfg   config.ResolverConfig
 }
 
 func NewFiles(cfg config.ResolverConfig) *Files {
-	return &Files{files: map[string]*File{}, cfg: cfg}
+	return &Files{Files: map[string]*File{}, cfg: cfg}
 }
 
 func (f *Files) FindOrInitialize(name string) *File {
 	filename := f.resolverGoFilename(name)
-	if _, ok := f.files[filename]; !ok {
-		f.files[filename] = &File{ResolverType: f.cfg.Type}
+	if _, ok := f.Files[filename]; !ok {
+		f.Files[filename] = &File{ResolverType: f.cfg.Type}
 	}
-	return f.files[filename]
+	return f.Files[filename]
 }
 
 func (f *Files) resolverGoFilename(gqlFilename string) string {
