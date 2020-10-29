@@ -1,0 +1,7 @@
+extend type Query {
+  tasks: [Task!]!
+}
+
+extend type Task {
+  assignees: [User!]!
+}

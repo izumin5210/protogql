@@ -1,12 +1,12 @@
 type User @proto(fullName: "testdata.tasks.User", package: "testdata.tasks", name: "User", goPackage: "testdata/task/api", goName: "User") {
-	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goType: "uint64")
-	fullName: String! @protoField(name: "full_name", type: "string", goName: "FullName", goType: "string")
-	role: UserRole! @protoField(name: "role", type: "testdata.tasks.User.Role", goName: "Role", goType: "\"testdata/task/api\".User_Role")
+	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
+	fullName: String! @protoField(name: "full_name", type: "string", goName: "FullName", goTypeName: "string")
+	role: UserRole! @protoField(name: "role", type: "testdata.tasks.User.Role", goName: "Role", goTypeName: "User_Role", goTypePackage: "testdata/task/api")
 }
 input UserInput @proto(fullName: "testdata.tasks.User", package: "testdata.tasks", name: "User", goPackage: "testdata/task/api", goName: "User") {
-	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goType: "uint64")
-	fullName: String! @protoField(name: "full_name", type: "string", goName: "FullName", goType: "string")
-	role: UserRole! @protoField(name: "role", type: "testdata.tasks.User.Role", goName: "Role", goType: "\"testdata/task/api\".User_Role")
+	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
+	fullName: String! @protoField(name: "full_name", type: "string", goName: "FullName", goTypeName: "string")
+	role: UserRole! @protoField(name: "role", type: "testdata.tasks.User.Role", goName: "Role", goTypeName: "User_Role", goTypePackage: "testdata/task/api")
 }
 enum UserRole @proto(fullName: "testdata.tasks.User.Role", package: "testdata.tasks", name: "Role", goPackage: "testdata/task/api", goName: "User_Role") {
 	ROLE_UNSPECIFIED

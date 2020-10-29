@@ -45,7 +45,7 @@ type ResolverRoot interface {
 type DirectiveRoot struct {
 	Grpc       func(ctx context.Context, obj interface{}, next graphql.Resolver, service string, rpc string) (res interface{}, err error)
 	Proto      func(ctx context.Context, obj interface{}, next graphql.Resolver, fullName string, packageArg string, name string, goPackage string, goName string) (res interface{}, err error)
-	ProtoField func(ctx context.Context, obj interface{}, next graphql.Resolver, name string, typeArg string, goName string, goType string) (res interface{}, err error)
+	ProtoField func(ctx context.Context, obj interface{}, next graphql.Resolver, name string, typeArg string, goName string, goTypeName string, goTypePackage *string) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -54,6 +54,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		Nop   func(childComplexity int) int
 		Tasks func(childComplexity int) int
 	}
 
@@ -76,6 +77,7 @@ type MutationResolver interface {
 	Nop(ctx context.Context) (*bool, error)
 }
 type QueryResolver interface {
+	Nop(ctx context.Context) (*bool, error)
 	Tasks(ctx context.Context) ([]*model.Task, error)
 }
 type TaskResolver interface {
@@ -103,6 +105,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.Nop(childComplexity), true
+
+	case "Query.nop":
+		if e.complexity.Query.Nop == nil {
+			break
+		}
+
+		return e.complexity.Query.Nop(childComplexity), true
 
 	case "Query.tasks":
 		if e.complexity.Query.Tasks == nil {
@@ -233,31 +242,35 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 var sources = []*ast.Source{
 	{Name: "graph/schema.graphqls", Input: `directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
 directive @proto(fullName: String!, package: String!, name: String!, goPackage: String!, goName: String!) on OBJECT | INPUT_OBJECT | ENUM
-directive @protoField(name: String!, type: String!, goName: String!, goType: String!) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
-
-extend type Task {
-  assignees: [User!]!
-}
+directive @protoField(name: String!, type: String!, goName: String!, goTypeName: String!, goTypePackage: String) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
 
 type Query {
-  tasks: [Task!]!
+  nop: Boolean
 }
 
 type Mutation {
   nop: Boolean
 }
 `, BuiltIn: false},
+	{Name: "graph/task.graphqls", Input: `extend type Query {
+  tasks: [Task!]!
+}
+
+extend type Task {
+  assignees: [User!]!
+}
+`, BuiltIn: false},
 	{Name: "graph/task.pb.graphqls", Input: `type Task @proto(fullName: "testdata.task.Task", package: "testdata.task", name: "Task", goPackage: "testdata/task/api", goName: "Task") {
-	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goType: "uint64")
-	title: String! @protoField(name: "title", type: "string", goName: "Title", goType: "string")
-	status: TaskStatus! @protoField(name: "status", type: "testdata.task.Task.Status", goName: "Status", goType: "\"testdata/task/api\".Task_Status")
-	assigneeIds: [Int!]! @protoField(name: "assignee_ids", type: "uint64", goName: "AssigneeIds", goType: "uint64")
+	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
+	title: String! @protoField(name: "title", type: "string", goName: "Title", goTypeName: "string")
+	status: TaskStatus! @protoField(name: "status", type: "testdata.task.Task.Status", goName: "Status", goTypeName: "Task_Status", goTypePackage: "testdata/task/api")
+	assigneeIds: [Int!]! @protoField(name: "assignee_ids", type: "uint64", goName: "AssigneeIds", goTypeName: "uint64")
 }
 input TaskInput @proto(fullName: "testdata.task.Task", package: "testdata.task", name: "Task", goPackage: "testdata/task/api", goName: "Task") {
-	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goType: "uint64")
-	title: String! @protoField(name: "title", type: "string", goName: "Title", goType: "string")
-	status: TaskStatus! @protoField(name: "status", type: "testdata.task.Task.Status", goName: "Status", goType: "\"testdata/task/api\".Task_Status")
-	assigneeIds: [Int!]! @protoField(name: "assignee_ids", type: "uint64", goName: "AssigneeIds", goType: "uint64")
+	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
+	title: String! @protoField(name: "title", type: "string", goName: "Title", goTypeName: "string")
+	status: TaskStatus! @protoField(name: "status", type: "testdata.task.Task.Status", goName: "Status", goTypeName: "Task_Status", goTypePackage: "testdata/task/api")
+	assigneeIds: [Int!]! @protoField(name: "assignee_ids", type: "uint64", goName: "AssigneeIds", goTypeName: "uint64")
 }
 enum TaskStatus @proto(fullName: "testdata.task.Task.Status", package: "testdata.task", name: "Status", goPackage: "testdata/task/api", goName: "Task_Status") {
 	STATUS_UNSPECIFIED
@@ -267,14 +280,14 @@ enum TaskStatus @proto(fullName: "testdata.task.Task.Status", package: "testdata
 }
 `, BuiltIn: false},
 	{Name: "graph/user.pb.graphqls", Input: `type User @proto(fullName: "testdata.tasks.User", package: "testdata.tasks", name: "User", goPackage: "testdata/task/api", goName: "User") {
-	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goType: "uint64")
-	fullName: String! @protoField(name: "full_name", type: "string", goName: "FullName", goType: "string")
-	role: UserRole! @protoField(name: "role", type: "testdata.tasks.User.Role", goName: "Role", goType: "\"testdata/task/api\".User_Role")
+	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
+	fullName: String! @protoField(name: "full_name", type: "string", goName: "FullName", goTypeName: "string")
+	role: UserRole! @protoField(name: "role", type: "testdata.tasks.User.Role", goName: "Role", goTypeName: "User_Role", goTypePackage: "testdata/task/api")
 }
 input UserInput @proto(fullName: "testdata.tasks.User", package: "testdata.tasks", name: "User", goPackage: "testdata/task/api", goName: "User") {
-	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goType: "uint64")
-	fullName: String! @protoField(name: "full_name", type: "string", goName: "FullName", goType: "string")
-	role: UserRole! @protoField(name: "role", type: "testdata.tasks.User.Role", goName: "Role", goType: "\"testdata/task/api\".User_Role")
+	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
+	fullName: String! @protoField(name: "full_name", type: "string", goName: "FullName", goTypeName: "string")
+	role: UserRole! @protoField(name: "role", type: "testdata.tasks.User.Role", goName: "Role", goTypeName: "User_Role", goTypePackage: "testdata/task/api")
 }
 enum UserRole @proto(fullName: "testdata.tasks.User.Role", package: "testdata.tasks", name: "Role", goPackage: "testdata/task/api", goName: "User_Role") {
 	ROLE_UNSPECIFIED
@@ -343,14 +356,23 @@ func (ec *executionContext) dir_protoField_args(ctx context.Context, rawArgs map
 	}
 	args["goName"] = arg2
 	var arg3 string
-	if tmp, ok := rawArgs["goType"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("goType"))
+	if tmp, ok := rawArgs["goTypeName"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("goTypeName"))
 		arg3, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["goType"] = arg3
+	args["goTypeName"] = arg3
+	var arg4 *string
+	if tmp, ok := rawArgs["goTypePackage"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("goTypePackage"))
+		arg4, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["goTypePackage"] = arg4
 	return args, nil
 }
 
@@ -477,6 +499,38 @@ func (ec *executionContext) _Mutation_nop(ctx context.Context, field graphql.Col
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().Nop(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_nop(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Nop(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -670,14 +724,14 @@ func (ec *executionContext) _Task_id(ctx context.Context, field graphql.Collecte
 			if err != nil {
 				return nil, err
 			}
-			goType, err := ec.unmarshalNString2string(ctx, "uint64")
+			goTypeName, err := ec.unmarshalNString2string(ctx, "uint64")
 			if err != nil {
 				return nil, err
 			}
 			if ec.directives.ProtoField == nil {
 				return nil, errors.New("directive protoField is not implemented")
 			}
-			return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goType)
+			return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goTypeName, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -741,14 +795,14 @@ func (ec *executionContext) _Task_title(ctx context.Context, field graphql.Colle
 			if err != nil {
 				return nil, err
 			}
-			goType, err := ec.unmarshalNString2string(ctx, "string")
+			goTypeName, err := ec.unmarshalNString2string(ctx, "string")
 			if err != nil {
 				return nil, err
 			}
 			if ec.directives.ProtoField == nil {
 				return nil, errors.New("directive protoField is not implemented")
 			}
-			return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goType)
+			return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goTypeName, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -838,14 +892,18 @@ func (ec *executionContext) _Task_status(ctx context.Context, field graphql.Coll
 			if err != nil {
 				return nil, err
 			}
-			goType, err := ec.unmarshalNString2string(ctx, "\"testdata/task/api\".Task_Status")
+			goTypeName, err := ec.unmarshalNString2string(ctx, "Task_Status")
+			if err != nil {
+				return nil, err
+			}
+			goTypePackage, err := ec.unmarshalOString2ᚖstring(ctx, "testdata/task/api")
 			if err != nil {
 				return nil, err
 			}
 			if ec.directives.ProtoField == nil {
 				return nil, errors.New("directive protoField is not implemented")
 			}
-			return ec.directives.ProtoField(ctx, obj, directive1, name, typeArg, goName, goType)
+			return ec.directives.ProtoField(ctx, obj, directive1, name, typeArg, goName, goTypeName, goTypePackage)
 		}
 
 		tmp, err := directive2(rctx)
@@ -909,14 +967,14 @@ func (ec *executionContext) _Task_assigneeIds(ctx context.Context, field graphql
 			if err != nil {
 				return nil, err
 			}
-			goType, err := ec.unmarshalNString2string(ctx, "uint64")
+			goTypeName, err := ec.unmarshalNString2string(ctx, "uint64")
 			if err != nil {
 				return nil, err
 			}
 			if ec.directives.ProtoField == nil {
 				return nil, errors.New("directive protoField is not implemented")
 			}
-			return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goType)
+			return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goTypeName, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -1055,14 +1113,14 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 			if err != nil {
 				return nil, err
 			}
-			goType, err := ec.unmarshalNString2string(ctx, "uint64")
+			goTypeName, err := ec.unmarshalNString2string(ctx, "uint64")
 			if err != nil {
 				return nil, err
 			}
 			if ec.directives.ProtoField == nil {
 				return nil, errors.New("directive protoField is not implemented")
 			}
-			return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goType)
+			return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goTypeName, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -1126,14 +1184,14 @@ func (ec *executionContext) _User_fullName(ctx context.Context, field graphql.Co
 			if err != nil {
 				return nil, err
 			}
-			goType, err := ec.unmarshalNString2string(ctx, "string")
+			goTypeName, err := ec.unmarshalNString2string(ctx, "string")
 			if err != nil {
 				return nil, err
 			}
 			if ec.directives.ProtoField == nil {
 				return nil, errors.New("directive protoField is not implemented")
 			}
-			return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goType)
+			return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goTypeName, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -1223,14 +1281,18 @@ func (ec *executionContext) _User_role(ctx context.Context, field graphql.Collec
 			if err != nil {
 				return nil, err
 			}
-			goType, err := ec.unmarshalNString2string(ctx, "\"testdata/task/api\".User_Role")
+			goTypeName, err := ec.unmarshalNString2string(ctx, "User_Role")
+			if err != nil {
+				return nil, err
+			}
+			goTypePackage, err := ec.unmarshalOString2ᚖstring(ctx, "testdata/task/api")
 			if err != nil {
 				return nil, err
 			}
 			if ec.directives.ProtoField == nil {
 				return nil, errors.New("directive protoField is not implemented")
 			}
-			return ec.directives.ProtoField(ctx, obj, directive1, name, typeArg, goName, goType)
+			return ec.directives.ProtoField(ctx, obj, directive1, name, typeArg, goName, goTypeName, goTypePackage)
 		}
 
 		tmp, err := directive2(rctx)
@@ -2371,14 +2433,14 @@ func (ec *executionContext) unmarshalInputTaskInput(ctx context.Context, obj int
 				if err != nil {
 					return nil, err
 				}
-				goType, err := ec.unmarshalNString2string(ctx, "uint64")
+				goTypeName, err := ec.unmarshalNString2string(ctx, "uint64")
 				if err != nil {
 					return nil, err
 				}
 				if ec.directives.ProtoField == nil {
 					return nil, errors.New("directive protoField is not implemented")
 				}
-				return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goType)
+				return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goTypeName, nil)
 			}
 
 			tmp, err := directive1(ctx)
@@ -2409,14 +2471,14 @@ func (ec *executionContext) unmarshalInputTaskInput(ctx context.Context, obj int
 				if err != nil {
 					return nil, err
 				}
-				goType, err := ec.unmarshalNString2string(ctx, "string")
+				goTypeName, err := ec.unmarshalNString2string(ctx, "string")
 				if err != nil {
 					return nil, err
 				}
 				if ec.directives.ProtoField == nil {
 					return nil, errors.New("directive protoField is not implemented")
 				}
-				return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goType)
+				return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goTypeName, nil)
 			}
 
 			tmp, err := directive1(ctx)
@@ -2475,14 +2537,18 @@ func (ec *executionContext) unmarshalInputTaskInput(ctx context.Context, obj int
 				if err != nil {
 					return nil, err
 				}
-				goType, err := ec.unmarshalNString2string(ctx, "\"testdata/task/api\".Task_Status")
+				goTypeName, err := ec.unmarshalNString2string(ctx, "Task_Status")
+				if err != nil {
+					return nil, err
+				}
+				goTypePackage, err := ec.unmarshalOString2ᚖstring(ctx, "testdata/task/api")
 				if err != nil {
 					return nil, err
 				}
 				if ec.directives.ProtoField == nil {
 					return nil, errors.New("directive protoField is not implemented")
 				}
-				return ec.directives.ProtoField(ctx, obj, directive1, name, typeArg, goName, goType)
+				return ec.directives.ProtoField(ctx, obj, directive1, name, typeArg, goName, goTypeName, goTypePackage)
 			}
 
 			tmp, err := directive2(ctx)
@@ -2515,14 +2581,14 @@ func (ec *executionContext) unmarshalInputTaskInput(ctx context.Context, obj int
 				if err != nil {
 					return nil, err
 				}
-				goType, err := ec.unmarshalNString2string(ctx, "uint64")
+				goTypeName, err := ec.unmarshalNString2string(ctx, "uint64")
 				if err != nil {
 					return nil, err
 				}
 				if ec.directives.ProtoField == nil {
 					return nil, errors.New("directive protoField is not implemented")
 				}
-				return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goType)
+				return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goTypeName, nil)
 			}
 
 			tmp, err := directive1(ctx)
@@ -2567,14 +2633,14 @@ func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj int
 				if err != nil {
 					return nil, err
 				}
-				goType, err := ec.unmarshalNString2string(ctx, "uint64")
+				goTypeName, err := ec.unmarshalNString2string(ctx, "uint64")
 				if err != nil {
 					return nil, err
 				}
 				if ec.directives.ProtoField == nil {
 					return nil, errors.New("directive protoField is not implemented")
 				}
-				return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goType)
+				return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goTypeName, nil)
 			}
 
 			tmp, err := directive1(ctx)
@@ -2605,14 +2671,14 @@ func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj int
 				if err != nil {
 					return nil, err
 				}
-				goType, err := ec.unmarshalNString2string(ctx, "string")
+				goTypeName, err := ec.unmarshalNString2string(ctx, "string")
 				if err != nil {
 					return nil, err
 				}
 				if ec.directives.ProtoField == nil {
 					return nil, errors.New("directive protoField is not implemented")
 				}
-				return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goType)
+				return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goTypeName, nil)
 			}
 
 			tmp, err := directive1(ctx)
@@ -2671,14 +2737,18 @@ func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj int
 				if err != nil {
 					return nil, err
 				}
-				goType, err := ec.unmarshalNString2string(ctx, "\"testdata/task/api\".User_Role")
+				goTypeName, err := ec.unmarshalNString2string(ctx, "User_Role")
+				if err != nil {
+					return nil, err
+				}
+				goTypePackage, err := ec.unmarshalOString2ᚖstring(ctx, "testdata/task/api")
 				if err != nil {
 					return nil, err
 				}
 				if ec.directives.ProtoField == nil {
 					return nil, errors.New("directive protoField is not implemented")
 				}
-				return ec.directives.ProtoField(ctx, obj, directive1, name, typeArg, goName, goType)
+				return ec.directives.ProtoField(ctx, obj, directive1, name, typeArg, goName, goTypeName, goTypePackage)
 			}
 
 			tmp, err := directive2(ctx)
@@ -2750,6 +2820,17 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "nop":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_nop(ctx, field)
+				return res
+			})
 		case "tasks":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
