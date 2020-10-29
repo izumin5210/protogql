@@ -12,9 +12,7 @@ func (a *mutationProtoResolverAdapter) Nop(ctx context.Context) (*bool, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return resp, nil
-
 }
 
 func (a *queryProtoResolverAdapter) Nop(ctx context.Context) (*bool, error) {
@@ -22,9 +20,7 @@ func (a *queryProtoResolverAdapter) Nop(ctx context.Context) (*bool, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return resp, nil
-
 }
 
 func (a *queryProtoResolverAdapter) Tasks(ctx context.Context) ([]*model.Task, error) {
@@ -32,9 +28,7 @@ func (a *queryProtoResolverAdapter) Tasks(ctx context.Context) ([]*model.Task, e
 	if err != nil {
 		return nil, err
 	}
-
 	return model.TaskListFromRepeatedProto(resp), nil
-
 }
 
 func (a *taskProtoResolverAdapter) Assignees(ctx context.Context, obj *model.Task) ([]*model.User, error) {
@@ -42,9 +36,7 @@ func (a *taskProtoResolverAdapter) Assignees(ctx context.Context, obj *model.Tas
 	if err != nil {
 		return nil, err
 	}
-
 	return model.UserListFromRepeatedProto(resp), nil
-
 }
 
 type mutationProtoResolverAdapter struct{ protoResolver *mutationProtoResolver }

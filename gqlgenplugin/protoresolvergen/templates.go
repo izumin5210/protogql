@@ -28,11 +28,11 @@ var templateResolverAdapters = `
 			if err != nil {
 				return nil, err
 			}
-			{{ if $resolver.TypeReference.IsScalar }}
+			{{ if $resolver.TypeReference.IsScalar -}}
 				return resp, nil
-			{{ else }}
+			{{ else -}}
 				return {{ $resolver.ResolverModelFromProtoFunc }}(resp), nil
-			{{ end }}
+			{{ end -}}
 		}
 	{{ end }}
 {{ end }}
