@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"runtime/debug"
 
-	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/izumin5210/remixer/gqlruntime"
 
 	"task/graph"
 	"task/graph/generated"
@@ -19,15 +19,9 @@ func main() {
 	cfg := generated.Config{
 		Resolvers: new(graph.Resolver),
 	}
-	cfg.Directives.Grpc = func(ctx context.Context, obj interface{}, next graphql.Resolver, service string, rpc string) (res interface{}, err error) {
-		return next(ctx)
-	}
-	cfg.Directives.Proto = func(ctx context.Context, obj interface{}, next graphql.Resolver, fullName string, packageArg string, name string, goPackage string, goName string) (res interface{}, err error) {
-		return next(ctx)
-	}
-	cfg.Directives.ProtoField = func(ctx context.Context, obj interface{}, next graphql.Resolver, name string, typeArg string, goName string, goType string) (res interface{}, err error) {
-		return next(ctx)
-	}
+	cfg.Directives.Grpc = gqlruntime.GrpcDirective
+	cfg.Directives.Proto = gqlruntime.ProtoDirective
+	cfg.Directives.ProtoField = gqlruntime.ProtoFieldDirective
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(cfg))
 	srv.SetRecoverFunc(func(ctx context.Context, err interface{}) (userMessage error) {
 		// send this panic somewhere
