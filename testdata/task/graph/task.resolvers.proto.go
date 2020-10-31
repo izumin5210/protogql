@@ -1,15 +1,15 @@
 package graph
 
 import (
+	task_pb "apis/go/task"
 	"context"
 	"fmt"
-	"testdata/task/api"
 )
 
-func (r *queryProtoResolver) Tasks(ctx context.Context) ([]*api.Task, error) {
+func (r *queryProtoResolver) Tasks(ctx context.Context) ([]*task_pb.Task, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *taskProtoResolver) Assignees(ctx context.Context, obj *api.Task) ([]*api.User, error) {
+func (r *taskProtoResolver) Assignees(ctx context.Context, obj *task_pb.Task) ([]*task_pb.User, error) {
 	panic(fmt.Errorf("not implemented"))
 }

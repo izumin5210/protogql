@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
-	"testdata/task/graph/model"
+	"task/graph/model"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -260,36 +260,36 @@ extend type Task {
   assignees: [User!]!
 }
 `, BuiltIn: false},
-	{Name: "graph/task.pb.graphqls", Input: `type Task @proto(fullName: "testdata.task.Task", package: "testdata.task", name: "Task", goPackage: "testdata/task/api", goName: "Task") {
+	{Name: "graph/types/task.pb.graphqls", Input: `type Task @proto(fullName: "testapi.task.Task", package: "testapi.task", name: "Task", goPackage: "apis/go/task", goName: "Task") {
 	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
 	title: String! @protoField(name: "title", type: "string", goName: "Title", goTypeName: "string")
-	status: TaskStatus! @protoField(name: "status", type: "testdata.task.Task.Status", goName: "Status", goTypeName: "Task_Status", goTypePackage: "testdata/task/api")
+	status: TaskStatus! @protoField(name: "status", type: "testapi.task.Task.Status", goName: "Status", goTypeName: "Task_Status", goTypePackage: "apis/go/task")
 	assigneeIds: [Int!]! @protoField(name: "assignee_ids", type: "uint64", goName: "AssigneeIds", goTypeName: "uint64")
 }
-input TaskInput @proto(fullName: "testdata.task.Task", package: "testdata.task", name: "Task", goPackage: "testdata/task/api", goName: "Task") {
+input TaskInput @proto(fullName: "testapi.task.Task", package: "testapi.task", name: "Task", goPackage: "apis/go/task", goName: "Task") {
 	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
 	title: String! @protoField(name: "title", type: "string", goName: "Title", goTypeName: "string")
-	status: TaskStatus! @protoField(name: "status", type: "testdata.task.Task.Status", goName: "Status", goTypeName: "Task_Status", goTypePackage: "testdata/task/api")
+	status: TaskStatus! @protoField(name: "status", type: "testapi.task.Task.Status", goName: "Status", goTypeName: "Task_Status", goTypePackage: "apis/go/task")
 	assigneeIds: [Int!]! @protoField(name: "assignee_ids", type: "uint64", goName: "AssigneeIds", goTypeName: "uint64")
 }
-enum TaskStatus @proto(fullName: "testdata.task.Task.Status", package: "testdata.task", name: "Status", goPackage: "testdata/task/api", goName: "Task_Status") {
+enum TaskStatus @proto(fullName: "testapi.task.Task.Status", package: "testapi.task", name: "Status", goPackage: "apis/go/task", goName: "Task_Status") {
 	STATUS_UNSPECIFIED
 	TODO
 	IN_PROGRESS
 	DONE
 }
 `, BuiltIn: false},
-	{Name: "graph/user.pb.graphqls", Input: `type User @proto(fullName: "testdata.tasks.User", package: "testdata.tasks", name: "User", goPackage: "testdata/task/api", goName: "User") {
+	{Name: "graph/types/user.pb.graphqls", Input: `type User @proto(fullName: "testapi.task.User", package: "testapi.task", name: "User", goPackage: "apis/go/task", goName: "User") {
 	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
 	fullName: String! @protoField(name: "full_name", type: "string", goName: "FullName", goTypeName: "string")
-	role: UserRole! @protoField(name: "role", type: "testdata.tasks.User.Role", goName: "Role", goTypeName: "User_Role", goTypePackage: "testdata/task/api")
+	role: UserRole! @protoField(name: "role", type: "testapi.task.User.Role", goName: "Role", goTypeName: "User_Role", goTypePackage: "apis/go/task")
 }
-input UserInput @proto(fullName: "testdata.tasks.User", package: "testdata.tasks", name: "User", goPackage: "testdata/task/api", goName: "User") {
+input UserInput @proto(fullName: "testapi.task.User", package: "testapi.task", name: "User", goPackage: "apis/go/task", goName: "User") {
 	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
 	fullName: String! @protoField(name: "full_name", type: "string", goName: "FullName", goTypeName: "string")
-	role: UserRole! @protoField(name: "role", type: "testdata.tasks.User.Role", goName: "Role", goTypeName: "User_Role", goTypePackage: "testdata/task/api")
+	role: UserRole! @protoField(name: "role", type: "testapi.task.User.Role", goName: "Role", goTypeName: "User_Role", goTypePackage: "apis/go/task")
 }
-enum UserRole @proto(fullName: "testdata.tasks.User.Role", package: "testdata.tasks", name: "Role", goPackage: "testdata/task/api", goName: "User_Role") {
+enum UserRole @proto(fullName: "testapi.task.User.Role", package: "testapi.task", name: "Role", goPackage: "apis/go/task", goName: "User_Role") {
 	ROLE_UNSPECIFIED
 	ADMIN
 }
@@ -566,11 +566,11 @@ func (ec *executionContext) _Query_tasks(ctx context.Context, field graphql.Coll
 			return ec.resolvers.Query().Tasks(rctx)
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			fullName, err := ec.unmarshalNString2string(ctx, "testdata.task.Task")
+			fullName, err := ec.unmarshalNString2string(ctx, "testapi.task.Task")
 			if err != nil {
 				return nil, err
 			}
-			packageArg, err := ec.unmarshalNString2string(ctx, "testdata.task")
+			packageArg, err := ec.unmarshalNString2string(ctx, "testapi.task")
 			if err != nil {
 				return nil, err
 			}
@@ -578,7 +578,7 @@ func (ec *executionContext) _Query_tasks(ctx context.Context, field graphql.Coll
 			if err != nil {
 				return nil, err
 			}
-			goPackage, err := ec.unmarshalNString2string(ctx, "testdata/task/api")
+			goPackage, err := ec.unmarshalNString2string(ctx, "apis/go/task")
 			if err != nil {
 				return nil, err
 			}
@@ -602,7 +602,7 @@ func (ec *executionContext) _Query_tasks(ctx context.Context, field graphql.Coll
 		if data, ok := tmp.([]*model.Task); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*testdata/task/graph/model.Task`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*task/graph/model.Task`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -616,7 +616,7 @@ func (ec *executionContext) _Query_tasks(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.([]*model.Task)
 	fc.Result = res
-	return ec.marshalNTask2ᚕᚖtestdataᚋtaskᚋgraphᚋmodelᚐTaskᚄ(ctx, field.Selections, res)
+	return ec.marshalNTask2ᚕᚖtaskᚋgraphᚋmodelᚐTaskᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -854,11 +854,11 @@ func (ec *executionContext) _Task_status(ctx context.Context, field graphql.Coll
 			return obj.Status, nil
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			fullName, err := ec.unmarshalNString2string(ctx, "testdata.task.Task.Status")
+			fullName, err := ec.unmarshalNString2string(ctx, "testapi.task.Task.Status")
 			if err != nil {
 				return nil, err
 			}
-			packageArg, err := ec.unmarshalNString2string(ctx, "testdata.task")
+			packageArg, err := ec.unmarshalNString2string(ctx, "testapi.task")
 			if err != nil {
 				return nil, err
 			}
@@ -866,7 +866,7 @@ func (ec *executionContext) _Task_status(ctx context.Context, field graphql.Coll
 			if err != nil {
 				return nil, err
 			}
-			goPackage, err := ec.unmarshalNString2string(ctx, "testdata/task/api")
+			goPackage, err := ec.unmarshalNString2string(ctx, "apis/go/task")
 			if err != nil {
 				return nil, err
 			}
@@ -884,7 +884,7 @@ func (ec *executionContext) _Task_status(ctx context.Context, field graphql.Coll
 			if err != nil {
 				return nil, err
 			}
-			typeArg, err := ec.unmarshalNString2string(ctx, "testdata.task.Task.Status")
+			typeArg, err := ec.unmarshalNString2string(ctx, "testapi.task.Task.Status")
 			if err != nil {
 				return nil, err
 			}
@@ -896,7 +896,7 @@ func (ec *executionContext) _Task_status(ctx context.Context, field graphql.Coll
 			if err != nil {
 				return nil, err
 			}
-			goTypePackage, err := ec.unmarshalOString2ᚖstring(ctx, "testdata/task/api")
+			goTypePackage, err := ec.unmarshalOString2ᚖstring(ctx, "apis/go/task")
 			if err != nil {
 				return nil, err
 			}
@@ -916,7 +916,7 @@ func (ec *executionContext) _Task_status(ctx context.Context, field graphql.Coll
 		if data, ok := tmp.(*model.TaskStatus); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *testdata/task/graph/model.TaskStatus`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *task/graph/model.TaskStatus`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -930,7 +930,7 @@ func (ec *executionContext) _Task_status(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.(*model.TaskStatus)
 	fc.Result = res
-	return ec.marshalNTaskStatus2ᚖtestdataᚋtaskᚋgraphᚋmodelᚐTaskStatus(ctx, field.Selections, res)
+	return ec.marshalNTaskStatus2ᚖtaskᚋgraphᚋmodelᚐTaskStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Task_assigneeIds(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
@@ -1026,11 +1026,11 @@ func (ec *executionContext) _Task_assignees(ctx context.Context, field graphql.C
 			return ec.resolvers.Task().Assignees(rctx, obj)
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			fullName, err := ec.unmarshalNString2string(ctx, "testdata.tasks.User")
+			fullName, err := ec.unmarshalNString2string(ctx, "testapi.task.User")
 			if err != nil {
 				return nil, err
 			}
-			packageArg, err := ec.unmarshalNString2string(ctx, "testdata.tasks")
+			packageArg, err := ec.unmarshalNString2string(ctx, "testapi.task")
 			if err != nil {
 				return nil, err
 			}
@@ -1038,7 +1038,7 @@ func (ec *executionContext) _Task_assignees(ctx context.Context, field graphql.C
 			if err != nil {
 				return nil, err
 			}
-			goPackage, err := ec.unmarshalNString2string(ctx, "testdata/task/api")
+			goPackage, err := ec.unmarshalNString2string(ctx, "apis/go/task")
 			if err != nil {
 				return nil, err
 			}
@@ -1062,7 +1062,7 @@ func (ec *executionContext) _Task_assignees(ctx context.Context, field graphql.C
 		if data, ok := tmp.([]*model.User); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*testdata/task/graph/model.User`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*task/graph/model.User`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1076,7 +1076,7 @@ func (ec *executionContext) _Task_assignees(ctx context.Context, field graphql.C
 	}
 	res := resTmp.([]*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚕᚖtestdataᚋtaskᚋgraphᚋmodelᚐUserᚄ(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚕᚖtaskᚋgraphᚋmodelᚐUserᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
@@ -1243,11 +1243,11 @@ func (ec *executionContext) _User_role(ctx context.Context, field graphql.Collec
 			return obj.Role, nil
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			fullName, err := ec.unmarshalNString2string(ctx, "testdata.tasks.User.Role")
+			fullName, err := ec.unmarshalNString2string(ctx, "testapi.task.User.Role")
 			if err != nil {
 				return nil, err
 			}
-			packageArg, err := ec.unmarshalNString2string(ctx, "testdata.tasks")
+			packageArg, err := ec.unmarshalNString2string(ctx, "testapi.task")
 			if err != nil {
 				return nil, err
 			}
@@ -1255,7 +1255,7 @@ func (ec *executionContext) _User_role(ctx context.Context, field graphql.Collec
 			if err != nil {
 				return nil, err
 			}
-			goPackage, err := ec.unmarshalNString2string(ctx, "testdata/task/api")
+			goPackage, err := ec.unmarshalNString2string(ctx, "apis/go/task")
 			if err != nil {
 				return nil, err
 			}
@@ -1273,7 +1273,7 @@ func (ec *executionContext) _User_role(ctx context.Context, field graphql.Collec
 			if err != nil {
 				return nil, err
 			}
-			typeArg, err := ec.unmarshalNString2string(ctx, "testdata.tasks.User.Role")
+			typeArg, err := ec.unmarshalNString2string(ctx, "testapi.task.User.Role")
 			if err != nil {
 				return nil, err
 			}
@@ -1285,7 +1285,7 @@ func (ec *executionContext) _User_role(ctx context.Context, field graphql.Collec
 			if err != nil {
 				return nil, err
 			}
-			goTypePackage, err := ec.unmarshalOString2ᚖstring(ctx, "testdata/task/api")
+			goTypePackage, err := ec.unmarshalOString2ᚖstring(ctx, "apis/go/task")
 			if err != nil {
 				return nil, err
 			}
@@ -1305,7 +1305,7 @@ func (ec *executionContext) _User_role(ctx context.Context, field graphql.Collec
 		if data, ok := tmp.(*model.UserRole); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *testdata/task/graph/model.UserRole`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *task/graph/model.UserRole`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1319,7 +1319,7 @@ func (ec *executionContext) _User_role(ctx context.Context, field graphql.Collec
 	}
 	res := resTmp.(*model.UserRole)
 	fc.Result = res
-	return ec.marshalNUserRole2ᚖtestdataᚋtaskᚋgraphᚋmodelᚐUserRole(ctx, field.Selections, res)
+	return ec.marshalNUserRole2ᚖtaskᚋgraphᚋmodelᚐUserRole(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -2496,14 +2496,14 @@ func (ec *executionContext) unmarshalInputTaskInput(ctx context.Context, obj int
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
 			directive0 := func(ctx context.Context) (interface{}, error) {
-				return ec.unmarshalNTaskStatus2ᚖtestdataᚋtaskᚋgraphᚋmodelᚐTaskStatus(ctx, v)
+				return ec.unmarshalNTaskStatus2ᚖtaskᚋgraphᚋmodelᚐTaskStatus(ctx, v)
 			}
 			directive1 := func(ctx context.Context) (interface{}, error) {
-				fullName, err := ec.unmarshalNString2string(ctx, "testdata.task.Task.Status")
+				fullName, err := ec.unmarshalNString2string(ctx, "testapi.task.Task.Status")
 				if err != nil {
 					return nil, err
 				}
-				packageArg, err := ec.unmarshalNString2string(ctx, "testdata.task")
+				packageArg, err := ec.unmarshalNString2string(ctx, "testapi.task")
 				if err != nil {
 					return nil, err
 				}
@@ -2511,7 +2511,7 @@ func (ec *executionContext) unmarshalInputTaskInput(ctx context.Context, obj int
 				if err != nil {
 					return nil, err
 				}
-				goPackage, err := ec.unmarshalNString2string(ctx, "testdata/task/api")
+				goPackage, err := ec.unmarshalNString2string(ctx, "apis/go/task")
 				if err != nil {
 					return nil, err
 				}
@@ -2529,7 +2529,7 @@ func (ec *executionContext) unmarshalInputTaskInput(ctx context.Context, obj int
 				if err != nil {
 					return nil, err
 				}
-				typeArg, err := ec.unmarshalNString2string(ctx, "testdata.task.Task.Status")
+				typeArg, err := ec.unmarshalNString2string(ctx, "testapi.task.Task.Status")
 				if err != nil {
 					return nil, err
 				}
@@ -2541,7 +2541,7 @@ func (ec *executionContext) unmarshalInputTaskInput(ctx context.Context, obj int
 				if err != nil {
 					return nil, err
 				}
-				goTypePackage, err := ec.unmarshalOString2ᚖstring(ctx, "testdata/task/api")
+				goTypePackage, err := ec.unmarshalOString2ᚖstring(ctx, "apis/go/task")
 				if err != nil {
 					return nil, err
 				}
@@ -2560,7 +2560,7 @@ func (ec *executionContext) unmarshalInputTaskInput(ctx context.Context, obj int
 			} else if tmp == nil {
 				it.Status = nil
 			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *testdata/task/graph/model.TaskStatus`, tmp)
+				err := fmt.Errorf(`unexpected type %T from directive, should be *task/graph/model.TaskStatus`, tmp)
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		case "assigneeIds":
@@ -2696,14 +2696,14 @@ func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj int
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("role"))
 			directive0 := func(ctx context.Context) (interface{}, error) {
-				return ec.unmarshalNUserRole2ᚖtestdataᚋtaskᚋgraphᚋmodelᚐUserRole(ctx, v)
+				return ec.unmarshalNUserRole2ᚖtaskᚋgraphᚋmodelᚐUserRole(ctx, v)
 			}
 			directive1 := func(ctx context.Context) (interface{}, error) {
-				fullName, err := ec.unmarshalNString2string(ctx, "testdata.tasks.User.Role")
+				fullName, err := ec.unmarshalNString2string(ctx, "testapi.task.User.Role")
 				if err != nil {
 					return nil, err
 				}
-				packageArg, err := ec.unmarshalNString2string(ctx, "testdata.tasks")
+				packageArg, err := ec.unmarshalNString2string(ctx, "testapi.task")
 				if err != nil {
 					return nil, err
 				}
@@ -2711,7 +2711,7 @@ func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj int
 				if err != nil {
 					return nil, err
 				}
-				goPackage, err := ec.unmarshalNString2string(ctx, "testdata/task/api")
+				goPackage, err := ec.unmarshalNString2string(ctx, "apis/go/task")
 				if err != nil {
 					return nil, err
 				}
@@ -2729,7 +2729,7 @@ func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj int
 				if err != nil {
 					return nil, err
 				}
-				typeArg, err := ec.unmarshalNString2string(ctx, "testdata.tasks.User.Role")
+				typeArg, err := ec.unmarshalNString2string(ctx, "testapi.task.User.Role")
 				if err != nil {
 					return nil, err
 				}
@@ -2741,7 +2741,7 @@ func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj int
 				if err != nil {
 					return nil, err
 				}
-				goTypePackage, err := ec.unmarshalOString2ᚖstring(ctx, "testdata/task/api")
+				goTypePackage, err := ec.unmarshalOString2ᚖstring(ctx, "apis/go/task")
 				if err != nil {
 					return nil, err
 				}
@@ -2760,7 +2760,7 @@ func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj int
 			} else if tmp == nil {
 				it.Role = nil
 			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *testdata/task/graph/model.UserRole`, tmp)
+				err := fmt.Errorf(`unexpected type %T from directive, should be *task/graph/model.UserRole`, tmp)
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		}
@@ -3273,7 +3273,7 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNTask2ᚕᚖtestdataᚋtaskᚋgraphᚋmodelᚐTaskᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Task) graphql.Marshaler {
+func (ec *executionContext) marshalNTask2ᚕᚖtaskᚋgraphᚋmodelᚐTaskᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Task) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -3297,7 +3297,7 @@ func (ec *executionContext) marshalNTask2ᚕᚖtestdataᚋtaskᚋgraphᚋmodel�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNTask2ᚖtestdataᚋtaskᚋgraphᚋmodelᚐTask(ctx, sel, v[i])
+			ret[i] = ec.marshalNTask2ᚖtaskᚋgraphᚋmodelᚐTask(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3310,7 +3310,7 @@ func (ec *executionContext) marshalNTask2ᚕᚖtestdataᚋtaskᚋgraphᚋmodel�
 	return ret
 }
 
-func (ec *executionContext) marshalNTask2ᚖtestdataᚋtaskᚋgraphᚋmodelᚐTask(ctx context.Context, sel ast.SelectionSet, v *model.Task) graphql.Marshaler {
+func (ec *executionContext) marshalNTask2ᚖtaskᚋgraphᚋmodelᚐTask(ctx context.Context, sel ast.SelectionSet, v *model.Task) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -3320,13 +3320,13 @@ func (ec *executionContext) marshalNTask2ᚖtestdataᚋtaskᚋgraphᚋmodelᚐTa
 	return ec._Task(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNTaskStatus2ᚖtestdataᚋtaskᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, v interface{}) (*model.TaskStatus, error) {
+func (ec *executionContext) unmarshalNTaskStatus2ᚖtaskᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, v interface{}) (*model.TaskStatus, error) {
 	var res = new(model.TaskStatus)
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNTaskStatus2ᚖtestdataᚋtaskᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, sel ast.SelectionSet, v *model.TaskStatus) graphql.Marshaler {
+func (ec *executionContext) marshalNTaskStatus2ᚖtaskᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, sel ast.SelectionSet, v *model.TaskStatus) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -3336,7 +3336,7 @@ func (ec *executionContext) marshalNTaskStatus2ᚖtestdataᚋtaskᚋgraphᚋmode
 	return v
 }
 
-func (ec *executionContext) marshalNUser2ᚕᚖtestdataᚋtaskᚋgraphᚋmodelᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚕᚖtaskᚋgraphᚋmodelᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -3360,7 +3360,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖtestdataᚋtaskᚋgraphᚋmodel�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNUser2ᚖtestdataᚋtaskᚋgraphᚋmodelᚐUser(ctx, sel, v[i])
+			ret[i] = ec.marshalNUser2ᚖtaskᚋgraphᚋmodelᚐUser(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3373,7 +3373,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖtestdataᚋtaskᚋgraphᚋmodel�
 	return ret
 }
 
-func (ec *executionContext) marshalNUser2ᚖtestdataᚋtaskᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚖtaskᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -3383,13 +3383,13 @@ func (ec *executionContext) marshalNUser2ᚖtestdataᚋtaskᚋgraphᚋmodelᚐUs
 	return ec._User(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNUserRole2ᚖtestdataᚋtaskᚋgraphᚋmodelᚐUserRole(ctx context.Context, v interface{}) (*model.UserRole, error) {
+func (ec *executionContext) unmarshalNUserRole2ᚖtaskᚋgraphᚋmodelᚐUserRole(ctx context.Context, v interface{}) (*model.UserRole, error) {
 	var res = new(model.UserRole)
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNUserRole2ᚖtestdataᚋtaskᚋgraphᚋmodelᚐUserRole(ctx context.Context, sel ast.SelectionSet, v *model.UserRole) graphql.Marshaler {
+func (ec *executionContext) marshalNUserRole2ᚖtaskᚋgraphᚋmodelᚐUserRole(ctx context.Context, sel ast.SelectionSet, v *model.UserRole) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")

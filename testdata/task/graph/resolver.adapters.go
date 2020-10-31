@@ -4,7 +4,7 @@ package graph
 
 import (
 	"context"
-	"testdata/task/graph/model"
+	"task/graph/model"
 )
 
 func (a *mutationProtoResolverAdapter) Nop(ctx context.Context) (*bool, error) {

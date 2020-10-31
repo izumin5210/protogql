@@ -11,8 +11,8 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 
-	"testdata/task/graph"
-	"testdata/task/graph/generated"
+	"task/graph"
+	"task/graph/generated"
 )
 
 func main() {

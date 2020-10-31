@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package testdata.task;
+package testapi.task;
 
-option go_package = "testdata/task/api";
+option go_package = "apis/go/task;task_pb";
 
 service TaskService {
   rpc ListTasks(ListTasksRequest) returns (ListTasksResponse);

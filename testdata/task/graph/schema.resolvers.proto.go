@@ -3,7 +3,7 @@ package graph
 import (
 	"context"
 	"fmt"
-	"testdata/task/graph/generated"
+	"task/graph/generated"
 )
 
 func (r *mutationProtoResolver) Nop(ctx context.Context) (*bool, error) {

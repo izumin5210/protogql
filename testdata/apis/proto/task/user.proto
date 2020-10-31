@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package testdata.tasks;
+package testapi.task;
 
-option go_package = "testdata/task/api";
+option go_package = "apis/go/task;task_pb";
 
 service UserService {
   rpc BatchGetUsers(BatchGetUsersRequest) returns (BatchGetUsersResponse);

@@ -1,0 +1,18 @@
+type Task @proto(fullName: "testapi.task.Task", package: "testapi.task", name: "Task", goPackage: "apis/go/task", goName: "Task") {
+	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
+	title: String! @protoField(name: "title", type: "string", goName: "Title", goTypeName: "string")
+	status: TaskStatus! @protoField(name: "status", type: "testapi.task.Task.Status", goName: "Status", goTypeName: "Task_Status", goTypePackage: "apis/go/task")
+	assigneeIds: [Int!]! @protoField(name: "assignee_ids", type: "uint64", goName: "AssigneeIds", goTypeName: "uint64")
+}
+input TaskInput @proto(fullName: "testapi.task.Task", package: "testapi.task", name: "Task", goPackage: "apis/go/task", goName: "Task") {
+	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
+	title: String! @protoField(name: "title", type: "string", goName: "Title", goTypeName: "string")
+	status: TaskStatus! @protoField(name: "status", type: "testapi.task.Task.Status", goName: "Status", goTypeName: "Task_Status", goTypePackage: "apis/go/task")
+	assigneeIds: [Int!]! @protoField(name: "assignee_ids", type: "uint64", goName: "AssigneeIds", goTypeName: "uint64")
+}
+enum TaskStatus @proto(fullName: "testapi.task.Task.Status", package: "testapi.task", name: "Status", goPackage: "apis/go/task", goName: "Task_Status") {
+	STATUS_UNSPECIFIED
+	TODO
+	IN_PROGRESS
+	DONE
+}

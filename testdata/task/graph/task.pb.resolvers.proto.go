@@ -1,7 +1,7 @@
 package graph
 
 import (
-	"testdata/task/graph/generated"
+	"task/graph/generated"
 )
 
 // Task returns generated.TaskResolver implementation.
