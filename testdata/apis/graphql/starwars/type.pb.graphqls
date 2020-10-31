@@ -10,4 +10,3 @@ enum LengthUnit @proto(fullName: "testapi.starwars.LengthUnit", package: "testap
 	FOOT
 	CUBIT
 }
-

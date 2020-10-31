@@ -38,4 +38,3 @@ input HumanInput @proto(fullName: "testapi.starwars.Human", package: "testapi.st
 	appearsIn: [Episode!]! @protoField(name: "appears_in", type: "testapi.starwars.Episode", goName: "AppearsIn", goTypeName: "Episode", goTypePackage: "apis/go/starwars")
 	tarships: [StarshipInput!]! @protoField(name: "tarships", type: "testapi.starwars.Starship", goName: "Tarships", goTypeName: "Starship", goTypePackage: "apis/go/starwars")
 }
-

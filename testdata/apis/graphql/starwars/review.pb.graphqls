@@ -16,4 +16,3 @@ input ReviewInput @proto(fullName: "testapi.starwars.Review", package: "testapi.
 	stars: Int! @protoField(name: "stars", type: "int32", goName: "Stars", goTypeName: "int32")
 	commentary: String! @protoField(name: "commentary", type: "string", goName: "Commentary", goTypeName: "string")
 }
-

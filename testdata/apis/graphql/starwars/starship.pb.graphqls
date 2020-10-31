@@ -6,4 +6,3 @@ input StarshipInput @proto(fullName: "testapi.starwars.Starship", package: "test
 	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
 	name: String! @protoField(name: "name", type: "string", goName: "Name", goTypeName: "string")
 }
-

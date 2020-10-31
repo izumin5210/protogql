@@ -19,8 +19,10 @@ func TestProcessor(t *testing.T) {
 	testGenerate(t, "starwars")
 }
 
-func loadDescriptorSet(t *testing.T, protosetName string) *descriptorpb.FileDescriptorSet {
-	f, err := ioutil.ReadFile(filepath.Join("testdata", protosetName))
+var testProtoDir = filepath.Join("..", "..", "testdata", "apis", "proto")
+
+func loadDescriptorSet(t *testing.T, pbPath string) *descriptorpb.FileDescriptorSet {
+	f, err := ioutil.ReadFile(pbPath)
 	if err != nil {
 		t.Fatalf("failed to open fixture: %v", err)
 	}
@@ -47,11 +49,11 @@ func newCodeGeneratorRequestFromDescriptorSet(set *descriptorpb.FileDescriptorSe
 	return req
 }
 
-func testProtocGen(t *testing.T, descriptorSetPath, fileToGeneratePrefix string) *pluginpb.CodeGeneratorResponse {
+func testProtocGen(t *testing.T, fileToGeneratePrefix string, descriptorSetPbPath string) *pluginpb.CodeGeneratorResponse {
 	t.Helper()
 
 	req := newCodeGeneratorRequestFromDescriptorSet(
-		loadDescriptorSet(t, descriptorSetPath),
+		loadDescriptorSet(t, descriptorSetPbPath),
 		fileToGeneratePrefix,
 	)
 
@@ -70,7 +72,8 @@ func testProtocGen(t *testing.T, descriptorSetPath, fileToGeneratePrefix string)
 
 func testGenerate(t *testing.T, fixture string) {
 	t.Run(fixture, func(t *testing.T) {
-		resp := testProtocGen(t, fixture+".protoset", filepath.Join("testdata", fixture))
+		dir := filepath.Join(testProtoDir, fixture)
+		resp := testProtocGen(t, fixture+"/", filepath.Join(dir, "descriptor_set.pb"))
 
 		schemata := []*ast.Source{{Input: BaseSchema}}
 		for _, f := range resp.GetFile() {

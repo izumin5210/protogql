@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package testdata.starwars;
+package testapi.starwars;
 
-option go_package = "testdata/starwars";
+option go_package = "apis/go/starwars;starwars_pb";
 
 // The episodes in the Star Wars trilogy
 enum Episode {

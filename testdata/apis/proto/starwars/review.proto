@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-package testdata.starwars;
+package testapi.starwars;
 
 import "options/graphql.proto";
-import "testdata/starwars/type.proto";
+import "starwars/type.proto";
 
-option go_package = "testdata/starwars";
+option go_package = "apis/go/starwars;starwars_pb";
 
 // https://github.com/apollographql/apollo-tooling/blob/apollo%402.30.3/__fixtures__/starwars/schema.graphql
 

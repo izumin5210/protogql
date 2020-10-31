@@ -12,4 +12,3 @@ enum UserRole @proto(fullName: "testapi.user.User.Role", package: "testapi.user"
 	ROLE_UNSPECIFIED
 	ADMIN
 }
-

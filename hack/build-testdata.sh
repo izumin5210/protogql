@@ -30,9 +30,9 @@ init() {
 
 execProtoc() {
   for protoDir in ./testdata/apis/proto/*; do
-    protoc -I testdata/apis/proto --include_source_info --include_imports --descriptor_set_out=${protoDir}/descriptor_set.pb ${protoDir}/*.proto
-    protoc -I testdata/apis/proto --plugin=protoc-gen-graphql='./bin/protoc-gen-graphql' --graphql_out=testdata/apis/graphql  ${protoDir}/*.proto
-    protoc -I testdata/apis/proto --go_out=testdata ${protoDir}/*.proto
+    protoc -I testdata/apis/proto -I . --include_source_info --include_imports --descriptor_set_out=${protoDir}/descriptor_set.pb ${protoDir}/*.proto
+    protoc -I testdata/apis/proto -I . --plugin=protoc-gen-graphql='./bin/protoc-gen-graphql' --graphql_out=testdata/apis/graphql  ${protoDir}/*.proto
+    protoc -I testdata/apis/proto -I . --go_out=testdata ${protoDir}/*.proto
   done
 }
 
@@ -40,6 +40,7 @@ initGoMod() {
   for pbgoDir in ./testdata/apis/go/*; do
     pushd $pbgoDir
     go mod init apis/go/$(basename $pbgoDir)
+    echo 'replace github.com/izumin5210/remixer => ../../../..' >> go.mod
     go mod tidy
     popd
   done

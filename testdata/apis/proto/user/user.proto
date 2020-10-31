@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-package testdata;
+package testapi.user;
 
 import "google/protobuf/empty.proto";
 import "options/graphql.proto";
 
-option go_package = "testdata/user";
+option go_package = "apis/go/user;user_pb";
 
 service UserService {
   rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
@@ -24,14 +24,12 @@ service UserService {
       name: "unfollowUser"
     };
   }
+  rpc BatchGetUsers(BatchGetUsersRequest) returns (BatchGetUsersResponse);
 }
 
 message User {
   uint64 id = 1;
   string full_name = 2;
-  
-  repeated uint64 followee_user_ids = 11;
-  repeated uint64 follower_user_ids = 12;
 
   enum Role {
     ROLE_UNSPECIFIED = 0;
