@@ -4,19 +4,23 @@ import (
 	"strings"
 
 	"github.com/vektah/gqlparser/v2/ast"
+	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/reflect/protoreflect"
 
 	"github.com/izumin5210/remixer/protoutil"
 )
 
 var (
-	FloatType   = newScalarType("Float")
-	IntType     = newScalarType("Int")
-	StringType  = newScalarType("String")
-	BooleanType = newScalarType("Boolean")
-	IDType      = newScalarType("ID")
+	FloatType    = newScalarType("Float")
+	IntType      = newScalarType("Int")
+	StringType   = newScalarType("String")
+	BooleanType  = newScalarType("Boolean")
+	IDType       = newScalarType("ID")
+	DateTimeType = newScalarType("DateTime")
 
 	scalarTypeMap = map[protoreflect.Kind]Type{}
+
+	_ ProtoType = (*WrappedScalarType)(nil)
 )
 
 func init() {
@@ -58,8 +62,16 @@ type ScalarType struct {
 	GoName    string
 }
 
-func newScalarType(name string) Type     { return &ScalarType{name: name} }
-func (t *ScalarType) Name() string       { return t.name }
-func (t *ScalarType) IsNullable() bool   { return false }
-func (t *ScalarType) IsList() bool       { return false }
-func (t *ScalarType) TypeAST() *ast.Type { return ast.NonNullNamedType(t.Name(), nil) }
+func newScalarType(name string) *ScalarType { return &ScalarType{name: name} }
+func (t *ScalarType) Name() string          { return t.name }
+func (t *ScalarType) IsNullable() bool      { return false }
+func (t *ScalarType) IsList() bool          { return false }
+func (t *ScalarType) TypeAST() *ast.Type    { return ast.NonNullNamedType(t.Name(), nil) }
+
+type WrappedScalarType struct {
+	*ScalarType
+	Proto *protogen.Message
+}
+
+func (t *WrappedScalarType) ProtoDescriptor() protoreflect.Descriptor { return t.Proto.Desc }
+func (t *WrappedScalarType) GoIdent() protogen.GoIdent                { return t.Proto.GoIdent }

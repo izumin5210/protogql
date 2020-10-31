@@ -10,6 +10,7 @@ import (
 var (
 	_ Type      = (*ObjectType)(nil)
 	_ Definable = (*ObjectType)(nil)
+	_ ProtoType = (*ObjectType)(nil)
 )
 
 type ObjectType struct {
@@ -22,6 +23,7 @@ func (t *ObjectType) IsNullable() bool                         { return false }
 func (t *ObjectType) IsList() bool                             { return false }
 func (t *ObjectType) TypeAST() *ast.Type                       { return ast.NonNullNamedType(t.Name(), nil) }
 func (t *ObjectType) ProtoDescriptor() protoreflect.Descriptor { return t.Proto.Desc }
+func (t *ObjectType) GoIdent() protogen.GoIdent                { return t.Proto.GoIdent }
 
 func (t *ObjectType) DefinitionAST() (*ast.Definition, error) {
 	def := &ast.Definition{

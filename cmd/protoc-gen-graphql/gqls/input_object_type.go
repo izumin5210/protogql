@@ -3,12 +3,14 @@ package gqls
 import (
 	"github.com/iancoleman/strcase"
 	"github.com/vektah/gqlparser/v2/ast"
+	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 var (
 	_ Type      = (*InputObjectType)(nil)
 	_ Definable = (*InputObjectType)(nil)
+	_ ProtoType = (*InputObjectType)(nil)
 )
 
 func NewInputObjectType(objType *ObjectType) *InputObjectType {
@@ -28,6 +30,7 @@ func (t *InputObjectType) IsNullable() bool                         { return t.b
 func (t *InputObjectType) IsList() bool                             { return t.base.IsList() }
 func (t *InputObjectType) TypeAST() *ast.Type                       { return ast.NonNullNamedType(t.Name(), nil) }
 func (t *InputObjectType) ProtoDescriptor() protoreflect.Descriptor { return t.base.Proto.Desc }
+func (t *InputObjectType) GoIdent() protogen.GoIdent                { return t.base.Proto.GoIdent }
 
 func (t *InputObjectType) DefinitionAST() (*ast.Definition, error) {
 	def := &ast.Definition{

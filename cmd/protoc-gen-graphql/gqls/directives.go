@@ -45,25 +45,19 @@ func protobufTypeDirectiveAST(desc protoreflect.Descriptor, goIdent protogen.GoI
 
 func protobufFieldDirectiveAST(f *protogen.Field, typ Type) *ast.Directive {
 	var protoType, goTypeName, goTypePackage string
+
 	switch typ := UnwrapType(typ).(type) {
 	case *ScalarType:
 		protoType = typ.ProtoName
 		goTypeName = typ.GoName
-	case *ObjectType:
-		protoType = string(typ.Proto.Desc.FullName())
-		goTypeName = typ.Proto.GoIdent.GoName
-		goTypePackage = string(typ.Proto.GoIdent.GoImportPath)
-	case *InputObjectType:
-		protoType = string(typ.base.Proto.Desc.FullName())
-		goTypeName = typ.base.Proto.GoIdent.GoName
-		goTypePackage = string(typ.base.Proto.GoIdent.GoImportPath)
-	case *EnumType:
-		protoType = string(typ.Proto.Desc.FullName())
-		goTypeName = typ.Proto.GoIdent.GoName
-		goTypePackage = string(typ.Proto.GoIdent.GoImportPath)
+	case ProtoType:
+		protoType = string(typ.ProtoDescriptor().FullName())
+		goTypeName = typ.GoIdent().GoName
+		goTypePackage = string(typ.GoIdent().GoImportPath)
 	default:
 		panic("unreachable")
 	}
+
 	d := &ast.Directive{
 		Name: "protoField",
 		Arguments: ast.ArgumentList{

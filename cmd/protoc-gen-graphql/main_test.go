@@ -16,6 +16,7 @@ import (
 
 func TestProcessor(t *testing.T) {
 	testGenerate(t, "user")
+	testGenerate(t, "wktypes")
 	testGenerate(t, "starwars")
 }
 

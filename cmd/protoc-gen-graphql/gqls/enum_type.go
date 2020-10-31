@@ -9,6 +9,7 @@ import (
 var (
 	_ Type      = (*EnumType)(nil)
 	_ Definable = (*EnumType)(nil)
+	_ ProtoType = (*EnumType)(nil)
 )
 
 type EnumType struct {
@@ -21,6 +22,7 @@ func (t *EnumType) IsNullable() bool                         { return false }
 func (t *EnumType) IsList() bool                             { return false }
 func (t *EnumType) TypeAST() *ast.Type                       { return ast.NonNullNamedType(t.Name(), nil) }
 func (t *EnumType) ProtoDescriptor() protoreflect.Descriptor { return t.Proto.Desc }
+func (t *EnumType) GoIdent() protogen.GoIdent                { return t.Proto.GoIdent }
 
 func (t *EnumType) DefinitionAST() (*ast.Definition, error) {
 	def := &ast.Definition{

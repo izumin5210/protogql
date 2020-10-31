@@ -16,12 +16,17 @@ type Type interface {
 }
 
 type Definable interface {
+	ProtoType
 	DefinitionAST() (*ast.Definition, error)
-	ProtoDescriptor() protoreflect.Descriptor
 }
 
 type ModifiedType interface {
 	Original() Type
+}
+
+type ProtoType interface {
+	GoIdent() protogen.GoIdent
+	ProtoDescriptor() protoreflect.Descriptor
 }
 
 var (
@@ -60,8 +65,19 @@ func rawTypeFromProtoField(f *protogen.Field) (Type, error) {
 
 func TypeFromProtoMessage(m *protogen.Message) (Type, error) {
 	switch m.Desc.FullName() {
-	case protoreflect.FullName("google.protobuf").Append("Empty"):
+	case protoreflect.FullName("google.protobuf.Empty"):
 		return NullableType(BooleanType), nil
+	case protoreflect.FullName("google.protobuf.Int32Value"), protoreflect.FullName("google.protobuf.Int64Value"),
+		protoreflect.FullName("google.protobuf.UInt32Value"), protoreflect.FullName("google.protobuf.UInt64Value"):
+		return &WrappedScalarType{ScalarType: IntType, Proto: m}, nil
+	case protoreflect.FullName("google.protobuf.FloatValue"), protoreflect.FullName("google.protobuf.DoubleValue"):
+		return &WrappedScalarType{ScalarType: FloatType, Proto: m}, nil
+	case protoreflect.FullName("google.protobuf.BoolValue"):
+		return &WrappedScalarType{ScalarType: BooleanType, Proto: m}, nil
+	case protoreflect.FullName("google.protobuf.StringValue"):
+		return &WrappedScalarType{ScalarType: StringType, Proto: m}, nil
+	case protoreflect.FullName("google.protobuf.Timestamp"):
+		return &WrappedScalarType{ScalarType: DateTimeType, Proto: m}, nil
 	}
 	// TODO: handle other well-known types
 	return newObjectType(m), nil
