@@ -12,7 +12,7 @@ import (
 	"github.com/99designs/gqlgen/plugin"
 	"github.com/vektah/gqlparser/v2/ast"
 
-	"github.com/izumin5210/remixer/gqlutil"
+	"github.com/izumin5210/remixer/codegen/gqlutil"
 )
 
 type Plugin struct {

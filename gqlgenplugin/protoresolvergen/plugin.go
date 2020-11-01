@@ -15,8 +15,8 @@ import (
 	"github.com/vektah/gqlparser/v2/ast"
 	"golang.org/x/tools/go/packages"
 
-	"github.com/izumin5210/remixer/goutil"
-	"github.com/izumin5210/remixer/gqlutil"
+	"github.com/izumin5210/remixer/codegen/goutil"
+	"github.com/izumin5210/remixer/codegen/gqlutil"
 )
 
 type Plugin struct {
