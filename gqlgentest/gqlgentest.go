@@ -8,16 +8,15 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/99designs/gqlgen/codegen"
+	"github.com/99designs/gqlgen/api"
 	"github.com/99designs/gqlgen/codegen/config"
-	"github.com/99designs/gqlgen/plugin"
 	"github.com/bradleyjkemp/cupaloy/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
 type Runner interface {
 	Run(t *testing.T, f func(t *testing.T, err error))
-	AddGqlGenPlugin(p plugin.Plugin)
+	AddGqlGenOption(opst ...api.Option)
 	AddGqlSchema(filename, content string)
 	AddGqlSchemaFile(t *testing.T, pattern string)
 	AddGoModReplace(pkg, path string)
@@ -28,6 +27,10 @@ type Runner interface {
 func New(t *testing.T) Runner {
 	dir := filepath.Join(t.TempDir(), "testapp")
 	gqlgenCfg := config.DefaultConfig()
+	gqlgenCfg.Exec = config.PackageConfig{
+		Filename: "graph/graph_gen.go",
+		Package:  "graph",
+	}
 	gqlgenCfg.Model = config.PackageConfig{
 		Filename: "model/models_gen.go",
 		Package:  "model",
@@ -44,37 +47,15 @@ type runner struct {
 	dir           string
 	prevDir       string
 	gqlgenCfg     *config.Config
-	gqlgenPlugins []plugin.Plugin
+	gqlgenOptions []api.Option
 	goModReplace  []struct{ Package, Path string }
 }
 
 func (r *runner) Run(t *testing.T, f func(t *testing.T, err error)) {
 	defer r.moveToRoot(t)()
 	r.writeGoMod(t)
-	r.orDie(t, r.gqlgenCfg.Init())
 
-	for _, p := range r.gqlgenPlugins {
-		if mut, ok := p.(plugin.ConfigMutator); ok {
-			err := mut.MutateConfig(r.gqlgenCfg)
-			if err != nil {
-				f(t, err)
-				return
-			}
-		}
-	}
-
-	data, err := codegen.BuildData(r.gqlgenCfg)
-	r.orDie(t, err)
-
-	for _, p := range r.gqlgenPlugins {
-		if gen, ok := p.(plugin.CodeGenerator); ok {
-			err := gen.GenerateCode(data)
-			if err != nil {
-				f(t, err)
-				return
-			}
-		}
-	}
+	r.orDie(t, api.Generate(r.gqlgenCfg, r.gqlgenOptions...))
 
 	f(t, nil)
 }
@@ -108,8 +89,8 @@ func (r *runner) moveToRoot(t *testing.T) func() {
 	}
 }
 
-func (r *runner) AddGqlGenPlugin(p plugin.Plugin) {
-	r.gqlgenPlugins = append(r.gqlgenPlugins, p)
+func (r *runner) AddGqlGenOption(opts ...api.Option) {
+	r.gqlgenOptions = append(r.gqlgenOptions, opts...)
 }
 
 func (r *runner) AddGqlSchema(filename, content string) {

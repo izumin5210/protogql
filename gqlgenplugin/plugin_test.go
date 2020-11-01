@@ -1,10 +1,12 @@
-package plugin_test
+package gqlgenplugin_test
 
 import (
 	"path/filepath"
 	"runtime"
 	"testing"
 
+	"github.com/99designs/gqlgen/api"
+	"github.com/izumin5210/remixer/gqlgenplugin"
 	"github.com/izumin5210/remixer/gqlgenplugin/protomodelgen"
 	"github.com/izumin5210/remixer/gqlgenplugin/protoresolvergen"
 	"github.com/izumin5210/remixer/gqlgentest"
@@ -15,8 +17,11 @@ func TestGenerateForProto(t *testing.T) {
 	testdataDir := filepath.Join(rootDir, "testdata")
 
 	gqlgentest := gqlgentest.New(t)
-	gqlgentest.AddGqlGenPlugin(protomodelgen.New())
-	gqlgentest.AddGqlGenPlugin(protoresolvergen.New())
+	gqlgentest.AddGqlGenOption(
+		gqlgenplugin.PrependPlugin(protomodelgen.New()),
+		api.AddPlugin(protoresolvergen.New()),
+		gqlgenplugin.RemovePlugin("resolvergen"),
+	)
 	gqlgentest.AddGqlSchemaFile(t, filepath.Join(testdataDir, "apis", "graphql", "task", "*.graphqls"))
 	gqlgentest.AddGqlSchema("schema.graphqls", `
 directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
@@ -48,8 +53,11 @@ func TestGenerateForProto_WithExtendingType(t *testing.T) {
 	testdataDir := filepath.Join(rootDir, "testdata")
 
 	gqlgentest := gqlgentest.New(t)
-	gqlgentest.AddGqlGenPlugin(protomodelgen.New())
-	gqlgentest.AddGqlGenPlugin(protoresolvergen.New())
+	gqlgentest.AddGqlGenOption(
+		gqlgenplugin.PrependPlugin(protomodelgen.New()),
+		api.AddPlugin(protoresolvergen.New()),
+		gqlgenplugin.RemovePlugin("resolvergen"),
+	)
 	gqlgentest.AddGqlSchemaFile(t, filepath.Join(testdataDir, "apis", "graphql", "task", "*.graphqls"))
 	gqlgentest.AddGqlSchemaFile(t, filepath.Join(testdataDir, "apis", "graphql", "user", "*.graphqls"))
 	gqlgentest.AddGqlSchema("schema.graphqls", `
@@ -88,8 +96,11 @@ func TestGenerateForProto_WithProtoWellKnownTypes(t *testing.T) {
 	testdataDir := filepath.Join(rootDir, "testdata")
 
 	gqlgentest := gqlgentest.New(t)
-	gqlgentest.AddGqlGenPlugin(protomodelgen.New())
-	gqlgentest.AddGqlGenPlugin(protoresolvergen.New())
+	gqlgentest.AddGqlGenOption(
+		gqlgenplugin.PrependPlugin(protomodelgen.New()),
+		api.AddPlugin(protoresolvergen.New()),
+		gqlgenplugin.RemovePlugin("resolvergen"),
+	)
 	gqlgentest.AddGqlSchemaFile(t, filepath.Join(testdataDir, "apis", "graphql", "wktypes", "*.graphqls"))
 	gqlgentest.AddGqlSchema("schema.graphqls", `
 directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
