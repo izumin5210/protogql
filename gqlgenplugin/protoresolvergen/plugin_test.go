@@ -11,7 +11,8 @@ import (
 )
 
 func TestGenerateCode(t *testing.T) {
-	testdataDir := filepath.Join(getModuleRoot(), "testdata")
+	rootDir := getModuleRoot()
+	testdataDir := filepath.Join(rootDir, "testdata")
 
 	gqlgentest := gqlgentest.New(t)
 	gqlgentest.AddGqlGenPlugin(protomodelgen.New())
@@ -21,12 +22,50 @@ func TestGenerateCode(t *testing.T) {
 directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
 directive @proto(fullName: String!, package: String!, name: String!, goPackage: String!, goName: String!) on OBJECT | INPUT_OBJECT | ENUM
 directive @protoField(name: String!, type: String!, goName: String!, goTypeName: String!, goTypePackage: String) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+scalar DateTime
 
 extend type Query {
   tasks: [Task!]!
 }`)
+	gqlgentest.AddGoModReplace("github.com/izumin5210/remixer", rootDir)
+	gqlgentest.AddGoModReplace("apis/go/tasks", filepath.Join(testdataDir, "apis", "go", "task"))
 
-	gqlgentest.Run(t, func(t *testing.T) {
+	gqlgentest.Run(t, func(t *testing.T, err error) {
+		if err != nil {
+			t.Errorf("failed to generate code: %v", err)
+		}
+		gqlgentest.SnapshotFile(t,
+			"resolver/resolver.go",
+			"resolver/resolver.adapters.go",
+			"resolver/schema.resolvers.proto.go",
+		)
+	})
+}
+
+func TestGenerateCode_WithProtoWellKnownTypes(t *testing.T) {
+	rootDir := getModuleRoot()
+	testdataDir := filepath.Join(rootDir, "testdata")
+
+	gqlgentest := gqlgentest.New(t)
+	gqlgentest.AddGqlGenPlugin(protomodelgen.New())
+	gqlgentest.AddGqlGenPlugin(protoresolvergen.New())
+	gqlgentest.AddGqlSchemaFile(t, filepath.Join(testdataDir, "apis", "graphql", "wktypes", "*.graphqls"))
+	gqlgentest.AddGqlSchema("schema.graphqls", `
+directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
+directive @proto(fullName: String!, package: String!, name: String!, goPackage: String!, goName: String!) on OBJECT | INPUT_OBJECT | ENUM
+directive @protoField(name: String!, type: String!, goName: String!, goTypeName: String!, goTypePackage: String) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+scalar DateTime
+
+extend type Query {
+  hello: [Hello!]!
+}`)
+	gqlgentest.AddGoModReplace("github.com/izumin5210/remixer", rootDir)
+	gqlgentest.AddGoModReplace("apis/go/wktypes", filepath.Join(testdataDir, "apis", "go", "wktypes"))
+
+	gqlgentest.Run(t, func(t *testing.T, err error) {
+		if err != nil {
+			t.Errorf("failed to generate code: %v", err)
+		}
 		gqlgentest.SnapshotFile(t,
 			"resolver/resolver.go",
 			"resolver/resolver.adapters.go",

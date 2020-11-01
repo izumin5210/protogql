@@ -76,9 +76,13 @@ func (p *Plugin) generatePerSchema(data *codegen.Data) error {
 			if typeRef := field.TypeReference; !typeRef.IsScalar() {
 				modelPkg = data.Config.Packages.LoadWithTypes(goutil.GetTypePackageName(typeRef.GO))
 			}
+			protoField, err := gqlutil.ExtractProtoFieldDirective(field.FieldDefinition.Directives)
+			if err != nil {
+				return err
+			}
 
 			file := files.FindOrInitialize(field.Position.Src.Name)
-			file.Resolvers = append(file.Resolvers, &Resolver{Field: field, GQLTypeDefinition: gqlType, modelPkg: modelPkg})
+			file.Resolvers = append(file.Resolvers, &Resolver{Field: field, ProtoField: protoField, GQLTypeDefinition: gqlType, modelPkg: modelPkg})
 		}
 	}
 
@@ -162,12 +166,29 @@ func (f *Files) resolverGoFilename(gqlFilename string) string {
 
 type Resolver struct {
 	*codegen.Field
+	ProtoField        *gqlutil.ProtoFieldDirective
 	GQLTypeDefinition *ast.Definition
 	modelPkg          *packages.Package
 }
 
 type ResolverArg struct {
 	Name, Type string
+}
+
+func (r *Resolver) IsScalar() bool {
+	if r.TypeReference.IsScalar() {
+		return true
+	}
+	switch r.ProtoField.Type {
+	case "google.protobuf.Int32Value", "google.protobuf.Int64Value",
+		"google.protobuf.UInt32Value", "google.protobuf.UInt64Value",
+		"google.protobuf.FloatValue", "google.protobuf.DoubleValue",
+		"google.protobuf.BoolValue",
+		"google.protobuf.StringValue",
+		"google.protobuf.Timestamp":
+		return true
+	}
+	return false
 }
 
 func (r *Resolver) ShortProtoResolverDeclaration() (string, error) {

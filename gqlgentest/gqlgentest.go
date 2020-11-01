@@ -16,7 +16,7 @@ import (
 )
 
 type Runner interface {
-	Run(t *testing.T, f func(t *testing.T))
+	Run(t *testing.T, f func(t *testing.T, err error))
 	AddGqlGenPlugin(p plugin.Plugin)
 	AddGqlSchema(filename, content string)
 	AddGqlSchemaFile(t *testing.T, pattern string)
@@ -48,14 +48,18 @@ type runner struct {
 	goModReplace  []struct{ Package, Path string }
 }
 
-func (r *runner) Run(t *testing.T, f func(t *testing.T)) {
+func (r *runner) Run(t *testing.T, f func(t *testing.T, err error)) {
 	defer r.moveToRoot(t)()
 	r.writeGoMod(t)
 	r.orDie(t, r.gqlgenCfg.Init())
 
 	for _, p := range r.gqlgenPlugins {
 		if mut, ok := p.(plugin.ConfigMutator); ok {
-			r.orDie(t, mut.MutateConfig(r.gqlgenCfg))
+			err := mut.MutateConfig(r.gqlgenCfg)
+			if err != nil {
+				f(t, err)
+				return
+			}
 		}
 	}
 
@@ -63,12 +67,16 @@ func (r *runner) Run(t *testing.T, f func(t *testing.T)) {
 	r.orDie(t, err)
 
 	for _, p := range r.gqlgenPlugins {
-		if mut, ok := p.(plugin.CodeGenerator); ok {
-			r.orDie(t, mut.GenerateCode(data))
+		if gen, ok := p.(plugin.CodeGenerator); ok {
+			err := gen.GenerateCode(data)
+			if err != nil {
+				f(t, err)
+				return
+			}
 		}
 	}
 
-	f(t)
+	f(t, nil)
 }
 
 func (r *runner) orDie(t *testing.T, err error) {

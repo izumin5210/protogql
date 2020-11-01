@@ -21,7 +21,7 @@
 		if err != nil {
 			return nil, err
 		}
-		{{ if $resolver.TypeReference.IsScalar -}}
+		{{ if $resolver.IsScalar -}}
 			return resp, nil
 		{{ else }}
 			return {{ $resolver.ResolverModelFromProtoFunc }}(resp), nil

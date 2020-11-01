@@ -55,8 +55,39 @@ func (p *Plugin) MutateConfig(cfg *config.Config) error {
 
 	for _, name := range []string{"Int", "ID"} {
 		model := cfg.Models[name]
+		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime.Uint32")
 		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime.Uint64")
 		cfg.Models[name] = model
+	}
+
+	{
+		model := cfg.Models["Int"]
+		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime.Int32Value")
+		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime.Int64Value")
+		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime.UInt32Value")
+		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime.UInt64Value")
+		cfg.Models["Int"] = model
+	}
+	{
+		model := cfg.Models["Float"]
+		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime.FloatValue")
+		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime.DoubleValue")
+		cfg.Models["Float"] = model
+	}
+	{
+		model := cfg.Models["Boolean"]
+		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime.BoolValue")
+		cfg.Models["Boolean"] = model
+	}
+	{
+		model := cfg.Models["String"]
+		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime.StringValue")
+		cfg.Models["String"] = model
+	}
+	{
+		model := cfg.Models["DateTime"]
+		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime.Timestamp")
+		cfg.Models["DateTime"] = model
 	}
 
 	return templates.Render(templates.Options{
@@ -132,6 +163,19 @@ func (b *Binding) FindGQLFieldType(f *Field) (string, error) {
 	if f.IsBuiltinType() {
 		return f.Proto.Type, nil
 	}
+	switch f.Proto.Type {
+	case "google.protobuf.Int32Value", "google.protobuf.Int64Value",
+		"google.protobuf.UInt32Value", "google.protobuf.UInt64Value":
+		return "Int", nil
+	case "google.protobuf.FloatValue", "google.protobuf.DoubleValue":
+		return "Int", nil
+	case "google.protobuf.BoolValue":
+		return "Boolean", nil
+	case "google.protobuf.StringValue":
+		return "String", nil
+	case "google.protobuf.Timestamp":
+		return "DateTime", nil
+	}
 	for _, o := range b.Objects {
 		if o.Proto.FullName == f.Proto.Type {
 			return o.Name, nil
@@ -156,6 +200,22 @@ type Field struct {
 	GQL   *ast.FieldDefinition
 	Proto *gqlutil.ProtoFieldDirective
 	List  bool
+}
+
+func (f *Field) IsWrapperType() bool {
+	if f.Proto == nil {
+		return false
+	}
+	switch f.Proto.Type {
+	case "google.protobuf.Int32Value", "google.protobuf.Int64Value",
+		"google.protobuf.UInt32Value", "google.protobuf.UInt64Value",
+		"google.protobuf.FloatValue", "google.protobuf.DoubleValue",
+		"google.protobuf.BoolValue",
+		"google.protobuf.StringValue",
+		"google.protobuf.Timestamp":
+		return true
+	}
+	return false
 }
 
 func (f *Field) IsBuiltinType() bool {
