@@ -52,7 +52,7 @@
 		return &{{ $pbGoName }}{
 			{{ range $f := $obj.Fields }}
 				{{ if $f.Proto }}
-					{{ if $f.IsBuiltinType }}
+					{{ if or $f.IsBuiltinType $f.IsWrapperType }}
 						{{ $f.Proto.GoName }}: in.{{ go $f.Name }},
 					{{ else if $f.List }}
 						{{ $f.Proto.GoName }}: List{{ findGQLFieldType $f }}ToRepeatedProto(in.{{ go $f.Name }}),

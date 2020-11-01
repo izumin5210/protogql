@@ -71,23 +71,23 @@ func HelloListToRepeatedProto(in []*Hello) []*wktypes_pb.Hello {
 func HelloToProto(in *Hello) *wktypes_pb.Hello {
 	return &wktypes_pb.Hello{
 
-		Timestamp: DateTimeToProto(in.Timestamp),
+		Timestamp: in.Timestamp,
 
-		Int32Value: IntToProto(in.Int32Value),
+		Int32Value: in.Int32Value,
 
-		Int64Value: IntToProto(in.Int64Value),
+		Int64Value: in.Int64Value,
 
-		Uint32Value: IntToProto(in.Uint32Value),
+		Uint32Value: in.Uint32Value,
 
-		Uint64Value: IntToProto(in.Uint64Value),
+		Uint64Value: in.Uint64Value,
 
-		FloatValue: IntToProto(in.FloatValue),
+		FloatValue: in.FloatValue,
 
-		DoubleValue: IntToProto(in.DoubleValue),
+		DoubleValue: in.DoubleValue,
 
-		BoolValue: BooleanToProto(in.BoolValue),
+		BoolValue: in.BoolValue,
 
-		StringValue: StringToProto(in.StringValue),
+		StringValue: in.StringValue,
 	}
 }
 
@@ -153,23 +153,23 @@ func HelloInputListToRepeatedProto(in []*HelloInput) []*wktypes_pb.Hello {
 func HelloInputToProto(in *HelloInput) *wktypes_pb.Hello {
 	return &wktypes_pb.Hello{
 
-		Timestamp: DateTimeToProto(in.Timestamp),
+		Timestamp: in.Timestamp,
 
-		Int32Value: IntToProto(in.Int32Value),
+		Int32Value: in.Int32Value,
 
-		Int64Value: IntToProto(in.Int64Value),
+		Int64Value: in.Int64Value,
 
-		Uint32Value: IntToProto(in.Uint32Value),
+		Uint32Value: in.Uint32Value,
 
-		Uint64Value: IntToProto(in.Uint64Value),
+		Uint64Value: in.Uint64Value,
 
-		FloatValue: IntToProto(in.FloatValue),
+		FloatValue: in.FloatValue,
 
-		DoubleValue: IntToProto(in.DoubleValue),
+		DoubleValue: in.DoubleValue,
 
-		BoolValue: BooleanToProto(in.BoolValue),
+		BoolValue: in.BoolValue,
 
-		StringValue: StringToProto(in.StringValue),
+		StringValue: in.StringValue,
 	}
 }
 
