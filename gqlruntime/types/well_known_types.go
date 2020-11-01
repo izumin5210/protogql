@@ -15,6 +15,9 @@ import (
 var dateTimeFmts = []string{time.RFC3339Nano, time.RFC3339}
 
 func MarshalTimestamp(ts *timestamp.Timestamp) graphql.Marshaler {
+	if ts == nil {
+		return graphql.Null
+	}
 	return graphql.WriterFunc(func(w io.Writer) {
 		_, _ = io.WriteString(w, strconv.Quote(ptypes.TimestampString(ts)))
 	})
@@ -101,7 +104,9 @@ func MarshalFloatValue(v *wrappers.FloatValue) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return graphql.MarshalFloat(float64(v.GetValue()))
+	return graphql.WriterFunc(func(w io.Writer) {
+		io.WriteString(w, fmt.Sprintf("%g", v.GetValue()))
+	})
 }
 
 func UnmarshalFloatValue(in interface{}) (*wrappers.FloatValue, error) {
