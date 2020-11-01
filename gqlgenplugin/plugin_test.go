@@ -1,4 +1,4 @@
-package protoresolvergen_test
+package plugin_test
 
 import (
 	"path/filepath"
@@ -10,7 +10,7 @@ import (
 	"github.com/izumin5210/remixer/gqlgentest"
 )
 
-func TestGenerateCode(t *testing.T) {
+func TestGenerateForProto(t *testing.T) {
 	rootDir := getModuleRoot()
 	testdataDir := filepath.Join(rootDir, "testdata")
 
@@ -42,7 +42,7 @@ extend type Query {
 	})
 }
 
-func TestGenerateCode_WithExtendingType(t *testing.T) {
+func TestGenerateForProto_WithExtendingType(t *testing.T) {
 	rootDir := getModuleRoot()
 	testdataDir := filepath.Join(rootDir, "testdata")
 
@@ -58,8 +58,8 @@ directive @protoField(name: String!, type: String!, goName: String!, goTypeName:
 scalar DateTime
 
 extend type Task {
-  author: User!
   assignees: [User!]!
+  author: User!
 }
 
 extend type Query {
@@ -74,6 +74,7 @@ extend type Query {
 			t.Errorf("failed to generate code: %v", err)
 		}
 		gqlgentest.SnapshotFile(t,
+			"model/protomodels_gen.go",
 			"resolver/resolver.go",
 			"resolver/resolver.adapters.go",
 			"resolver/schema.resolvers.proto.go",
@@ -81,7 +82,7 @@ extend type Query {
 	})
 }
 
-func TestGenerateCode_WithProtoWellKnownTypes(t *testing.T) {
+func TestGenerateForProto_WithProtoWellKnownTypes(t *testing.T) {
 	rootDir := getModuleRoot()
 	testdataDir := filepath.Join(rootDir, "testdata")
 
@@ -115,5 +116,5 @@ extend type Query {
 
 func getModuleRoot() string {
 	_, filename, _, _ := runtime.Caller(1)
-	return filepath.Clean(filepath.Join(filepath.Dir(filename), "..", ".."))
+	return filepath.Clean(filepath.Join(filepath.Dir(filename), ".."))
 }

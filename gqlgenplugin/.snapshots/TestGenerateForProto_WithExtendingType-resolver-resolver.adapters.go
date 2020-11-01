@@ -15,20 +15,20 @@ func (a *queryProtoResolverAdapter) Tasks(ctx context.Context) ([]*model.Task, e
 	return model.TaskListFromRepeatedProto(resp), nil
 }
 
-func (a *taskProtoResolverAdapter) Author(ctx context.Context, obj *model.Task) (*model.User, error) {
-	resp, err := a.protoResolver.Author(ctx, model.TaskToProto(obj))
-	if err != nil {
-		return nil, err
-	}
-	return model.UserFromProto(resp), nil
-}
-
 func (a *taskProtoResolverAdapter) Assignees(ctx context.Context, obj *model.Task) ([]*model.User, error) {
 	resp, err := a.protoResolver.Assignees(ctx, model.TaskToProto(obj))
 	if err != nil {
 		return nil, err
 	}
 	return model.UserListFromRepeatedProto(resp), nil
+}
+
+func (a *taskProtoResolverAdapter) Author(ctx context.Context, obj *model.Task) (*model.User, error) {
+	resp, err := a.protoResolver.Author(ctx, model.TaskToProto(obj))
+	if err != nil {
+		return nil, err
+	}
+	return model.UserFromProto(resp), nil
 }
 
 type queryProtoResolverAdapter struct{ protoResolver *queryProtoResolver }
