@@ -39,6 +39,14 @@ func (a *taskProtoResolverAdapter) Assignees(ctx context.Context, obj *model.Tas
 	return model.UserListFromRepeatedProto(resp), nil
 }
 
+func (a *taskProtoResolverAdapter) Author(ctx context.Context, obj *model.Task) (*model.User, error) {
+	resp, err := a.protoResolver.Author(ctx, model.TaskToProto(obj))
+	if err != nil {
+		return nil, err
+	}
+	return model.UserFromProto(resp), nil
+}
+
 type mutationProtoResolverAdapter struct{ protoResolver *mutationProtoResolver }
 type queryProtoResolverAdapter struct{ protoResolver *queryProtoResolver }
 type taskProtoResolverAdapter struct{ protoResolver *taskProtoResolver }

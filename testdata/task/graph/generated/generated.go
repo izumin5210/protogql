@@ -57,6 +57,8 @@ type ComplexityRoot struct {
 	Task struct {
 		AssigneeIds func(childComplexity int) int
 		Assignees   func(childComplexity int) int
+		Author      func(childComplexity int) int
+		AuthorID    func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Status      func(childComplexity int) int
 		Title       func(childComplexity int) int
@@ -78,6 +80,7 @@ type QueryResolver interface {
 }
 type TaskResolver interface {
 	Assignees(ctx context.Context, obj *model.Task) ([]*model.User, error)
+	Author(ctx context.Context, obj *model.Task) (*model.User, error)
 }
 
 type executableSchema struct {
@@ -129,6 +132,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Task.Assignees(childComplexity), true
+
+	case "Task.author":
+		if e.complexity.Task.Author == nil {
+			break
+		}
+
+		return e.complexity.Task.Author(childComplexity), true
+
+	case "Task.authorId":
+		if e.complexity.Task.AuthorID == nil {
+			break
+		}
+
+		return e.complexity.Task.AuthorID(childComplexity), true
 
 	case "Task.id":
 		if e.complexity.Task.ID == nil {
@@ -241,12 +258,14 @@ var sources = []*ast.Source{
 	title: String! @protoField(name: "title", type: "string", goName: "Title", goTypeName: "string")
 	status: TaskStatus! @protoField(name: "status", type: "testapi.task.Task.Status", goName: "Status", goTypeName: "Task_Status", goTypePackage: "apis/go/task")
 	assigneeIds: [Int!]! @protoField(name: "assignee_ids", type: "uint64", goName: "AssigneeIds", goTypeName: "uint64")
+	authorId: Int! @protoField(name: "author_id", type: "uint64", goName: "AuthorId", goTypeName: "uint64")
 }
 input TaskInput @proto(fullName: "testapi.task.Task", package: "testapi.task", name: "Task", goPackage: "apis/go/task", goName: "Task") {
 	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
 	title: String! @protoField(name: "title", type: "string", goName: "Title", goTypeName: "string")
 	status: TaskStatus! @protoField(name: "status", type: "testapi.task.Task.Status", goName: "Status", goTypeName: "Task_Status", goTypePackage: "apis/go/task")
 	assigneeIds: [Int!]! @protoField(name: "assignee_ids", type: "uint64", goName: "AssigneeIds", goTypeName: "uint64")
+	authorId: Int! @protoField(name: "author_id", type: "uint64", goName: "AuthorId", goTypeName: "uint64")
 }
 enum TaskStatus @proto(fullName: "testapi.task.Task.Status", package: "testapi.task", name: "Status", goPackage: "apis/go/task", goName: "Task_Status") {
 	STATUS_UNSPECIFIED
@@ -288,6 +307,7 @@ type Mutation {
 
 extend type Task {
   assignees: [User!]!
+  author: User!
 }
 `, BuiltIn: false},
 }
@@ -660,6 +680,41 @@ func (ec *executionContext) _Task_assigneeIds(ctx context.Context, field graphql
 	return ec.marshalNInt2ᚕuint64ᚄ(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Task_authorId(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Task",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AuthorID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uint64)
+	fc.Result = res
+	return ec.marshalNInt2uint64(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Task_assignees(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -693,6 +748,41 @@ func (ec *executionContext) _Task_assignees(ctx context.Context, field graphql.C
 	res := resTmp.([]*model.User)
 	fc.Result = res
 	return ec.marshalNUser2ᚕᚖtaskᚋgraphᚋmodelᚐUserᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Task_author(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Task",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Task().Author(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖtaskᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
@@ -1925,6 +2015,14 @@ func (ec *executionContext) unmarshalInputTaskInput(ctx context.Context, obj int
 			if err != nil {
 				return it, err
 			}
+		case "authorId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("authorId"))
+			it.AuthorID, err = ec.unmarshalNInt2uint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -2089,6 +2187,11 @@ func (ec *executionContext) _Task(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "authorId":
+			out.Values[i] = ec._Task_authorId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "assignees":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -2098,6 +2201,20 @@ func (ec *executionContext) _Task(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._Task_assignees(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "author":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Task_author(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -2532,6 +2649,10 @@ func (ec *executionContext) marshalNTaskStatus2ᚖtaskᚋgraphᚋmodelᚐTaskSta
 		return graphql.Null
 	}
 	return v
+}
+
+func (ec *executionContext) marshalNUser2taskᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
+	return ec._User(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNUser2ᚕᚖtaskᚋgraphᚋmodelᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {

@@ -19,7 +19,11 @@ type Task struct {
 
 	AssigneeIds []uint64
 
+	AuthorID uint64
+
 	Assignees []*User
+
+	Author *User
 }
 
 func TaskListFromRepeatedProto(in []*task_pb.Task) []*Task {
@@ -40,6 +44,8 @@ func TaskFromProto(in *task_pb.Task) *Task {
 		Status: TaskStatusFromProto(in.Status),
 
 		AssigneeIds: in.AssigneeIds,
+
+		AuthorID: in.AuthorId,
 	}
 }
 
@@ -61,6 +67,8 @@ func TaskToProto(in *Task) *task_pb.Task {
 		Status: TaskStatusToProto(in.Status),
 
 		AssigneeIds: in.AssigneeIds,
+
+		AuthorId: in.AuthorID,
 	}
 }
 
@@ -72,6 +80,8 @@ type TaskInput struct {
 	Status *TaskStatus
 
 	AssigneeIds []uint64
+
+	AuthorID uint64
 }
 
 func TaskInputListFromRepeatedProto(in []*task_pb.Task) []*TaskInput {
@@ -92,6 +102,8 @@ func TaskInputFromProto(in *task_pb.Task) *TaskInput {
 		Status: TaskStatusFromProto(in.Status),
 
 		AssigneeIds: in.AssigneeIds,
+
+		AuthorID: in.AuthorId,
 	}
 }
 
@@ -113,6 +125,8 @@ func TaskInputToProto(in *TaskInput) *task_pb.Task {
 		Status: TaskStatusToProto(in.Status),
 
 		AssigneeIds: in.AssigneeIds,
+
+		AuthorId: in.AuthorID,
 	}
 }
 

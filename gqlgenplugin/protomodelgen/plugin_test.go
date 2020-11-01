@@ -25,7 +25,42 @@ extend type Query {
   tasks: [Task!]!
 }`)
 	gqlgentest.AddGoModReplace("github.com/izumin5210/remixer", rootDir)
-	gqlgentest.AddGoModReplace("apis/go/tasks", filepath.Join(testdataDir, "apis", "go", "task"))
+	gqlgentest.AddGoModReplace("apis/go/task", filepath.Join(testdataDir, "apis", "go", "task"))
+
+	gqlgentest.Run(t, func(t *testing.T, err error) {
+		if err != nil {
+			t.Errorf("failed to generate code: %v", err)
+		}
+		gqlgentest.SnapshotFile(t,
+			"model/protomodels_gen.go",
+		)
+	})
+}
+
+func TestGenerateCode_WithExtendingType(t *testing.T) {
+	rootDir := getModuleRoot()
+	testdataDir := filepath.Join(rootDir, "testdata")
+
+	gqlgentest := gqlgentest.New(t)
+	gqlgentest.AddGqlGenPlugin(protomodelgen.New())
+	gqlgentest.AddGqlSchemaFile(t, filepath.Join(testdataDir, "apis", "graphql", "task", "*.graphqls"))
+	gqlgentest.AddGqlSchemaFile(t, filepath.Join(testdataDir, "apis", "graphql", "user", "*.graphqls"))
+	gqlgentest.AddGqlSchema("schema.graphqls", `
+directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
+directive @proto(fullName: String!, package: String!, name: String!, goPackage: String!, goName: String!) on OBJECT | INPUT_OBJECT | ENUM
+directive @protoField(name: String!, type: String!, goName: String!, goTypeName: String!, goTypePackage: String) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
+extend type Task {
+  assignees: [User!]!
+  author: User!
+}
+
+extend type Query {
+  tasks: [Task!]!
+}`)
+	gqlgentest.AddGoModReplace("github.com/izumin5210/remixer", rootDir)
+	gqlgentest.AddGoModReplace("apis/go/task", filepath.Join(testdataDir, "apis", "go", "task"))
+	gqlgentest.AddGoModReplace("apis/go/user", filepath.Join(testdataDir, "apis", "go", "user"))
 
 	gqlgentest.Run(t, func(t *testing.T, err error) {
 		if err != nil {

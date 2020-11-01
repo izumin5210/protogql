@@ -21,6 +21,7 @@ message Task {
 
   Status status = 3;
   repeated uint64 assignee_ids = 4;
+  uint64 author_id = 5;
 }
 
 message ListTasksRequest {
