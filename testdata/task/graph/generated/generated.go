@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"fmt"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -43,9 +42,6 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
-	Grpc       func(ctx context.Context, obj interface{}, next graphql.Resolver, service string, rpc string) (res interface{}, err error)
-	Proto      func(ctx context.Context, obj interface{}, next graphql.Resolver, fullName string, packageArg string, name string, goPackage string, goName string) (res interface{}, err error)
-	ProtoField func(ctx context.Context, obj interface{}, next graphql.Resolver, name string, typeArg string, goName string, goTypeName string, goTypePackage *string) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -301,132 +297,6 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) dir_grpc_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["service"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("service"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["service"] = arg0
-	var arg1 string
-	if tmp, ok := rawArgs["rpc"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rpc"))
-		arg1, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["rpc"] = arg1
-	return args, nil
-}
-
-func (ec *executionContext) dir_protoField_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["name"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["name"] = arg0
-	var arg1 string
-	if tmp, ok := rawArgs["type"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-		arg1, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["type"] = arg1
-	var arg2 string
-	if tmp, ok := rawArgs["goName"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("goName"))
-		arg2, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["goName"] = arg2
-	var arg3 string
-	if tmp, ok := rawArgs["goTypeName"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("goTypeName"))
-		arg3, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["goTypeName"] = arg3
-	var arg4 *string
-	if tmp, ok := rawArgs["goTypePackage"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("goTypePackage"))
-		arg4, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["goTypePackage"] = arg4
-	return args, nil
-}
-
-func (ec *executionContext) dir_proto_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["fullName"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fullName"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["fullName"] = arg0
-	var arg1 string
-	if tmp, ok := rawArgs["package"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("package"))
-		arg1, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["package"] = arg1
-	var arg2 string
-	if tmp, ok := rawArgs["name"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-		arg2, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["name"] = arg2
-	var arg3 string
-	if tmp, ok := rawArgs["goPackage"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("goPackage"))
-		arg3, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["goPackage"] = arg3
-	var arg4 string
-	if tmp, ok := rawArgs["goName"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("goName"))
-		arg4, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["goName"] = arg4
-	return args, nil
-}
-
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -561,48 +431,8 @@ func (ec *executionContext) _Query_tasks(ctx context.Context, field graphql.Coll
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().Tasks(rctx)
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			fullName, err := ec.unmarshalNString2string(ctx, "testapi.task.Task")
-			if err != nil {
-				return nil, err
-			}
-			packageArg, err := ec.unmarshalNString2string(ctx, "testapi.task")
-			if err != nil {
-				return nil, err
-			}
-			name, err := ec.unmarshalNString2string(ctx, "Task")
-			if err != nil {
-				return nil, err
-			}
-			goPackage, err := ec.unmarshalNString2string(ctx, "apis/go/task")
-			if err != nil {
-				return nil, err
-			}
-			goName, err := ec.unmarshalNString2string(ctx, "Task")
-			if err != nil {
-				return nil, err
-			}
-			if ec.directives.Proto == nil {
-				return nil, errors.New("directive proto is not implemented")
-			}
-			return ec.directives.Proto(ctx, nil, directive0, fullName, packageArg, name, goPackage, goName)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.([]*model.Task); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*task/graph/model.Task`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Tasks(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -707,44 +537,8 @@ func (ec *executionContext) _Task_id(ctx context.Context, field graphql.Collecte
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return obj.ID, nil
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			name, err := ec.unmarshalNString2string(ctx, "id")
-			if err != nil {
-				return nil, err
-			}
-			typeArg, err := ec.unmarshalNString2string(ctx, "uint64")
-			if err != nil {
-				return nil, err
-			}
-			goName, err := ec.unmarshalNString2string(ctx, "Id")
-			if err != nil {
-				return nil, err
-			}
-			goTypeName, err := ec.unmarshalNString2string(ctx, "uint64")
-			if err != nil {
-				return nil, err
-			}
-			if ec.directives.ProtoField == nil {
-				return nil, errors.New("directive protoField is not implemented")
-			}
-			return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goTypeName, nil)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(uint64); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -778,44 +572,8 @@ func (ec *executionContext) _Task_title(ctx context.Context, field graphql.Colle
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return obj.Title, nil
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			name, err := ec.unmarshalNString2string(ctx, "title")
-			if err != nil {
-				return nil, err
-			}
-			typeArg, err := ec.unmarshalNString2string(ctx, "string")
-			if err != nil {
-				return nil, err
-			}
-			goName, err := ec.unmarshalNString2string(ctx, "Title")
-			if err != nil {
-				return nil, err
-			}
-			goTypeName, err := ec.unmarshalNString2string(ctx, "string")
-			if err != nil {
-				return nil, err
-			}
-			if ec.directives.ProtoField == nil {
-				return nil, errors.New("directive protoField is not implemented")
-			}
-			return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goTypeName, nil)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(string); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -849,74 +607,8 @@ func (ec *executionContext) _Task_status(ctx context.Context, field graphql.Coll
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return obj.Status, nil
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			fullName, err := ec.unmarshalNString2string(ctx, "testapi.task.Task.Status")
-			if err != nil {
-				return nil, err
-			}
-			packageArg, err := ec.unmarshalNString2string(ctx, "testapi.task")
-			if err != nil {
-				return nil, err
-			}
-			name, err := ec.unmarshalNString2string(ctx, "Status")
-			if err != nil {
-				return nil, err
-			}
-			goPackage, err := ec.unmarshalNString2string(ctx, "apis/go/task")
-			if err != nil {
-				return nil, err
-			}
-			goName, err := ec.unmarshalNString2string(ctx, "Task_Status")
-			if err != nil {
-				return nil, err
-			}
-			if ec.directives.Proto == nil {
-				return nil, errors.New("directive proto is not implemented")
-			}
-			return ec.directives.Proto(ctx, obj, directive0, fullName, packageArg, name, goPackage, goName)
-		}
-		directive2 := func(ctx context.Context) (interface{}, error) {
-			name, err := ec.unmarshalNString2string(ctx, "status")
-			if err != nil {
-				return nil, err
-			}
-			typeArg, err := ec.unmarshalNString2string(ctx, "testapi.task.Task.Status")
-			if err != nil {
-				return nil, err
-			}
-			goName, err := ec.unmarshalNString2string(ctx, "Status")
-			if err != nil {
-				return nil, err
-			}
-			goTypeName, err := ec.unmarshalNString2string(ctx, "Task_Status")
-			if err != nil {
-				return nil, err
-			}
-			goTypePackage, err := ec.unmarshalOString2ᚖstring(ctx, "apis/go/task")
-			if err != nil {
-				return nil, err
-			}
-			if ec.directives.ProtoField == nil {
-				return nil, errors.New("directive protoField is not implemented")
-			}
-			return ec.directives.ProtoField(ctx, obj, directive1, name, typeArg, goName, goTypeName, goTypePackage)
-		}
-
-		tmp, err := directive2(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*model.TaskStatus); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *task/graph/model.TaskStatus`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -950,44 +642,8 @@ func (ec *executionContext) _Task_assigneeIds(ctx context.Context, field graphql
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return obj.AssigneeIds, nil
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			name, err := ec.unmarshalNString2string(ctx, "assignee_ids")
-			if err != nil {
-				return nil, err
-			}
-			typeArg, err := ec.unmarshalNString2string(ctx, "uint64")
-			if err != nil {
-				return nil, err
-			}
-			goName, err := ec.unmarshalNString2string(ctx, "AssigneeIds")
-			if err != nil {
-				return nil, err
-			}
-			goTypeName, err := ec.unmarshalNString2string(ctx, "uint64")
-			if err != nil {
-				return nil, err
-			}
-			if ec.directives.ProtoField == nil {
-				return nil, errors.New("directive protoField is not implemented")
-			}
-			return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goTypeName, nil)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.([]uint64); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []uint64`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return obj.AssigneeIds, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1021,48 +677,8 @@ func (ec *executionContext) _Task_assignees(ctx context.Context, field graphql.C
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Task().Assignees(rctx, obj)
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			fullName, err := ec.unmarshalNString2string(ctx, "testapi.user.User")
-			if err != nil {
-				return nil, err
-			}
-			packageArg, err := ec.unmarshalNString2string(ctx, "testapi.user")
-			if err != nil {
-				return nil, err
-			}
-			name, err := ec.unmarshalNString2string(ctx, "User")
-			if err != nil {
-				return nil, err
-			}
-			goPackage, err := ec.unmarshalNString2string(ctx, "apis/go/user")
-			if err != nil {
-				return nil, err
-			}
-			goName, err := ec.unmarshalNString2string(ctx, "User")
-			if err != nil {
-				return nil, err
-			}
-			if ec.directives.Proto == nil {
-				return nil, errors.New("directive proto is not implemented")
-			}
-			return ec.directives.Proto(ctx, obj, directive0, fullName, packageArg, name, goPackage, goName)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.([]*model.User); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*task/graph/model.User`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Task().Assignees(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1096,44 +712,8 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return obj.ID, nil
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			name, err := ec.unmarshalNString2string(ctx, "id")
-			if err != nil {
-				return nil, err
-			}
-			typeArg, err := ec.unmarshalNString2string(ctx, "uint64")
-			if err != nil {
-				return nil, err
-			}
-			goName, err := ec.unmarshalNString2string(ctx, "Id")
-			if err != nil {
-				return nil, err
-			}
-			goTypeName, err := ec.unmarshalNString2string(ctx, "uint64")
-			if err != nil {
-				return nil, err
-			}
-			if ec.directives.ProtoField == nil {
-				return nil, errors.New("directive protoField is not implemented")
-			}
-			return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goTypeName, nil)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(uint64); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1167,44 +747,8 @@ func (ec *executionContext) _User_fullName(ctx context.Context, field graphql.Co
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return obj.FullName, nil
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			name, err := ec.unmarshalNString2string(ctx, "full_name")
-			if err != nil {
-				return nil, err
-			}
-			typeArg, err := ec.unmarshalNString2string(ctx, "string")
-			if err != nil {
-				return nil, err
-			}
-			goName, err := ec.unmarshalNString2string(ctx, "FullName")
-			if err != nil {
-				return nil, err
-			}
-			goTypeName, err := ec.unmarshalNString2string(ctx, "string")
-			if err != nil {
-				return nil, err
-			}
-			if ec.directives.ProtoField == nil {
-				return nil, errors.New("directive protoField is not implemented")
-			}
-			return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goTypeName, nil)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(string); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return obj.FullName, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1238,74 +782,8 @@ func (ec *executionContext) _User_role(ctx context.Context, field graphql.Collec
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return obj.Role, nil
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			fullName, err := ec.unmarshalNString2string(ctx, "testapi.user.User.Role")
-			if err != nil {
-				return nil, err
-			}
-			packageArg, err := ec.unmarshalNString2string(ctx, "testapi.user")
-			if err != nil {
-				return nil, err
-			}
-			name, err := ec.unmarshalNString2string(ctx, "Role")
-			if err != nil {
-				return nil, err
-			}
-			goPackage, err := ec.unmarshalNString2string(ctx, "apis/go/user")
-			if err != nil {
-				return nil, err
-			}
-			goName, err := ec.unmarshalNString2string(ctx, "User_Role")
-			if err != nil {
-				return nil, err
-			}
-			if ec.directives.Proto == nil {
-				return nil, errors.New("directive proto is not implemented")
-			}
-			return ec.directives.Proto(ctx, obj, directive0, fullName, packageArg, name, goPackage, goName)
-		}
-		directive2 := func(ctx context.Context) (interface{}, error) {
-			name, err := ec.unmarshalNString2string(ctx, "role")
-			if err != nil {
-				return nil, err
-			}
-			typeArg, err := ec.unmarshalNString2string(ctx, "testapi.user.User.Role")
-			if err != nil {
-				return nil, err
-			}
-			goName, err := ec.unmarshalNString2string(ctx, "Role")
-			if err != nil {
-				return nil, err
-			}
-			goTypeName, err := ec.unmarshalNString2string(ctx, "User_Role")
-			if err != nil {
-				return nil, err
-			}
-			goTypePackage, err := ec.unmarshalOString2ᚖstring(ctx, "apis/go/user")
-			if err != nil {
-				return nil, err
-			}
-			if ec.directives.ProtoField == nil {
-				return nil, errors.New("directive protoField is not implemented")
-			}
-			return ec.directives.ProtoField(ctx, obj, directive1, name, typeArg, goName, goTypeName, goTypePackage)
-		}
-
-		tmp, err := directive2(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*model.UserRole); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *task/graph/model.UserRole`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return obj.Role, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2419,189 +1897,33 @@ func (ec *executionContext) unmarshalInputTaskInput(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNInt2uint64(ctx, v) }
-			directive1 := func(ctx context.Context) (interface{}, error) {
-				name, err := ec.unmarshalNString2string(ctx, "id")
-				if err != nil {
-					return nil, err
-				}
-				typeArg, err := ec.unmarshalNString2string(ctx, "uint64")
-				if err != nil {
-					return nil, err
-				}
-				goName, err := ec.unmarshalNString2string(ctx, "Id")
-				if err != nil {
-					return nil, err
-				}
-				goTypeName, err := ec.unmarshalNString2string(ctx, "uint64")
-				if err != nil {
-					return nil, err
-				}
-				if ec.directives.ProtoField == nil {
-					return nil, errors.New("directive protoField is not implemented")
-				}
-				return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goTypeName, nil)
-			}
-
-			tmp, err := directive1(ctx)
+			it.ID, err = ec.unmarshalNInt2uint64(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
-			if data, ok := tmp.(uint64); ok {
-				it.ID = data
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
 		case "title":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
-			directive1 := func(ctx context.Context) (interface{}, error) {
-				name, err := ec.unmarshalNString2string(ctx, "title")
-				if err != nil {
-					return nil, err
-				}
-				typeArg, err := ec.unmarshalNString2string(ctx, "string")
-				if err != nil {
-					return nil, err
-				}
-				goName, err := ec.unmarshalNString2string(ctx, "Title")
-				if err != nil {
-					return nil, err
-				}
-				goTypeName, err := ec.unmarshalNString2string(ctx, "string")
-				if err != nil {
-					return nil, err
-				}
-				if ec.directives.ProtoField == nil {
-					return nil, errors.New("directive protoField is not implemented")
-				}
-				return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goTypeName, nil)
-			}
-
-			tmp, err := directive1(ctx)
+			it.Title, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
-			if data, ok := tmp.(string); ok {
-				it.Title = data
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
 		case "status":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
-				return ec.unmarshalNTaskStatus2ᚖtaskᚋgraphᚋmodelᚐTaskStatus(ctx, v)
-			}
-			directive1 := func(ctx context.Context) (interface{}, error) {
-				fullName, err := ec.unmarshalNString2string(ctx, "testapi.task.Task.Status")
-				if err != nil {
-					return nil, err
-				}
-				packageArg, err := ec.unmarshalNString2string(ctx, "testapi.task")
-				if err != nil {
-					return nil, err
-				}
-				name, err := ec.unmarshalNString2string(ctx, "Status")
-				if err != nil {
-					return nil, err
-				}
-				goPackage, err := ec.unmarshalNString2string(ctx, "apis/go/task")
-				if err != nil {
-					return nil, err
-				}
-				goName, err := ec.unmarshalNString2string(ctx, "Task_Status")
-				if err != nil {
-					return nil, err
-				}
-				if ec.directives.Proto == nil {
-					return nil, errors.New("directive proto is not implemented")
-				}
-				return ec.directives.Proto(ctx, obj, directive0, fullName, packageArg, name, goPackage, goName)
-			}
-			directive2 := func(ctx context.Context) (interface{}, error) {
-				name, err := ec.unmarshalNString2string(ctx, "status")
-				if err != nil {
-					return nil, err
-				}
-				typeArg, err := ec.unmarshalNString2string(ctx, "testapi.task.Task.Status")
-				if err != nil {
-					return nil, err
-				}
-				goName, err := ec.unmarshalNString2string(ctx, "Status")
-				if err != nil {
-					return nil, err
-				}
-				goTypeName, err := ec.unmarshalNString2string(ctx, "Task_Status")
-				if err != nil {
-					return nil, err
-				}
-				goTypePackage, err := ec.unmarshalOString2ᚖstring(ctx, "apis/go/task")
-				if err != nil {
-					return nil, err
-				}
-				if ec.directives.ProtoField == nil {
-					return nil, errors.New("directive protoField is not implemented")
-				}
-				return ec.directives.ProtoField(ctx, obj, directive1, name, typeArg, goName, goTypeName, goTypePackage)
-			}
-
-			tmp, err := directive2(ctx)
+			it.Status, err = ec.unmarshalNTaskStatus2ᚖtaskᚋgraphᚋmodelᚐTaskStatus(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
-			if data, ok := tmp.(*model.TaskStatus); ok {
-				it.Status = data
-			} else if tmp == nil {
-				it.Status = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *task/graph/model.TaskStatus`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
 		case "assigneeIds":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("assigneeIds"))
-			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNInt2ᚕuint64ᚄ(ctx, v) }
-			directive1 := func(ctx context.Context) (interface{}, error) {
-				name, err := ec.unmarshalNString2string(ctx, "assignee_ids")
-				if err != nil {
-					return nil, err
-				}
-				typeArg, err := ec.unmarshalNString2string(ctx, "uint64")
-				if err != nil {
-					return nil, err
-				}
-				goName, err := ec.unmarshalNString2string(ctx, "AssigneeIds")
-				if err != nil {
-					return nil, err
-				}
-				goTypeName, err := ec.unmarshalNString2string(ctx, "uint64")
-				if err != nil {
-					return nil, err
-				}
-				if ec.directives.ProtoField == nil {
-					return nil, errors.New("directive protoField is not implemented")
-				}
-				return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goTypeName, nil)
-			}
-
-			tmp, err := directive1(ctx)
+			it.AssigneeIds, err = ec.unmarshalNInt2ᚕuint64ᚄ(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
-			if data, ok := tmp.([]uint64); ok {
-				it.AssigneeIds = data
-			} else if tmp == nil {
-				it.AssigneeIds = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be []uint64`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
 		}
 	}
@@ -2619,149 +1941,25 @@ func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNInt2uint64(ctx, v) }
-			directive1 := func(ctx context.Context) (interface{}, error) {
-				name, err := ec.unmarshalNString2string(ctx, "id")
-				if err != nil {
-					return nil, err
-				}
-				typeArg, err := ec.unmarshalNString2string(ctx, "uint64")
-				if err != nil {
-					return nil, err
-				}
-				goName, err := ec.unmarshalNString2string(ctx, "Id")
-				if err != nil {
-					return nil, err
-				}
-				goTypeName, err := ec.unmarshalNString2string(ctx, "uint64")
-				if err != nil {
-					return nil, err
-				}
-				if ec.directives.ProtoField == nil {
-					return nil, errors.New("directive protoField is not implemented")
-				}
-				return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goTypeName, nil)
-			}
-
-			tmp, err := directive1(ctx)
+			it.ID, err = ec.unmarshalNInt2uint64(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
-			if data, ok := tmp.(uint64); ok {
-				it.ID = data
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
 		case "fullName":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fullName"))
-			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
-			directive1 := func(ctx context.Context) (interface{}, error) {
-				name, err := ec.unmarshalNString2string(ctx, "full_name")
-				if err != nil {
-					return nil, err
-				}
-				typeArg, err := ec.unmarshalNString2string(ctx, "string")
-				if err != nil {
-					return nil, err
-				}
-				goName, err := ec.unmarshalNString2string(ctx, "FullName")
-				if err != nil {
-					return nil, err
-				}
-				goTypeName, err := ec.unmarshalNString2string(ctx, "string")
-				if err != nil {
-					return nil, err
-				}
-				if ec.directives.ProtoField == nil {
-					return nil, errors.New("directive protoField is not implemented")
-				}
-				return ec.directives.ProtoField(ctx, obj, directive0, name, typeArg, goName, goTypeName, nil)
-			}
-
-			tmp, err := directive1(ctx)
+			it.FullName, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
-			if data, ok := tmp.(string); ok {
-				it.FullName = data
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
 		case "role":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("role"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
-				return ec.unmarshalNUserRole2ᚖtaskᚋgraphᚋmodelᚐUserRole(ctx, v)
-			}
-			directive1 := func(ctx context.Context) (interface{}, error) {
-				fullName, err := ec.unmarshalNString2string(ctx, "testapi.user.User.Role")
-				if err != nil {
-					return nil, err
-				}
-				packageArg, err := ec.unmarshalNString2string(ctx, "testapi.user")
-				if err != nil {
-					return nil, err
-				}
-				name, err := ec.unmarshalNString2string(ctx, "Role")
-				if err != nil {
-					return nil, err
-				}
-				goPackage, err := ec.unmarshalNString2string(ctx, "apis/go/user")
-				if err != nil {
-					return nil, err
-				}
-				goName, err := ec.unmarshalNString2string(ctx, "User_Role")
-				if err != nil {
-					return nil, err
-				}
-				if ec.directives.Proto == nil {
-					return nil, errors.New("directive proto is not implemented")
-				}
-				return ec.directives.Proto(ctx, obj, directive0, fullName, packageArg, name, goPackage, goName)
-			}
-			directive2 := func(ctx context.Context) (interface{}, error) {
-				name, err := ec.unmarshalNString2string(ctx, "role")
-				if err != nil {
-					return nil, err
-				}
-				typeArg, err := ec.unmarshalNString2string(ctx, "testapi.user.User.Role")
-				if err != nil {
-					return nil, err
-				}
-				goName, err := ec.unmarshalNString2string(ctx, "Role")
-				if err != nil {
-					return nil, err
-				}
-				goTypeName, err := ec.unmarshalNString2string(ctx, "User_Role")
-				if err != nil {
-					return nil, err
-				}
-				goTypePackage, err := ec.unmarshalOString2ᚖstring(ctx, "apis/go/user")
-				if err != nil {
-					return nil, err
-				}
-				if ec.directives.ProtoField == nil {
-					return nil, errors.New("directive protoField is not implemented")
-				}
-				return ec.directives.ProtoField(ctx, obj, directive1, name, typeArg, goName, goTypeName, goTypePackage)
-			}
-
-			tmp, err := directive2(ctx)
+			it.Role, err = ec.unmarshalNUserRole2ᚖtaskᚋgraphᚋmodelᚐUserRole(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
-			if data, ok := tmp.(*model.UserRole); ok {
-				it.Role = data
-			} else if tmp == nil {
-				it.Role = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *task/graph/model.UserRole`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
 		}
 	}

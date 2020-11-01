@@ -53,6 +53,10 @@ func (p *Plugin) MutateConfig(cfg *config.Config) error {
 		cfg.Models.Add(enum.Name, cfg.Model.ImportPath()+"."+enum.Name)
 	}
 
+	cfg.Directives["grpc"] = config.DirectiveConfig{SkipRuntime: true}
+	cfg.Directives["proto"] = config.DirectiveConfig{SkipRuntime: true}
+	cfg.Directives["protoField"] = config.DirectiveConfig{SkipRuntime: true}
+
 	for _, name := range []string{"Int", "ID"} {
 		model := cfg.Models[name]
 		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime/types.Uint32")
