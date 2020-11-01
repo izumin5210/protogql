@@ -4,6 +4,7 @@ package model
 
 import (
 	task_pb "apis/go/task"
+	user_pb "apis/go/user"
 	"fmt"
 	"io"
 	"strconv"
@@ -123,7 +124,7 @@ type User struct {
 	Role *UserRole
 }
 
-func UserListFromRepeatedProto(in []*task_pb.User) []*User {
+func UserListFromRepeatedProto(in []*user_pb.User) []*User {
 	out := make([]*User, len(in))
 	for i, m := range in {
 		out[i] = UserFromProto(m)
@@ -131,7 +132,7 @@ func UserListFromRepeatedProto(in []*task_pb.User) []*User {
 	return out
 }
 
-func UserFromProto(in *task_pb.User) *User {
+func UserFromProto(in *user_pb.User) *User {
 	return &User{
 
 		ID: in.Id,
@@ -142,16 +143,16 @@ func UserFromProto(in *task_pb.User) *User {
 	}
 }
 
-func UserListToRepeatedProto(in []*User) []*task_pb.User {
-	out := make([]*task_pb.User, len(in))
+func UserListToRepeatedProto(in []*User) []*user_pb.User {
+	out := make([]*user_pb.User, len(in))
 	for i, m := range in {
 		out[i] = UserToProto(m)
 	}
 	return out
 }
 
-func UserToProto(in *User) *task_pb.User {
-	return &task_pb.User{
+func UserToProto(in *User) *user_pb.User {
+	return &user_pb.User{
 
 		Id: in.ID,
 
@@ -169,7 +170,7 @@ type UserInput struct {
 	Role *UserRole
 }
 
-func UserInputListFromRepeatedProto(in []*task_pb.User) []*UserInput {
+func UserInputListFromRepeatedProto(in []*user_pb.User) []*UserInput {
 	out := make([]*UserInput, len(in))
 	for i, m := range in {
 		out[i] = UserInputFromProto(m)
@@ -177,7 +178,7 @@ func UserInputListFromRepeatedProto(in []*task_pb.User) []*UserInput {
 	return out
 }
 
-func UserInputFromProto(in *task_pb.User) *UserInput {
+func UserInputFromProto(in *user_pb.User) *UserInput {
 	return &UserInput{
 
 		ID: in.Id,
@@ -188,16 +189,16 @@ func UserInputFromProto(in *task_pb.User) *UserInput {
 	}
 }
 
-func UserInputListToRepeatedProto(in []*UserInput) []*task_pb.User {
-	out := make([]*task_pb.User, len(in))
+func UserInputListToRepeatedProto(in []*UserInput) []*user_pb.User {
+	out := make([]*user_pb.User, len(in))
 	for i, m := range in {
 		out[i] = UserInputToProto(m)
 	}
 	return out
 }
 
-func UserInputToProto(in *UserInput) *task_pb.User {
-	return &task_pb.User{
+func UserInputToProto(in *UserInput) *user_pb.User {
+	return &user_pb.User{
 
 		Id: in.ID,
 
@@ -250,10 +251,10 @@ func (e *TaskStatus) UnmarshalGQL(v interface{}) error {
 }
 
 type UserRole struct {
-	Proto task_pb.User_Role
+	Proto user_pb.User_Role
 }
 
-func UserRoleListFromRepeatedProto(in []task_pb.User_Role) []*UserRole {
+func UserRoleListFromRepeatedProto(in []user_pb.User_Role) []*UserRole {
 	out := make([]*UserRole, len(in))
 	for i, m := range in {
 		out[i] = UserRoleFromProto(m)
@@ -261,19 +262,19 @@ func UserRoleListFromRepeatedProto(in []task_pb.User_Role) []*UserRole {
 	return out
 }
 
-func UserRoleFromProto(in task_pb.User_Role) *UserRole {
+func UserRoleFromProto(in user_pb.User_Role) *UserRole {
 	return &UserRole{Proto: in}
 }
 
-func UserRoleListToRepeatedProto(in []*UserRole) []task_pb.User_Role {
-	out := make([]task_pb.User_Role, len(in))
+func UserRoleListToRepeatedProto(in []*UserRole) []user_pb.User_Role {
+	out := make([]user_pb.User_Role, len(in))
 	for i, m := range in {
 		out[i] = UserRoleToProto(m)
 	}
 	return out
 }
 
-func UserRoleToProto(in *UserRole) task_pb.User_Role {
+func UserRoleToProto(in *UserRole) user_pb.User_Role {
 	return in.Proto
 }
 
@@ -287,6 +288,6 @@ func (e *UserRole) UnmarshalGQL(v interface{}) error {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	e.Proto = task_pb.User_Role(task_pb.User_Role_value[str])
+	e.Proto = user_pb.User_Role(user_pb.User_Role_value[str])
 	return nil
 }

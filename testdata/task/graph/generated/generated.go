@@ -14,7 +14,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/izumin5210/remixer/gqlruntime"
+	"github.com/izumin5210/remixer/gqlruntime/types"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -240,27 +240,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "graph/schema.graphqls", Input: `directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
-directive @proto(fullName: String!, package: String!, name: String!, goPackage: String!, goName: String!) on OBJECT | INPUT_OBJECT | ENUM
-directive @protoField(name: String!, type: String!, goName: String!, goTypeName: String!, goTypePackage: String) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
-
-type Query {
-  nop: Boolean
-}
-
-type Mutation {
-  nop: Boolean
-}
-`, BuiltIn: false},
-	{Name: "graph/task.graphqls", Input: `extend type Query {
-  tasks: [Task!]!
-}
-
-extend type Task {
-  assignees: [User!]!
-}
-`, BuiltIn: false},
-	{Name: "graph/types/task.pb.graphqls", Input: `type Task @proto(fullName: "testapi.task.Task", package: "testapi.task", name: "Task", goPackage: "apis/go/task", goName: "Task") {
+	{Name: "graph/types/task/task.pb.graphqls", Input: `type Task @proto(fullName: "testapi.task.Task", package: "testapi.task", name: "Task", goPackage: "apis/go/task", goName: "Task") {
 	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
 	title: String! @protoField(name: "title", type: "string", goName: "Title", goTypeName: "string")
 	status: TaskStatus! @protoField(name: "status", type: "testapi.task.Task.Status", goName: "Status", goTypeName: "Task_Status", goTypePackage: "apis/go/task")
@@ -279,19 +259,39 @@ enum TaskStatus @proto(fullName: "testapi.task.Task.Status", package: "testapi.t
 	DONE
 }
 `, BuiltIn: false},
-	{Name: "graph/types/user.pb.graphqls", Input: `type User @proto(fullName: "testapi.task.User", package: "testapi.task", name: "User", goPackage: "apis/go/task", goName: "User") {
+	{Name: "graph/types/user/user.pb.graphqls", Input: `type User @proto(fullName: "testapi.user.User", package: "testapi.user", name: "User", goPackage: "apis/go/user", goName: "User") {
 	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
 	fullName: String! @protoField(name: "full_name", type: "string", goName: "FullName", goTypeName: "string")
-	role: UserRole! @protoField(name: "role", type: "testapi.task.User.Role", goName: "Role", goTypeName: "User_Role", goTypePackage: "apis/go/task")
+	role: UserRole! @protoField(name: "role", type: "testapi.user.User.Role", goName: "Role", goTypeName: "User_Role", goTypePackage: "apis/go/user")
 }
-input UserInput @proto(fullName: "testapi.task.User", package: "testapi.task", name: "User", goPackage: "apis/go/task", goName: "User") {
+input UserInput @proto(fullName: "testapi.user.User", package: "testapi.user", name: "User", goPackage: "apis/go/user", goName: "User") {
 	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
 	fullName: String! @protoField(name: "full_name", type: "string", goName: "FullName", goTypeName: "string")
-	role: UserRole! @protoField(name: "role", type: "testapi.task.User.Role", goName: "Role", goTypeName: "User_Role", goTypePackage: "apis/go/task")
+	role: UserRole! @protoField(name: "role", type: "testapi.user.User.Role", goName: "Role", goTypeName: "User_Role", goTypePackage: "apis/go/user")
 }
-enum UserRole @proto(fullName: "testapi.task.User.Role", package: "testapi.task", name: "Role", goPackage: "apis/go/task", goName: "User_Role") {
+enum UserRole @proto(fullName: "testapi.user.User.Role", package: "testapi.user", name: "Role", goPackage: "apis/go/user", goName: "User_Role") {
 	ROLE_UNSPECIFIED
 	ADMIN
+}
+`, BuiltIn: false},
+	{Name: "graph/schema.graphqls", Input: `directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
+directive @proto(fullName: String!, package: String!, name: String!, goPackage: String!, goName: String!) on OBJECT | INPUT_OBJECT | ENUM
+directive @protoField(name: String!, type: String!, goName: String!, goTypeName: String!, goTypePackage: String) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
+type Query {
+  nop: Boolean
+}
+
+type Mutation {
+  nop: Boolean
+}
+`, BuiltIn: false},
+	{Name: "graph/task.graphqls", Input: `extend type Query {
+  tasks: [Task!]!
+}
+
+extend type Task {
+  assignees: [User!]!
 }
 `, BuiltIn: false},
 }
@@ -1026,11 +1026,11 @@ func (ec *executionContext) _Task_assignees(ctx context.Context, field graphql.C
 			return ec.resolvers.Task().Assignees(rctx, obj)
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			fullName, err := ec.unmarshalNString2string(ctx, "testapi.task.User")
+			fullName, err := ec.unmarshalNString2string(ctx, "testapi.user.User")
 			if err != nil {
 				return nil, err
 			}
-			packageArg, err := ec.unmarshalNString2string(ctx, "testapi.task")
+			packageArg, err := ec.unmarshalNString2string(ctx, "testapi.user")
 			if err != nil {
 				return nil, err
 			}
@@ -1038,7 +1038,7 @@ func (ec *executionContext) _Task_assignees(ctx context.Context, field graphql.C
 			if err != nil {
 				return nil, err
 			}
-			goPackage, err := ec.unmarshalNString2string(ctx, "apis/go/task")
+			goPackage, err := ec.unmarshalNString2string(ctx, "apis/go/user")
 			if err != nil {
 				return nil, err
 			}
@@ -1243,11 +1243,11 @@ func (ec *executionContext) _User_role(ctx context.Context, field graphql.Collec
 			return obj.Role, nil
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			fullName, err := ec.unmarshalNString2string(ctx, "testapi.task.User.Role")
+			fullName, err := ec.unmarshalNString2string(ctx, "testapi.user.User.Role")
 			if err != nil {
 				return nil, err
 			}
-			packageArg, err := ec.unmarshalNString2string(ctx, "testapi.task")
+			packageArg, err := ec.unmarshalNString2string(ctx, "testapi.user")
 			if err != nil {
 				return nil, err
 			}
@@ -1255,7 +1255,7 @@ func (ec *executionContext) _User_role(ctx context.Context, field graphql.Collec
 			if err != nil {
 				return nil, err
 			}
-			goPackage, err := ec.unmarshalNString2string(ctx, "apis/go/task")
+			goPackage, err := ec.unmarshalNString2string(ctx, "apis/go/user")
 			if err != nil {
 				return nil, err
 			}
@@ -1273,7 +1273,7 @@ func (ec *executionContext) _User_role(ctx context.Context, field graphql.Collec
 			if err != nil {
 				return nil, err
 			}
-			typeArg, err := ec.unmarshalNString2string(ctx, "testapi.task.User.Role")
+			typeArg, err := ec.unmarshalNString2string(ctx, "testapi.user.User.Role")
 			if err != nil {
 				return nil, err
 			}
@@ -1285,7 +1285,7 @@ func (ec *executionContext) _User_role(ctx context.Context, field graphql.Collec
 			if err != nil {
 				return nil, err
 			}
-			goTypePackage, err := ec.unmarshalOString2ᚖstring(ctx, "apis/go/task")
+			goTypePackage, err := ec.unmarshalOString2ᚖstring(ctx, "apis/go/user")
 			if err != nil {
 				return nil, err
 			}
@@ -2699,11 +2699,11 @@ func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj int
 				return ec.unmarshalNUserRole2ᚖtaskᚋgraphᚋmodelᚐUserRole(ctx, v)
 			}
 			directive1 := func(ctx context.Context) (interface{}, error) {
-				fullName, err := ec.unmarshalNString2string(ctx, "testapi.task.User.Role")
+				fullName, err := ec.unmarshalNString2string(ctx, "testapi.user.User.Role")
 				if err != nil {
 					return nil, err
 				}
-				packageArg, err := ec.unmarshalNString2string(ctx, "testapi.task")
+				packageArg, err := ec.unmarshalNString2string(ctx, "testapi.user")
 				if err != nil {
 					return nil, err
 				}
@@ -2711,7 +2711,7 @@ func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj int
 				if err != nil {
 					return nil, err
 				}
-				goPackage, err := ec.unmarshalNString2string(ctx, "apis/go/task")
+				goPackage, err := ec.unmarshalNString2string(ctx, "apis/go/user")
 				if err != nil {
 					return nil, err
 				}
@@ -2729,7 +2729,7 @@ func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj int
 				if err != nil {
 					return nil, err
 				}
-				typeArg, err := ec.unmarshalNString2string(ctx, "testapi.task.User.Role")
+				typeArg, err := ec.unmarshalNString2string(ctx, "testapi.user.User.Role")
 				if err != nil {
 					return nil, err
 				}
@@ -2741,7 +2741,7 @@ func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj int
 				if err != nil {
 					return nil, err
 				}
-				goTypePackage, err := ec.unmarshalOString2ᚖstring(ctx, "apis/go/task")
+				goTypePackage, err := ec.unmarshalOString2ᚖstring(ctx, "apis/go/user")
 				if err != nil {
 					return nil, err
 				}
@@ -3214,12 +3214,12 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 }
 
 func (ec *executionContext) unmarshalNInt2uint64(ctx context.Context, v interface{}) (uint64, error) {
-	res, err := gqlruntime.UnmarshalUint64(v)
+	res, err := types.UnmarshalUint64(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNInt2uint64(ctx context.Context, sel ast.SelectionSet, v uint64) graphql.Marshaler {
-	res := gqlruntime.MarshalUint64(v)
+	res := types.MarshalUint64(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
