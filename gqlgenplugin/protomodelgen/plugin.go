@@ -55,38 +55,38 @@ func (p *Plugin) MutateConfig(cfg *config.Config) error {
 
 	for _, name := range []string{"Int", "ID"} {
 		model := cfg.Models[name]
-		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime.Uint32")
-		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime.Uint64")
+		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime/types.Uint32")
+		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime/types.Uint64")
 		cfg.Models[name] = model
 	}
 
 	{
 		model := cfg.Models["Int"]
-		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime.Int32Value")
-		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime.Int64Value")
-		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime.UInt32Value")
-		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime.UInt64Value")
+		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime/types.Int32Value")
+		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime/types.Int64Value")
+		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime/types.UInt32Value")
+		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime/types.UInt64Value")
 		cfg.Models["Int"] = model
 	}
 	{
 		model := cfg.Models["Float"]
-		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime.FloatValue")
-		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime.DoubleValue")
+		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime/types.FloatValue")
+		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime/types.DoubleValue")
 		cfg.Models["Float"] = model
 	}
 	{
 		model := cfg.Models["Boolean"]
-		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime.BoolValue")
+		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime/types.BoolValue")
 		cfg.Models["Boolean"] = model
 	}
 	{
 		model := cfg.Models["String"]
-		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime.StringValue")
+		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime/types.StringValue")
 		cfg.Models["String"] = model
 	}
 	{
 		model := cfg.Models["DateTime"]
-		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime.Timestamp")
+		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime/types.Timestamp")
 		cfg.Models["DateTime"] = model
 	}
 

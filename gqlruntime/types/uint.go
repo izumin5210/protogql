@@ -1,4 +1,4 @@
-package gqlruntime
+package types
 
 import (
 	"encoding/json"
