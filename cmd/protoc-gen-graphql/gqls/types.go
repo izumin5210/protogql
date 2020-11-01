@@ -69,13 +69,13 @@ func TypeFromProtoMessage(m *protogen.Message) (Type, error) {
 		return NullableType(BooleanType), nil
 	case protoreflect.FullName("google.protobuf.Int32Value"), protoreflect.FullName("google.protobuf.Int64Value"),
 		protoreflect.FullName("google.protobuf.UInt32Value"), protoreflect.FullName("google.protobuf.UInt64Value"):
-		return &WrappedScalarType{ScalarType: IntType, Proto: m}, nil
+		return NullableType(&WrappedScalarType{ScalarType: IntType, Proto: m}), nil
 	case protoreflect.FullName("google.protobuf.FloatValue"), protoreflect.FullName("google.protobuf.DoubleValue"):
-		return &WrappedScalarType{ScalarType: FloatType, Proto: m}, nil
+		return NullableType(&WrappedScalarType{ScalarType: FloatType, Proto: m}), nil
 	case protoreflect.FullName("google.protobuf.BoolValue"):
-		return &WrappedScalarType{ScalarType: BooleanType, Proto: m}, nil
+		return NullableType(&WrappedScalarType{ScalarType: BooleanType, Proto: m}), nil
 	case protoreflect.FullName("google.protobuf.StringValue"):
-		return &WrappedScalarType{ScalarType: StringType, Proto: m}, nil
+		return NullableType(&WrappedScalarType{ScalarType: StringType, Proto: m}), nil
 	case protoreflect.FullName("google.protobuf.Timestamp"):
 		return &WrappedScalarType{ScalarType: DateTimeType, Proto: m}, nil
 	}
