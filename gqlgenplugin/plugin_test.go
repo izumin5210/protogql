@@ -35,6 +35,7 @@ extend type Query {
 			t.Errorf("failed to generate code: %v", err)
 		}
 		gqlgentest.SnapshotFile(t,
+			"model/protomodels_gen.go",
 			"resolver/resolver.go",
 			"resolver/resolver.adapters.go",
 			"resolver/schema.resolvers.proto.go",
@@ -107,6 +108,7 @@ extend type Query {
 			t.Errorf("failed to generate code: %v", err)
 		}
 		gqlgentest.SnapshotFile(t,
+			"model/protomodels_gen.go",
 			"resolver/resolver.go",
 			"resolver/resolver.adapters.go",
 			"resolver/schema.resolvers.proto.go",
