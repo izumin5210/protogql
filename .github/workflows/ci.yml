@@ -32,7 +32,7 @@ jobs:
       run: |
         go test -v -race \
           -coverpkg $(go list ./... | grep -E -v 'github.com/izumin5210/remixer/(gqlgentest|options)' | paste -s -d,) \
-          -coverprofile coverage.cov \
+          -coverprofile coverage.out \
           -covermode atomic \
           ./...
 
