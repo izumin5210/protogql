@@ -29,7 +29,8 @@ jobs:
         go mod download
 
     - name: Test
-      run: go test -v -coverpkg ./... -coverprofile coverage.out -covermode atomic ./... 
+      run: |
+        go test -v -race -coverpkg ./... -coverprofile coverage.out -covermode atomic ./...
 
     - name: Convert coverage to lcov
       uses: jandelgado/gcov2lcov-action@v1.0.7
