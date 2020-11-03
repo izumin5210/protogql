@@ -2,11 +2,11 @@ package types
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"strconv"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/pkg/errors"
 )
 
 func MarshalUint32(i uint32) graphql.Marshaler {
@@ -20,7 +20,7 @@ func UnmarshalUint32(v interface{}) (uint32, error) {
 	case string:
 		n, err := strconv.ParseUint(v, 10, 32)
 		if err != nil {
-			return 0, err
+			return 0, errors.Wrap(err, "failed to parse as uint")
 		}
 		return uint32(n), nil
 	case int:
@@ -30,11 +30,11 @@ func UnmarshalUint32(v interface{}) (uint32, error) {
 	case json.Number:
 		n, err := strconv.ParseUint(string(v), 10, 32)
 		if err != nil {
-			return 0, err
+			return 0, errors.Wrap(err, "failed to parse as uint")
 		}
 		return uint32(n), nil
 	default:
-		return 0, fmt.Errorf("%T is not an uint", v)
+		return 0, errors.Errorf("%T is not an uint", v)
 	}
 }
 
@@ -55,6 +55,6 @@ func UnmarshalUint64(v interface{}) (uint64, error) {
 	case json.Number:
 		return strconv.ParseUint(string(v), 10, 64)
 	default:
-		return 0, fmt.Errorf("%T is not an uint", v)
+		return 0, errors.Errorf("%T is not an uint", v)
 	}
 }

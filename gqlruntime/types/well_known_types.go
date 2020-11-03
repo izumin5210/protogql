@@ -10,6 +10,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/golang/protobuf/ptypes/wrappers"
+	"github.com/pkg/errors"
 )
 
 var dateTimeFmts = []string{time.RFC3339Nano, time.RFC3339}
@@ -34,9 +35,9 @@ func UnmarshalTimestamp(v interface{}) (*timestamp.Timestamp, error) {
 				return ptypes.TimestampProto(t)
 			}
 		}
-		return nil, err
+		return nil, errors.Wrap(err, "failed to parse time")
 	default:
-		return nil, fmt.Errorf("%T is not an DateTime", v)
+		return nil, errors.Errorf("%T is not a DateTime", v)
 	}
 }
 
@@ -50,7 +51,7 @@ func MarshalInt32Value(in *wrappers.Int32Value) graphql.Marshaler {
 func UnmarshalInt32Value(in interface{}) (*wrappers.Int32Value, error) {
 	v, err := graphql.UnmarshalInt32(in)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	return &wrappers.Int32Value{Value: v}, nil
 }
@@ -65,7 +66,7 @@ func MarshalInt64Value(v *wrappers.Int64Value) graphql.Marshaler {
 func UnmarshalInt64Value(in interface{}) (*wrappers.Int64Value, error) {
 	v, err := graphql.UnmarshalInt64(in)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	return &wrappers.Int64Value{Value: v}, nil
 }
@@ -80,7 +81,7 @@ func MarshalUInt32Value(in *wrappers.UInt32Value) graphql.Marshaler {
 func UnmarshalUInt32Value(in interface{}) (*wrappers.UInt32Value, error) {
 	v, err := UnmarshalUint32(in)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	return &wrappers.UInt32Value{Value: v}, nil
 }
@@ -105,14 +106,14 @@ func MarshalFloatValue(v *wrappers.FloatValue) graphql.Marshaler {
 		return graphql.Null
 	}
 	return graphql.WriterFunc(func(w io.Writer) {
-		io.WriteString(w, fmt.Sprintf("%g", v.GetValue()))
+		_, _ = io.WriteString(w, fmt.Sprintf("%g", v.GetValue()))
 	})
 }
 
 func UnmarshalFloatValue(in interface{}) (*wrappers.FloatValue, error) {
 	v, err := graphql.UnmarshalFloat(in)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	return &wrappers.FloatValue{Value: float32(v)}, nil
 }
@@ -127,7 +128,7 @@ func MarshalDoubleValue(v *wrappers.DoubleValue) graphql.Marshaler {
 func UnmarshalDoubleValue(in interface{}) (*wrappers.DoubleValue, error) {
 	v, err := graphql.UnmarshalFloat(in)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	return &wrappers.DoubleValue{Value: v}, nil
 }
@@ -142,7 +143,7 @@ func MarshalBoolValue(v *wrappers.BoolValue) graphql.Marshaler {
 func UnmarshalBoolValue(in interface{}) (*wrappers.BoolValue, error) {
 	v, err := graphql.UnmarshalBoolean(in)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	return &wrappers.BoolValue{Value: v}, nil
 }
@@ -157,7 +158,7 @@ func MarshalStringValue(v *wrappers.StringValue) graphql.Marshaler {
 func UnmarshalStringValue(in interface{}) (*wrappers.StringValue, error) {
 	v, err := graphql.UnmarshalString(in)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	return &wrappers.StringValue{Value: v}, nil
 }

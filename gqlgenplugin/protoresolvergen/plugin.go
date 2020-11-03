@@ -1,7 +1,6 @@
 package protoresolvergen
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,6 +11,7 @@ import (
 	"github.com/99designs/gqlgen/codegen/config"
 	"github.com/99designs/gqlgen/codegen/templates"
 	"github.com/99designs/gqlgen/plugin"
+	"github.com/pkg/errors"
 	"github.com/vektah/gqlparser/v2/ast"
 	"golang.org/x/tools/go/packages"
 
@@ -78,7 +78,7 @@ func (p *Plugin) generatePerSchema(data *codegen.Data) error {
 			}
 			protoField, err := gqlutil.ExtractProtoFieldDirective(field.FieldDefinition.Directives)
 			if err != nil {
-				return err
+				return errors.Wrapf(err, "%s has invalid directive", field.Name)
 			}
 
 			file := files.FindOrInitialize(field.Position.Src.Name)
@@ -100,20 +100,21 @@ func (p *Plugin) generatePerSchema(data *codegen.Data) error {
 		})
 
 		if err != nil {
-			return err
+			return errors.Wrapf(err, "failed to render %s", filename)
 		}
 	}
 
+	adaptersFilename := strings.TrimSuffix(data.Config.Resolver.Filename, filepath.Ext(data.Config.Resolver.Filename)) + ".adapters" + filepath.Ext(data.Config.Resolver.Filename)
 	err := templates.Render(templates.Options{
 		PackageName:     data.Config.Resolver.Package,
 		GeneratedHeader: true,
 		Template:        templateResolverAdapters,
-		Filename:        strings.TrimSuffix(data.Config.Resolver.Filename, filepath.Ext(data.Config.Resolver.Filename)) + ".adapters" + filepath.Ext(data.Config.Resolver.Filename),
+		Filename:        adaptersFilename,
 		Data:            files,
 		Packages:        data.Config.Packages,
 	})
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "failed to render %s", adaptersFilename)
 	}
 
 	if _, err := os.Stat(data.Config.Resolver.Filename); errors.Is(err, os.ErrNotExist) {
@@ -129,7 +130,7 @@ func (p *Plugin) generatePerSchema(data *codegen.Data) error {
 			Packages: data.Config.Packages,
 		})
 		if err != nil {
-			return err
+			return errors.Wrapf(err, "failed to render %s", data.Config.Resolver.Filename)
 		}
 	}
 	return nil
@@ -197,12 +198,12 @@ func (r *Resolver) ShortProtoResolverDeclaration() (string, error) {
 
 	proto, err = gqlutil.ExtractProtoDirective(r.GQLTypeDefinition.Directives)
 	if err != nil {
-		return "", err
+		return "", errors.Wrapf(err, "%s has invalid directive", r.GQLTypeDefinition.Name)
 	}
 
 	args, err := r.ResolverArgs()
 	if err != nil {
-		return "", err
+		return "", errors.WithStack(err)
 	}
 	argStrs := make([]string, len(args))
 	for i, arg := range args {
@@ -228,7 +229,7 @@ func (r *Resolver) ResolverArgs() ([]ResolverArg, error) {
 	if !r.Object.Root {
 		parentProto, err := gqlutil.ExtractProtoDirective(r.Object.Definition.Directives)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrapf(err, "%s has invalid directive", r.Object.Name)
 		}
 		var typ string
 		if parentProto == nil {

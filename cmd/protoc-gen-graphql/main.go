@@ -3,9 +3,11 @@ package main
 import (
 	"strings"
 
-	"github.com/izumin5210/remixer/cmd/protoc-gen-graphql/gqls"
+	"github.com/pkg/errors"
 	"github.com/vektah/gqlparser/v2/formatter"
 	"google.golang.org/protobuf/compiler/protogen"
+
+	"github.com/izumin5210/remixer/cmd/protoc-gen-graphql/gqls"
 )
 
 func main() {
@@ -22,7 +24,7 @@ func run(p *protogen.Plugin) error {
 
 		schema, err := gqls.BuildSchema(f)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "failed to build GraphQL schema")
 		}
 
 		if schema.Empty() {
@@ -31,7 +33,7 @@ func run(p *protogen.Plugin) error {
 
 		schemaDocAST, err := schema.DocumentAST()
 		if err != nil {
-			return err
+			return errors.Wrap(err, "failed to build GraphQL schema AST")
 		}
 
 		file := p.NewGeneratedFile(

@@ -1,8 +1,9 @@
 package goutil
 
 import (
-	"fmt"
 	"go/types"
+
+	"github.com/pkg/errors"
 )
 
 func GetTypePackageName(typ types.Type) string {
@@ -14,6 +15,6 @@ func GetTypePackageName(typ types.Type) string {
 	case *types.Named:
 		return t.Obj().Pkg().Path()
 	default:
-		panic(fmt.Errorf("not supported: %s", t))
+		panic(errors.Errorf("%T is not supported", t))
 	}
 }

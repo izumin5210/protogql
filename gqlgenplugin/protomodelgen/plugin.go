@@ -1,7 +1,6 @@
 package protomodelgen
 
 import (
-	"fmt"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -10,6 +9,7 @@ import (
 	"github.com/99designs/gqlgen/codegen/config"
 	"github.com/99designs/gqlgen/codegen/templates"
 	"github.com/99designs/gqlgen/plugin"
+	"github.com/pkg/errors"
 	"github.com/vektah/gqlparser/v2/ast"
 
 	"github.com/izumin5210/remixer/codegen/gqlutil"
@@ -120,7 +120,7 @@ func createBinding(s *ast.Schema) (*Binding, error) {
 	for _, typ := range s.Types {
 		proto, err := gqlutil.ExtractProtoDirective(typ.Directives)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrapf(err, "%s has invalid directive", typ.Name)
 		}
 		if proto == nil {
 			continue
@@ -132,7 +132,7 @@ func createBinding(s *ast.Schema) (*Binding, error) {
 			for _, f := range typ.Fields {
 				proto, err := gqlutil.ExtractProtoFieldDirective(f.Directives)
 				if err != nil {
-					return nil, err
+					return nil, errors.Wrapf(err, "%s has invalid directive", f.Name)
 				}
 				obj.Fields = append(obj.Fields, &Field{Name: f.Name, GQL: f, Proto: proto, List: f.Type.NamedType == ""})
 			}
@@ -190,7 +190,7 @@ func (b *Binding) FindGQLFieldType(f *Field) (string, error) {
 			return e.Name, nil
 		}
 	}
-	return "", fmt.Errorf("corresponding GraphQL type was not found: %s", f.Proto.Type)
+	return "", errors.Errorf("corresponding GraphQL type was not found: %s", f.Proto.Type)
 }
 
 type Object struct {

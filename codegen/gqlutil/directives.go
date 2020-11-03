@@ -2,7 +2,6 @@ package gqlutil
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -52,7 +51,7 @@ func ExtractProtoDirective(directives ast.DirectiveList) (*ProtoDirective, error
 				}
 			}
 			if !out.IsValid() {
-				return nil, fmt.Errorf("invalid proto directive: %w", ErrInvalidDirective)
+				return nil, ErrInvalidDirective
 			}
 			return out, nil
 		}
@@ -79,7 +78,7 @@ func ExtractProtoFieldDirective(directives ast.DirectiveList) (*ProtoFieldDirect
 				}
 			}
 			if !out.IsValid() {
-				return nil, fmt.Errorf("invalid protoField directive: %w", ErrInvalidDirective)
+				return nil, ErrInvalidDirective
 			}
 			return out, nil
 		}

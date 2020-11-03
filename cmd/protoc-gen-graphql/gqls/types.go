@@ -1,8 +1,7 @@
 package gqls
 
 import (
-	"fmt"
-
+	"github.com/pkg/errors"
 	"github.com/vektah/gqlparser/v2/ast"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/reflect/protoreflect"
@@ -57,7 +56,7 @@ func rawTypeFromProtoField(f *protogen.Field) (Type, error) {
 	default:
 		typ, ok := scalarTypeMap[f.Desc.Kind()]
 		if !ok {
-			return nil, fmt.Errorf("unsupported kind: %s", f.Desc.Kind())
+			return nil, errors.Errorf("kind %s is not supported", f.Desc.Kind())
 		}
 		return typ, nil
 	}

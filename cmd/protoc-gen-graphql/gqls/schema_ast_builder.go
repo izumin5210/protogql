@@ -3,6 +3,7 @@ package gqls
 import (
 	"sort"
 
+	"github.com/pkg/errors"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
@@ -21,7 +22,7 @@ func (s *SchemaAST) Build() (*ast.SchemaDocument, error) {
 
 	defs, err := s.typeDefinitionsAST()
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	doc.Definitions = append(doc.Definitions, defs...)
 
@@ -34,7 +35,7 @@ func (s *SchemaAST) typeDefinitionsAST() ([]*ast.Definition, error) {
 	for _, t := range s.Types {
 		def, err := t.DefinitionAST()
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrapf(err, "failed to build %s definition AST", t.Name())
 		}
 		defs = append(defs, def)
 	}
