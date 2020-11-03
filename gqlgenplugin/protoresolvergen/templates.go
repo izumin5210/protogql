@@ -11,9 +11,6 @@ var templateResolvers = `
 {{ end }}
 
 {{ range $obj := .Objects -}}
-	// {{$obj.Name}} returns {{ $obj.ResolverInterface | ref }} implementation.
-	func (r *{{$.ResolverType}}) {{$obj.Name}}() {{ $obj.ResolverInterface | ref }} { return &{{ $obj | $.ResolverAdapterName }}{&{{ $obj | resolverImplementationName }}{r}} }
-
 	type {{ $obj | resolverImplementationName }} struct { *{{ $.ResolverType }} }
 {{ end }}
 `
@@ -39,6 +36,9 @@ var templateResolverAdapters = `
 
 {{ range $file := .Files -}}
 	{{ range $obj := $file.Objects -}}
+		// {{$obj.Name}} returns {{ $obj.ResolverInterface | ref }} implementation.
+		func (r *{{$file.ResolverType}}) {{$obj.Name}}() {{ $obj.ResolverInterface | ref }} { return &{{ $obj | $file.ResolverAdapterName }}{&{{ $obj | $file.ResolverImplementationName }}{r}} }
+
 		type {{ $obj | $file.ResolverAdapterName }} struct { protoResolver *{{ $obj | $file.ResolverImplementationName }} }
 	{{ end -}}
 {{ end }}

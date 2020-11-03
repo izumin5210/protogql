@@ -4,6 +4,7 @@ package resolver
 
 import (
 	"context"
+	"testapp/graph"
 	"testapp/model"
 )
 
@@ -31,6 +32,15 @@ func (a *taskProtoResolverAdapter) Author(ctx context.Context, obj *model.Task) 
 	return model.UserFromProto(resp), nil
 }
 
+// Query returns graph.QueryResolver implementation.
+func (r *Resolver) Query() graph.QueryResolver {
+	return &queryProtoResolverAdapter{&queryProtoResolver{r}}
+}
+
 type queryProtoResolverAdapter struct{ protoResolver *queryProtoResolver }
+
+// Task returns graph.TaskResolver implementation.
+func (r *Resolver) Task() graph.TaskResolver { return &taskProtoResolverAdapter{&taskProtoResolver{r}} }
+
 type taskProtoResolverAdapter struct{ protoResolver *taskProtoResolver }
 

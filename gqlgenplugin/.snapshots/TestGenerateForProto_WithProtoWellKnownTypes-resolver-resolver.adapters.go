@@ -4,6 +4,7 @@ package resolver
 
 import (
 	"context"
+	"testapp/graph"
 	"testapp/model"
 )
 
@@ -13,6 +14,11 @@ func (a *queryProtoResolverAdapter) Hello(ctx context.Context) ([]*model.Hello, 
 		return nil, err
 	}
 	return model.HelloListFromRepeatedProto(resp), nil
+}
+
+// Query returns graph.QueryResolver implementation.
+func (r *Resolver) Query() graph.QueryResolver {
+	return &queryProtoResolverAdapter{&queryProtoResolver{r}}
 }
 
 type queryProtoResolverAdapter struct{ protoResolver *queryProtoResolver }
