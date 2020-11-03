@@ -16,6 +16,14 @@ func (a *queryProtoResolverAdapter) Tasks(ctx context.Context) ([]*model.Task, e
 	return model.TaskListFromRepeatedProto(resp), nil
 }
 
+func (a *queryProtoResolverAdapter) LatestTask(ctx context.Context) (*model.Task, error) {
+	resp, err := a.protoResolver.LatestTask(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return model.TaskFromProto(resp), nil
+}
+
 func (a *taskProtoResolverAdapter) Assignees(ctx context.Context, obj *model.Task) ([]*model.User, error) {
 	resp, err := a.protoResolver.Assignees(ctx, model.TaskToProto(obj))
 	if err != nil {
@@ -32,15 +40,36 @@ func (a *taskProtoResolverAdapter) Author(ctx context.Context, obj *model.Task) 
 	return model.UserFromProto(resp), nil
 }
 
+func (a *userProtoResolverAdapter) AssignedTasks(ctx context.Context, obj *model.User) ([]*model.Task, error) {
+	resp, err := a.protoResolver.AssignedTasks(ctx, model.UserToProto(obj))
+	if err != nil {
+		return nil, err
+	}
+	return model.TaskListFromRepeatedProto(resp), nil
+}
+
+func (a *queryProtoResolverAdapter) CurrentUser(ctx context.Context) (*model.User, error) {
+	resp, err := a.protoResolver.CurrentUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return model.UserFromProto(resp), nil
+}
+
+// Task returns graph.TaskResolver implementation.
+func (r *Resolver) Task() graph.TaskResolver { return &taskProtoResolverAdapter{&taskProtoResolver{r}} }
+
+type taskProtoResolverAdapter struct{ protoResolver *taskProtoResolver }
+
+// User returns graph.UserResolver implementation.
+func (r *Resolver) User() graph.UserResolver { return &userProtoResolverAdapter{&userProtoResolver{r}} }
+
+type userProtoResolverAdapter struct{ protoResolver *userProtoResolver }
+
 // Query returns graph.QueryResolver implementation.
 func (r *Resolver) Query() graph.QueryResolver {
 	return &queryProtoResolverAdapter{&queryProtoResolver{r}}
 }
 
 type queryProtoResolverAdapter struct{ protoResolver *queryProtoResolver }
-
-// Task returns graph.TaskResolver implementation.
-func (r *Resolver) Task() graph.TaskResolver { return &taskProtoResolverAdapter{&taskProtoResolver{r}} }
-
-type taskProtoResolverAdapter struct{ protoResolver *taskProtoResolver }
 

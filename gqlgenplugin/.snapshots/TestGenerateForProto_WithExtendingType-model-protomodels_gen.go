@@ -136,6 +136,8 @@ type User struct {
 	FullName string
 
 	Role *UserRole
+
+	AssignedTasks []*Task
 }
 
 func UserListFromRepeatedProto(in []*user_pb.User) []*User {

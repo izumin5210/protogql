@@ -64,15 +64,24 @@ func TestGenerateForProto_WithExtendingType(t *testing.T) {
 directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
 directive @proto(fullName: String!, package: String!, name: String!, goPackage: String!, goName: String!) on OBJECT | INPUT_OBJECT | ENUM
 directive @protoField(name: String!, type: String!, goName: String!, goTypeName: String!, goTypePackage: String) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
-scalar DateTime
-
+scalar DateTime`)
+	gqlgentest.AddGqlSchema("user.graphqls", `
+extend type Query {
+  currentUser: User!
+}`)
+	gqlgentest.AddGqlSchema("task.graphqls", `
 extend type Task {
   assignees: [User!]!
   author: User!
 }
 
+extend type User {
+  assignedTasks: [Task!]!
+}
+
 extend type Query {
   tasks: [Task!]!
+  latestTask: Task!
 }`)
 	gqlgentest.AddGoModReplace("github.com/izumin5210/remixer", rootDir)
 	gqlgentest.AddGoModReplace("apis/go/task", filepath.Join(testdataDir, "apis", "go", "task"))
@@ -87,8 +96,10 @@ extend type Query {
 			"model/protomodels_gen.go",
 			"resolver/resolver.adapters.go",
 			"resolver/resolver.go",
-			"resolver/schema.resolvers.proto.go",
 			"resolver/task.pb.resolvers.proto.go",
+			"resolver/task.resolvers.proto.go",
+			"resolver/user.pb.resolvers.proto.go",
+			"resolver/user.resolvers.proto.go",
 		)
 	})
 }
