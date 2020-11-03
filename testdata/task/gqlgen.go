@@ -22,9 +22,8 @@ func main() {
 	}
 
 	err = api.Generate(cfg,
-		gqlgenplugin.PrependPlugin(protomodelgen.New()),
-		api.AddPlugin(protoresolvergen.New()),
-		gqlgenplugin.RemovePlugin("resolvergen"),
+		gqlgenplugin.AddPluginBefore(protomodelgen.New(), "modelgen"),
+		gqlgenplugin.AddPluginBefore(protoresolvergen.New(), "resolvergen"),
 	)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
