@@ -41,8 +41,8 @@ extend type Query {
 		}
 		gqlgentest.SnapshotFile(t,
 			"model/protomodels_gen.go",
-			"resolver/resolver.go",
 			"resolver/resolver.adapters.go",
+			"resolver/resolver.go",
 			"resolver/schema.resolvers.proto.go",
 		)
 	})
@@ -82,11 +82,13 @@ extend type Query {
 		if err != nil {
 			t.Errorf("failed to generate code: %v", err)
 		}
+
 		gqlgentest.SnapshotFile(t,
 			"model/protomodels_gen.go",
-			"resolver/resolver.go",
 			"resolver/resolver.adapters.go",
+			"resolver/resolver.go",
 			"resolver/schema.resolvers.proto.go",
+			"resolver/task.pb.resolvers.proto.go",
 		)
 	})
 }
@@ -120,8 +122,8 @@ extend type Query {
 		}
 		gqlgentest.SnapshotFile(t,
 			"model/protomodels_gen.go",
-			"resolver/resolver.go",
 			"resolver/resolver.adapters.go",
+			"resolver/resolver.go",
 			"resolver/schema.resolvers.proto.go",
 		)
 	})
