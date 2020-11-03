@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"text/template"
 
 	"github.com/99designs/gqlgen/codegen"
 	"github.com/99designs/gqlgen/codegen/config"
@@ -82,39 +81,33 @@ func (p *Plugin) generatePerSchema(data *codegen.Data) error {
 			}
 
 			file := files.FindOrInitialize(field.Position.Src.Name)
-			file.Resolvers = append(file.Resolvers, &Resolver{Field: field, ProtoField: protoField, GQLTypeDefinition: gqlType, modelPkg: modelPkg})
+			file.Resolvers = append(file.Resolvers, &Resolver{Field: field, ProtoField: protoField, GQLTypeDefinition: gqlType, modelPkg: modelPkg, cfg: data.Config.Resolver, file: file})
 		}
 	}
 
-	for filename, file := range files.Files {
+	for _, file := range files.Files {
 		err := templates.Render(templates.Options{
 			PackageName: data.Config.Resolver.Package,
-			Template:    templateResolvers,
-			Filename:    filename,
+			Template:    templateProtoResolvers,
+			Filename:    file.ProtoResolverGoFilename(),
 			Data:        file,
-			Funcs: template.FuncMap{
-				"resolverImplementationName": file.ResolverImplementationName,
-				"resolverAdapterName":        file.ResolverAdapterName,
-			},
-			Packages: data.Config.Packages,
+			Packages:    data.Config.Packages,
 		})
-
 		if err != nil {
-			return errors.Wrapf(err, "failed to render %s", filename)
+			return errors.Wrapf(err, "failed to render %s", file.ProtoResolverGoFilename())
 		}
-	}
 
-	adaptersFilename := strings.TrimSuffix(data.Config.Resolver.Filename, filepath.Ext(data.Config.Resolver.Filename)) + ".adapters" + filepath.Ext(data.Config.Resolver.Filename)
-	err := templates.Render(templates.Options{
-		PackageName:     data.Config.Resolver.Package,
-		GeneratedHeader: true,
-		Template:        templateResolverAdapters,
-		Filename:        adaptersFilename,
-		Data:            files,
-		Packages:        data.Config.Packages,
-	})
-	if err != nil {
-		return errors.Wrapf(err, "failed to render %s", adaptersFilename)
+		err = templates.Render(templates.Options{
+			PackageName:     data.Config.Resolver.Package,
+			GeneratedHeader: true,
+			Template:        templateResolvers,
+			Filename:        file.ResolverGoFilename(),
+			Data:            file,
+			Packages:        data.Config.Packages,
+		})
+		if err != nil {
+			return errors.Wrapf(err, "failed to render %s", file.ResolverGoFilename())
+		}
 	}
 
 	if _, err := os.Stat(data.Config.Resolver.Filename); errors.Is(err, os.ErrNotExist) {
@@ -145,28 +138,17 @@ func NewFiles(cfg config.ResolverConfig) *Files {
 	return &Files{Files: map[string]*File{}, cfg: cfg}
 }
 
-func (f *Files) FindOrInitialize(name string) *File {
-	filename := f.resolverGoFilename(name)
-	if _, ok := f.Files[filename]; !ok {
-		f.Files[filename] = &File{ResolverType: f.cfg.Type}
+func (f *Files) FindOrInitialize(gqlFilename string) *File {
+	if _, ok := f.Files[gqlFilename]; !ok {
+		f.Files[gqlFilename] = &File{gqlFilename: gqlFilename, cfg: f.cfg}
 	}
-	return f.Files[filename]
-}
-
-func (f *Files) resolverGoFilename(gqlFilename string) string {
-	tmpl := f.cfg.FilenameTemplate
-	if tmpl == "" {
-		tmpl = "{name}.resolvers.proto.go"
-	} else {
-		tmpl = strings.TrimSuffix(tmpl, ".go") + ".proto.go"
-	}
-	filename := strings.TrimSuffix(filepath.Base(gqlFilename), filepath.Ext(gqlFilename))
-	filename = strings.ReplaceAll(tmpl, "{name}", filename)
-	return filepath.Join(f.cfg.Dir(), filename)
+	return f.Files[gqlFilename]
 }
 
 type Resolver struct {
 	*codegen.Field
+	file              *File
+	cfg               config.ResolverConfig
 	ProtoField        *gqlutil.ProtoFieldDirective
 	GQLTypeDefinition *ast.Definition
 	modelPkg          *packages.Package
@@ -292,18 +274,46 @@ func (r *Resolver) modelMappingFunc(def *ast.Definition, slice bool, d string) s
 	return fmt.Sprintf("%s.%s%s%s%s", templates.CurrentImports.Lookup(r.modelPkg.PkgPath), def.Name, list, d, suffix)
 }
 
+func (r *Resolver) ProtoImplementationName() string {
+	return r.file.ProtoResolverImplementationName(r.Object)
+}
+
+func (r *Resolver) ImplementationName() string {
+	return r.file.ResolverImplementationName(r.Object)
+}
+
 func (r *Resolver) IsList() bool { return r.Type.Elem != nil }
 
 type File struct {
-	Objects      []*codegen.Object
-	Resolvers    []*Resolver
-	ResolverType string
+	gqlFilename string
+	cfg         config.ResolverConfig
+	Objects     []*codegen.Object
+	Resolvers   []*Resolver
+}
+
+func (f *File) ResolverTypeName() string {
+	return f.cfg.Type
+}
+
+// https://github.com/99designs/gqlgen/blob/v0.13.0/plugin/resolvergen/resolver.go#L199-L207
+func (f *File) ResolverGoFilename() string {
+	tmpl := f.cfg.FilenameTemplate
+	if tmpl == "" {
+		tmpl = "{name}.resolvers.go"
+	}
+	filename := strings.TrimSuffix(filepath.Base(f.gqlFilename), filepath.Ext(f.gqlFilename))
+	filename = strings.ReplaceAll(tmpl, "{name}", filename)
+	return filepath.Join(f.cfg.Dir(), filename)
+}
+
+func (f *File) ProtoResolverGoFilename() string {
+	return strings.TrimSuffix(f.ResolverGoFilename(), ".go") + ".proto.go"
+}
+
+func (f *File) ProtoResolverImplementationName(obj *codegen.Object) string {
+	return fmt.Sprintf("%sProto%s", templates.LcFirst(obj.Name), templates.UcFirst(f.cfg.Type))
 }
 
 func (f *File) ResolverImplementationName(obj *codegen.Object) string {
-	return fmt.Sprintf("%sProto%s", templates.LcFirst(obj.Name), templates.UcFirst(f.ResolverType))
-}
-
-func (f *File) ResolverAdapterName(obj *codegen.Object) string {
-	return fmt.Sprintf("%sProto%sAdapter", templates.LcFirst(obj.Name), templates.UcFirst(f.ResolverType))
+	return fmt.Sprintf("%s%s", templates.LcFirst(obj.Name), templates.UcFirst(f.cfg.Type))
 }

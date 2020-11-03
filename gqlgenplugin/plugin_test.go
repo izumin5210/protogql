@@ -39,10 +39,16 @@ extend type Query {
 		if err != nil {
 			t.Errorf("failed to generate code: %v", err)
 		}
+		if entries, err := filepath.Glob("resolver/**"); err != nil {
+			t.Errorf("failed to search files: %v", err)
+		} else if got, want := len(entries), 3; got != want {
+			t.Errorf("Files under resolver/ were found %d, want %d", got, want)
+		}
+
 		gqlgentest.SnapshotFile(t,
 			"model/protomodels_gen.go",
-			"resolver/resolver.adapters.go",
 			"resolver/resolver.go",
+			"resolver/schema.resolvers.go",
 			"resolver/schema.resolvers.proto.go",
 		)
 	})
@@ -92,13 +98,22 @@ extend type Query {
 			t.Errorf("failed to generate code: %v", err)
 		}
 
+		if entries, err := filepath.Glob("resolver/**"); err != nil {
+			t.Errorf("failed to search files: %v", err)
+		} else if got, want := len(entries), 9; got != want {
+			t.Errorf("Files under resolver/ were found %d, want %d", got, want)
+		}
+
 		gqlgentest.SnapshotFile(t,
 			"model/protomodels_gen.go",
-			"resolver/resolver.adapters.go",
 			"resolver/resolver.go",
+			"resolver/task.pb.resolvers.go",
 			"resolver/task.pb.resolvers.proto.go",
+			"resolver/task.resolvers.go",
 			"resolver/task.resolvers.proto.go",
+			"resolver/user.pb.resolvers.go",
 			"resolver/user.pb.resolvers.proto.go",
+			"resolver/user.resolvers.go",
 			"resolver/user.resolvers.proto.go",
 		)
 	})
@@ -131,10 +146,17 @@ extend type Query {
 		if err != nil {
 			t.Errorf("failed to generate code: %v", err)
 		}
+
+		if entries, err := filepath.Glob("resolver/**"); err != nil {
+			t.Errorf("failed to search files: %v", err)
+		} else if got, want := len(entries), 3; got != want {
+			t.Errorf("Files under resolver/ were found %d, want %d", got, want)
+		}
+
 		gqlgentest.SnapshotFile(t,
 			"model/protomodels_gen.go",
-			"resolver/resolver.adapters.go",
 			"resolver/resolver.go",
+			"resolver/schema.resolvers.go",
 			"resolver/schema.resolvers.proto.go",
 		)
 	})
