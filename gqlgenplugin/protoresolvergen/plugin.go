@@ -30,7 +30,7 @@ var (
 	_ plugin.CodeGenerator
 )
 
-func (p *Plugin) Name() string { return "protomodelgen" }
+func (p *Plugin) Name() string { return "protoresolvergen" }
 
 func (p *Plugin) GenerateCode(data *codegen.Data) error {
 	if !data.Config.Resolver.IsDefined() {
