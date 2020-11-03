@@ -5,7 +5,6 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/99designs/gqlgen/api"
 	"github.com/izumin5210/remixer/gqlgenplugin"
 	"github.com/izumin5210/remixer/gqlgenplugin/protomodelgen"
 	"github.com/izumin5210/remixer/gqlgenplugin/protoresolvergen"
@@ -18,9 +17,8 @@ func TestGenerateForProto(t *testing.T) {
 
 	gqlgentest := gqlgentest.New(t)
 	gqlgentest.AddGqlGenOption(
-		gqlgenplugin.PrependPlugin(protomodelgen.New()),
-		api.AddPlugin(protoresolvergen.New()),
-		gqlgenplugin.RemovePlugin("resolvergen"),
+		gqlgenplugin.AddPluginBefore(protomodelgen.New(), "modelgen"),
+		gqlgenplugin.AddPluginBefore(protoresolvergen.New(), "resolvergen"),
 	)
 	gqlgentest.AddGqlSchemaFile(t, filepath.Join(testdataDir, "apis", "graphql", "task", "*.graphqls"))
 	gqlgentest.AddGqlSchema("schema.graphqls", `
@@ -60,9 +58,8 @@ func TestGenerateForProto_WithExtendingType(t *testing.T) {
 
 	gqlgentest := gqlgentest.New(t)
 	gqlgentest.AddGqlGenOption(
-		gqlgenplugin.PrependPlugin(protomodelgen.New()),
-		api.AddPlugin(protoresolvergen.New()),
-		gqlgenplugin.RemovePlugin("resolvergen"),
+		gqlgenplugin.AddPluginBefore(protomodelgen.New(), "modelgen"),
+		gqlgenplugin.AddPluginBefore(protoresolvergen.New(), "resolvergen"),
 	)
 	gqlgentest.AddGqlSchemaFile(t, filepath.Join(testdataDir, "apis", "graphql", "task", "*.graphqls"))
 	gqlgentest.AddGqlSchemaFile(t, filepath.Join(testdataDir, "apis", "graphql", "user", "*.graphqls"))
@@ -125,9 +122,8 @@ func TestGenerateForProto_WithProtoWellKnownTypes(t *testing.T) {
 
 	gqlgentest := gqlgentest.New(t)
 	gqlgentest.AddGqlGenOption(
-		gqlgenplugin.PrependPlugin(protomodelgen.New()),
-		api.AddPlugin(protoresolvergen.New()),
-		gqlgenplugin.RemovePlugin("resolvergen"),
+		gqlgenplugin.AddPluginBefore(protomodelgen.New(), "modelgen"),
+		gqlgenplugin.AddPluginBefore(protoresolvergen.New(), "resolvergen"),
 	)
 	gqlgentest.AddGqlSchemaFile(t, filepath.Join(testdataDir, "apis", "graphql", "wktypes", "*.graphqls"))
 	gqlgentest.AddGqlSchema("schema.graphqls", `

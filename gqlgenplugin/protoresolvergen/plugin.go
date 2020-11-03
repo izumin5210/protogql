@@ -98,12 +98,11 @@ func (p *Plugin) generatePerSchema(data *codegen.Data) error {
 		}
 
 		err = templates.Render(templates.Options{
-			PackageName:     data.Config.Resolver.Package,
-			GeneratedHeader: true,
-			Template:        templateResolvers,
-			Filename:        file.ResolverGoFilename(),
-			Data:            file,
-			Packages:        data.Config.Packages,
+			PackageName: data.Config.Resolver.Package,
+			Template:    templateResolvers,
+			Filename:    file.ResolverGoFilename(),
+			Data:        file,
+			Packages:    data.Config.Packages,
 		})
 		if err != nil {
 			return errors.Wrapf(err, "failed to render %s", file.ResolverGoFilename())
