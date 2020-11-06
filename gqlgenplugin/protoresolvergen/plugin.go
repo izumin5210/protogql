@@ -1,7 +1,10 @@
 package protoresolvergen
 
 import (
+	"bytes"
 	"fmt"
+	goast "go/ast"
+	"go/token"
 	"os"
 	"path/filepath"
 	"strings"
@@ -53,9 +56,19 @@ func (p *Plugin) generateSingleFile(data *codegen.Data) error {
 func (p *Plugin) generatePerSchema(data *codegen.Data) error {
 	files := NewFiles(data.Config.Resolver)
 
-	// 生成したいファイル
-	// * .graphql ファイルに対応する .proto.resolvers.go
-	// * Proto Resolver -> Model Resolver の変換をする adapter 実装がまとまったファイル
+	var (
+		pkg *packages.Package
+
+		// ref: https://github.com/99designs/gqlgen/blob/v0.13.0/internal/rewrite/rewriter.go
+		copiedDecls = map[goast.Decl]struct{}{}
+	)
+
+	if importPath := goutil.GetImportPathForDir(data.Config.Resolver.Dir()); importPath != "" {
+		pkgs, err := packages.Load(&packages.Config{Mode: packages.NeedSyntax | packages.NeedTypes}, importPath)
+		if err == nil && len(pkgs) > 0 {
+			pkg = pkgs[0]
+		}
+	}
 
 	for _, o := range data.Objects {
 		if !o.HasResolvers() {
@@ -63,6 +76,15 @@ func (p *Plugin) generatePerSchema(data *codegen.Data) error {
 		}
 		file := files.FindOrInitialize(o.Position.Src.Name)
 		file.Objects = append(file.Objects, o)
+
+		if pkg != nil {
+			if d := goutil.GetStruct(pkg, file.ProtoResolverImplementationName(o)); d != nil {
+				copiedDecls[d] = struct{}{}
+			}
+			if d := goutil.GetMethod(pkg, file.ProtoResolverImplementationName(o), o.Name); d != nil {
+				copiedDecls[d] = struct{}{}
+			}
+		}
 
 		for _, field := range o.Fields {
 			if !field.IsResolver {
@@ -81,11 +103,40 @@ func (p *Plugin) generatePerSchema(data *codegen.Data) error {
 			}
 
 			file := files.FindOrInitialize(field.Position.Src.Name)
-			file.Resolvers = append(file.Resolvers, &Resolver{Field: field, ProtoField: protoField, GQLTypeDefinition: gqlType, modelPkg: modelPkg, cfg: data.Config.Resolver, file: file})
+			r := &Resolver{Field: field, ProtoField: protoField, GQLTypeDefinition: gqlType, modelPkg: modelPkg, cfg: data.Config.Resolver, file: file, pkg: pkg}
+			file.Resolvers = append(file.Resolvers, r)
+
+			if pkg != nil {
+				if d := goutil.GetMethod(pkg, r.ProtoImplementationName(), r.GoFieldName); d != nil {
+					copiedDecls[d] = struct{}{}
+				}
+			}
 		}
 	}
 
 	for _, file := range files.Files {
+		if pkg != nil {
+			if goFile := goutil.GetFile(pkg, file.ProtoResolverGoFilename()); goFile != nil {
+				var buf bytes.Buffer
+				for _, d := range goFile.Decls {
+					if _, ok := copiedDecls[d]; ok {
+						continue
+					}
+					if gd, ok := d.(*goast.GenDecl); ok && gd.Tok == token.IMPORT {
+						continue
+					}
+					source, err := goutil.GetSource(pkg.Fset, d.Pos(), d.End())
+					if err != nil {
+						return err
+					}
+					buf.WriteString(source)
+					buf.WriteString("\n")
+				}
+				file.ProtoResolverRemainingSource = buf.String()
+				file.Imports = goutil.ListImports(goFile)
+			}
+		}
+
 		err := templates.Render(templates.Options{
 			PackageName: data.Config.Resolver.Package,
 			Template:    templateProtoResolvers,
@@ -151,6 +202,7 @@ type Resolver struct {
 	ProtoField        *gqlutil.ProtoFieldDirective
 	GQLTypeDefinition *ast.Definition
 	modelPkg          *packages.Package
+	pkg               *packages.Package
 }
 
 type ResolverArg struct {
@@ -281,13 +333,33 @@ func (r *Resolver) ImplementationName() string {
 	return r.file.ResolverImplementationName(r.Object)
 }
 
+func (r *Resolver) ProtoResolverBody() string {
+	notImplemented := `panic("not implemented")`
+	if r.pkg == nil {
+		return notImplemented
+	}
+	meth := goutil.GetMethod(r.pkg, r.ProtoImplementationName(), r.GoFieldName)
+	if meth == nil {
+		return notImplemented
+	}
+
+	body, err := goutil.GetSource(r.pkg.Fset, meth.Body.Pos()+1, meth.Body.End()-1) // Avoid braces
+	if err == nil && body != "" {
+		return strings.TrimSpace(body)
+	}
+
+	return notImplemented
+}
+
 func (r *Resolver) IsList() bool { return r.Type.Elem != nil }
 
 type File struct {
-	gqlFilename string
-	cfg         config.ResolverConfig
-	Objects     []*codegen.Object
-	Resolvers   []*Resolver
+	gqlFilename                  string
+	cfg                          config.ResolverConfig
+	Objects                      []*codegen.Object
+	Resolvers                    []*Resolver
+	Imports                      []*goutil.Import
+	ProtoResolverRemainingSource string
 }
 
 func (f *File) ResolverTypeName() string {

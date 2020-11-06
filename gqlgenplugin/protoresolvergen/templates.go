@@ -4,14 +4,32 @@ var templateProtoResolvers = `
 {{ reserveImport "context" }}
 {{ reserveImport "fmt" }}
 
+{{ range $imp := .Imports }}
+	{{ if (ne $imp.Alias "") }}
+		{{ reserveImport $imp.Path $imp.Alias }}
+	{{ else }}
+		{{ reserveImport $imp.Path }}
+	{{ end }}
+{{ end }}
+
 {{ range $resolver := .Resolvers }}
 	func (r *{{ $resolver.ProtoImplementationName }}) {{ $resolver.GoFieldName }}{{ $resolver.ShortProtoResolverDeclaration }} {
-		panic(fmt.Errorf("not implemented"))
+		{{ $resolver.ProtoResolverBody }}
 	}
 {{ end }}
 
 {{ range $obj := .Objects -}}
 	type {{ $obj | $.ProtoResolverImplementationName }} struct { *{{ $.ResolverTypeName }} }
+{{ end }}
+
+{{ if (ne .ProtoResolverRemainingSource "") }}
+	// !!! WARNING !!!
+	// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+	// one last chance to move it out of harms way if you want. There are two reasons this happens:
+	//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+	//    it when you're done.
+	//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+	{{ .ProtoResolverRemainingSource }}
 {{ end }}
 `
 

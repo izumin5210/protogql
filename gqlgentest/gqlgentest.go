@@ -2,6 +2,7 @@ package gqlgentest
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -18,6 +19,7 @@ type Runner interface {
 	Run(t *testing.T, f func(t *testing.T, err error))
 	AddGqlGenOption(opst ...api.Option)
 	AddGqlSchema(filename, content string)
+	ReplaceGqlSchema(filename, content string)
 	AddGqlSchemaFile(t *testing.T, pattern string)
 	AddGoModReplace(pkg, path string)
 	Snapshot(t *testing.T, v ...interface{})
@@ -26,6 +28,21 @@ type Runner interface {
 
 func New(t *testing.T) Runner {
 	dir := filepath.Join(t.TempDir(), "testapp")
+	return &runner{dir: dir}
+}
+
+type runner struct {
+	dir           string
+	prevDir       string
+	gqlSources    []*ast.Source
+	gqlgenOptions []api.Option
+	goModReplace  []struct{ Package, Path string }
+}
+
+func (r *runner) Run(t *testing.T, f func(t *testing.T, err error)) {
+	defer r.moveToRoot(t)()
+	r.writeGoMod(t)
+
 	gqlgenCfg := config.DefaultConfig()
 	gqlgenCfg.Exec = config.PackageConfig{
 		Filename: "graph/graph_gen.go",
@@ -40,24 +57,9 @@ func New(t *testing.T) Runner {
 		DirName: "resolver",
 		Package: "resolver",
 	}
-	return &runner{dir: dir, gqlgenCfg: gqlgenCfg}
-}
+	gqlgenCfg.Sources = append(gqlgenCfg.Sources, r.gqlSources...)
 
-type runner struct {
-	dir           string
-	prevDir       string
-	gqlgenCfg     *config.Config
-	gqlgenOptions []api.Option
-	goModReplace  []struct{ Package, Path string }
-}
-
-func (r *runner) Run(t *testing.T, f func(t *testing.T, err error)) {
-	defer r.moveToRoot(t)()
-	r.writeGoMod(t)
-
-	r.orDie(t, api.Generate(r.gqlgenCfg, r.gqlgenOptions...))
-
-	f(t, nil)
+	f(t, api.Generate(gqlgenCfg, r.gqlgenOptions...))
 }
 
 func (r *runner) orDie(t *testing.T, err error) {
@@ -77,14 +79,17 @@ func (r *runner) moveToRoot(t *testing.T) func() {
 	r.prevDir, err = os.Getwd()
 	r.orDie(t, err)
 
-	err = os.Mkdir(r.dir, os.FileMode(0755))
-	r.orDie(t, err)
+	if _, err := os.Stat(r.dir); errors.Is(err, os.ErrNotExist) {
+		err = os.Mkdir(r.dir, os.FileMode(0755))
+		r.orDie(t, err)
+	}
 
 	err = os.Chdir(r.dir)
 	r.orDie(t, err)
 
 	return func() {
 		err := os.Chdir(r.prevDir)
+		r.prevDir = ""
 		r.orDie(t, err)
 	}
 }
@@ -94,7 +99,16 @@ func (r *runner) AddGqlGenOption(opts ...api.Option) {
 }
 
 func (r *runner) AddGqlSchema(filename, content string) {
-	r.gqlgenCfg.Sources = append(r.gqlgenCfg.Sources, &ast.Source{Name: filename, Input: content})
+	r.gqlSources = append(r.gqlSources, &ast.Source{Name: filename, Input: content})
+}
+
+func (r *runner) ReplaceGqlSchema(filename, content string) {
+	for _, s := range r.gqlSources {
+		if s.Name == filename {
+			s.Input = content
+			return
+		}
+	}
 }
 
 func (r *runner) AddGqlSchemaFile(t *testing.T, pattern string) {
