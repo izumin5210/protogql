@@ -76,7 +76,7 @@ scalar DateTime`)
 extend type Query {
   currentUser: User!
 }`)
-	gqlgentest.AddGqlSchema("todo.graphqls", `
+	gqlgentest.AddGqlSchema("task.graphqls", `
 extend type Task {
   assignees: [User!]!
   author: User!
