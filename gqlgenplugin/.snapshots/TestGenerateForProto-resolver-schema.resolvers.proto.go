@@ -1,11 +1,11 @@
 package resolver
 
 import (
-	task_pb "apis/go/task"
+	todo_pb "apis/go/todo"
 	"context"
 )
 
-func (r *queryProtoResolver) Tasks(ctx context.Context) ([]*task_pb.Task, error) {
+func (r *queryProtoResolver) Tasks(ctx context.Context) ([]*todo_pb.Task, error) {
 	panic("not implemented")
 }
 

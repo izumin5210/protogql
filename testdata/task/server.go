@@ -10,8 +10,8 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 
-	"task/graph"
-	"task/graph/generated"
+	"todo/graph"
+	"todo/graph/generated"
 )
 
 func main() {

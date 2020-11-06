@@ -1,18 +1,18 @@
-type Task @proto(fullName: "testapi.task.Task", package: "testapi.task", name: "Task", goPackage: "apis/go/task", goName: "Task") {
+type Task @proto(fullName: "testapi.todo.Task", package: "testapi.todo", name: "Task", goPackage: "apis/go/todo", goName: "Task") {
 	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
 	title: String! @protoField(name: "title", type: "string", goName: "Title", goTypeName: "string")
-	status: TaskStatus! @protoField(name: "status", type: "testapi.task.Task.Status", goName: "Status", goTypeName: "Task_Status", goTypePackage: "apis/go/task")
+	status: TaskStatus! @protoField(name: "status", type: "testapi.todo.Task.Status", goName: "Status", goTypeName: "Task_Status", goTypePackage: "apis/go/todo")
 	assigneeIds: [Int!]! @protoField(name: "assignee_ids", type: "uint64", goName: "AssigneeIds", goTypeName: "uint64")
 	authorId: Int! @protoField(name: "author_id", type: "uint64", goName: "AuthorId", goTypeName: "uint64")
 }
-input TaskInput @proto(fullName: "testapi.task.Task", package: "testapi.task", name: "Task", goPackage: "apis/go/task", goName: "Task") {
+input TaskInput @proto(fullName: "testapi.todo.Task", package: "testapi.todo", name: "Task", goPackage: "apis/go/todo", goName: "Task") {
 	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
 	title: String! @protoField(name: "title", type: "string", goName: "Title", goTypeName: "string")
-	status: TaskStatus! @protoField(name: "status", type: "testapi.task.Task.Status", goName: "Status", goTypeName: "Task_Status", goTypePackage: "apis/go/task")
+	status: TaskStatus! @protoField(name: "status", type: "testapi.todo.Task.Status", goName: "Status", goTypeName: "Task_Status", goTypePackage: "apis/go/todo")
 	assigneeIds: [Int!]! @protoField(name: "assignee_ids", type: "uint64", goName: "AssigneeIds", goTypeName: "uint64")
 	authorId: Int! @protoField(name: "author_id", type: "uint64", goName: "AuthorId", goTypeName: "uint64")
 }
-enum TaskStatus @proto(fullName: "testapi.task.Task.Status", package: "testapi.task", name: "Status", goPackage: "apis/go/task", goName: "Task_Status") {
+enum TaskStatus @proto(fullName: "testapi.todo.Task.Status", package: "testapi.todo", name: "Status", goPackage: "apis/go/todo", goName: "Task_Status") {
 	STATUS_UNSPECIFIED
 	TODO
 	IN_PROGRESS

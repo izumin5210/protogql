@@ -5,7 +5,7 @@ package graph
 
 import (
 	"context"
-	"task/graph/generated"
+	"todo/graph/generated"
 )
 
 func (r *mutationResolver) Nop(ctx context.Context) (*bool, error) {

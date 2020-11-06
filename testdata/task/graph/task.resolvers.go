@@ -5,7 +5,7 @@ package graph
 
 import (
 	"context"
-	"task/graph/model"
+	"todo/graph/model"
 )
 
 func (r *queryResolver) Tasks(ctx context.Context) ([]*model.Task, error) {

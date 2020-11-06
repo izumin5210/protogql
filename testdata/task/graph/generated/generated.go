@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
-	"task/graph/model"
+	"todo/graph/model"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -253,21 +253,21 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "graph/types/task/task.pb.graphqls", Input: `type Task @proto(fullName: "testapi.task.Task", package: "testapi.task", name: "Task", goPackage: "apis/go/task", goName: "Task") {
+	{Name: "graph/types/todo/task.pb.graphqls", Input: `type Task @proto(fullName: "testapi.todo.Task", package: "testapi.todo", name: "Task", goPackage: "apis/go/todo", goName: "Task") {
 	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
 	title: String! @protoField(name: "title", type: "string", goName: "Title", goTypeName: "string")
-	status: TaskStatus! @protoField(name: "status", type: "testapi.task.Task.Status", goName: "Status", goTypeName: "Task_Status", goTypePackage: "apis/go/task")
+	status: TaskStatus! @protoField(name: "status", type: "testapi.todo.Task.Status", goName: "Status", goTypeName: "Task_Status", goTypePackage: "apis/go/todo")
 	assigneeIds: [Int!]! @protoField(name: "assignee_ids", type: "uint64", goName: "AssigneeIds", goTypeName: "uint64")
 	authorId: Int! @protoField(name: "author_id", type: "uint64", goName: "AuthorId", goTypeName: "uint64")
 }
-input TaskInput @proto(fullName: "testapi.task.Task", package: "testapi.task", name: "Task", goPackage: "apis/go/task", goName: "Task") {
+input TaskInput @proto(fullName: "testapi.todo.Task", package: "testapi.todo", name: "Task", goPackage: "apis/go/todo", goName: "Task") {
 	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
 	title: String! @protoField(name: "title", type: "string", goName: "Title", goTypeName: "string")
-	status: TaskStatus! @protoField(name: "status", type: "testapi.task.Task.Status", goName: "Status", goTypeName: "Task_Status", goTypePackage: "apis/go/task")
+	status: TaskStatus! @protoField(name: "status", type: "testapi.todo.Task.Status", goName: "Status", goTypeName: "Task_Status", goTypePackage: "apis/go/todo")
 	assigneeIds: [Int!]! @protoField(name: "assignee_ids", type: "uint64", goName: "AssigneeIds", goTypeName: "uint64")
 	authorId: Int! @protoField(name: "author_id", type: "uint64", goName: "AuthorId", goTypeName: "uint64")
 }
-enum TaskStatus @proto(fullName: "testapi.task.Task.Status", package: "testapi.task", name: "Status", goPackage: "apis/go/task", goName: "Task_Status") {
+enum TaskStatus @proto(fullName: "testapi.todo.Task.Status", package: "testapi.todo", name: "Status", goPackage: "apis/go/todo", goName: "Task_Status") {
 	STATUS_UNSPECIFIED
 	TODO
 	IN_PROGRESS
@@ -466,7 +466,7 @@ func (ec *executionContext) _Query_tasks(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.([]*model.Task)
 	fc.Result = res
-	return ec.marshalNTask2ᚕᚖtaskᚋgraphᚋmodelᚐTaskᚄ(ctx, field.Selections, res)
+	return ec.marshalNTask2ᚕᚖtodoᚋgraphᚋmodelᚐTaskᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -642,7 +642,7 @@ func (ec *executionContext) _Task_status(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.(*model.TaskStatus)
 	fc.Result = res
-	return ec.marshalNTaskStatus2ᚖtaskᚋgraphᚋmodelᚐTaskStatus(ctx, field.Selections, res)
+	return ec.marshalNTaskStatus2ᚖtodoᚋgraphᚋmodelᚐTaskStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Task_assigneeIds(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
@@ -747,7 +747,7 @@ func (ec *executionContext) _Task_assignees(ctx context.Context, field graphql.C
 	}
 	res := resTmp.([]*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚕᚖtaskᚋgraphᚋmodelᚐUserᚄ(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚕᚖtodoᚋgraphᚋmodelᚐUserᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Task_author(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
@@ -782,7 +782,7 @@ func (ec *executionContext) _Task_author(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖtaskᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖtodoᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
@@ -887,7 +887,7 @@ func (ec *executionContext) _User_role(ctx context.Context, field graphql.Collec
 	}
 	res := resTmp.(*model.UserRole)
 	fc.Result = res
-	return ec.marshalNUserRole2ᚖtaskᚋgraphᚋmodelᚐUserRole(ctx, field.Selections, res)
+	return ec.marshalNUserRole2ᚖtodoᚋgraphᚋmodelᚐUserRole(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -2003,7 +2003,7 @@ func (ec *executionContext) unmarshalInputTaskInput(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
-			it.Status, err = ec.unmarshalNTaskStatus2ᚖtaskᚋgraphᚋmodelᚐTaskStatus(ctx, v)
+			it.Status, err = ec.unmarshalNTaskStatus2ᚖtodoᚋgraphᚋmodelᚐTaskStatus(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2055,7 +2055,7 @@ func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("role"))
-			it.Role, err = ec.unmarshalNUserRole2ᚖtaskᚋgraphᚋmodelᚐUserRole(ctx, v)
+			it.Role, err = ec.unmarshalNUserRole2ᚖtodoᚋgraphᚋmodelᚐUserRole(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2588,7 +2588,7 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNTask2ᚕᚖtaskᚋgraphᚋmodelᚐTaskᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Task) graphql.Marshaler {
+func (ec *executionContext) marshalNTask2ᚕᚖtodoᚋgraphᚋmodelᚐTaskᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Task) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -2612,7 +2612,7 @@ func (ec *executionContext) marshalNTask2ᚕᚖtaskᚋgraphᚋmodelᚐTaskᚄ(ct
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNTask2ᚖtaskᚋgraphᚋmodelᚐTask(ctx, sel, v[i])
+			ret[i] = ec.marshalNTask2ᚖtodoᚋgraphᚋmodelᚐTask(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -2625,7 +2625,7 @@ func (ec *executionContext) marshalNTask2ᚕᚖtaskᚋgraphᚋmodelᚐTaskᚄ(ct
 	return ret
 }
 
-func (ec *executionContext) marshalNTask2ᚖtaskᚋgraphᚋmodelᚐTask(ctx context.Context, sel ast.SelectionSet, v *model.Task) graphql.Marshaler {
+func (ec *executionContext) marshalNTask2ᚖtodoᚋgraphᚋmodelᚐTask(ctx context.Context, sel ast.SelectionSet, v *model.Task) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -2635,13 +2635,13 @@ func (ec *executionContext) marshalNTask2ᚖtaskᚋgraphᚋmodelᚐTask(ctx cont
 	return ec._Task(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNTaskStatus2ᚖtaskᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, v interface{}) (*model.TaskStatus, error) {
+func (ec *executionContext) unmarshalNTaskStatus2ᚖtodoᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, v interface{}) (*model.TaskStatus, error) {
 	var res = new(model.TaskStatus)
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNTaskStatus2ᚖtaskᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, sel ast.SelectionSet, v *model.TaskStatus) graphql.Marshaler {
+func (ec *executionContext) marshalNTaskStatus2ᚖtodoᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, sel ast.SelectionSet, v *model.TaskStatus) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -2651,11 +2651,11 @@ func (ec *executionContext) marshalNTaskStatus2ᚖtaskᚋgraphᚋmodelᚐTaskSta
 	return v
 }
 
-func (ec *executionContext) marshalNUser2taskᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2todoᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUser2ᚕᚖtaskᚋgraphᚋmodelᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚕᚖtodoᚋgraphᚋmodelᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -2679,7 +2679,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖtaskᚋgraphᚋmodelᚐUserᚄ(ct
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNUser2ᚖtaskᚋgraphᚋmodelᚐUser(ctx, sel, v[i])
+			ret[i] = ec.marshalNUser2ᚖtodoᚋgraphᚋmodelᚐUser(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -2692,7 +2692,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖtaskᚋgraphᚋmodelᚐUserᚄ(ct
 	return ret
 }
 
-func (ec *executionContext) marshalNUser2ᚖtaskᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚖtodoᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -2702,13 +2702,13 @@ func (ec *executionContext) marshalNUser2ᚖtaskᚋgraphᚋmodelᚐUser(ctx cont
 	return ec._User(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNUserRole2ᚖtaskᚋgraphᚋmodelᚐUserRole(ctx context.Context, v interface{}) (*model.UserRole, error) {
+func (ec *executionContext) unmarshalNUserRole2ᚖtodoᚋgraphᚋmodelᚐUserRole(ctx context.Context, v interface{}) (*model.UserRole, error) {
 	var res = new(model.UserRole)
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNUserRole2ᚖtaskᚋgraphᚋmodelᚐUserRole(ctx context.Context, sel ast.SelectionSet, v *model.UserRole) graphql.Marshaler {
+func (ec *executionContext) marshalNUserRole2ᚖtodoᚋgraphᚋmodelᚐUserRole(ctx context.Context, sel ast.SelectionSet, v *model.UserRole) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")

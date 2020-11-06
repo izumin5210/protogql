@@ -1,6 +1,6 @@
 # Where are all the schema files located? globs are supported eg  src/**/*.graphqls
 schema:
-  - graph/types/task/*.graphqls
+  - graph/types/todo/*.graphqls
   - graph/types/user/*.graphqls
   - graph/*.graphqls
 
@@ -37,7 +37,7 @@ resolver:
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.
 autobind:
-  - "task/graph/model"
+  - "todo/graph/model"
 
 # This section declares type mapping between the GraphQL and go type systems
 #

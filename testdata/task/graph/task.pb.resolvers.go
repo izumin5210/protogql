@@ -4,7 +4,7 @@ package graph
 // will be copied through when generating and any unknown code will be moved to the end.
 
 import (
-	"task/graph/generated"
+	"todo/graph/generated"
 )
 
 // Task returns generated.TaskResolver implementation.

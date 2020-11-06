@@ -24,7 +24,7 @@ func TestGenerateForProto(t *testing.T) {
 		gqlgenplugin.AddPluginBefore(protomodelgen.New(), "modelgen"),
 		gqlgenplugin.AddPluginBefore(protoresolvergen.New(), "resolvergen"),
 	)
-	gqlgentest.AddGqlSchemaFile(t, filepath.Join(testdataDir, "apis", "graphql", "task", "*.graphqls"))
+	gqlgentest.AddGqlSchemaFile(t, filepath.Join(testdataDir, "apis", "graphql", "todo", "*.graphqls"))
 	gqlgentest.AddGqlSchema("schema.graphqls", `
 directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
 directive @proto(fullName: String!, package: String!, name: String!, goPackage: String!, goName: String!) on OBJECT | INPUT_OBJECT | ENUM
@@ -35,7 +35,7 @@ extend type Query {
   tasks: [Task!]!
 }`)
 	gqlgentest.AddGoModReplace("github.com/izumin5210/remixer", rootDir)
-	gqlgentest.AddGoModReplace("apis/go/task", filepath.Join(testdataDir, "apis", "go", "task"))
+	gqlgentest.AddGoModReplace("apis/go/todo", filepath.Join(testdataDir, "apis", "go", "todo"))
 
 	gqlgentest.Run(t, func(t *testing.T, err error) {
 		if err != nil {
@@ -65,7 +65,7 @@ func TestGenerateForProto_WithExtendingType(t *testing.T) {
 		gqlgenplugin.AddPluginBefore(protomodelgen.New(), "modelgen"),
 		gqlgenplugin.AddPluginBefore(protoresolvergen.New(), "resolvergen"),
 	)
-	gqlgentest.AddGqlSchemaFile(t, filepath.Join(testdataDir, "apis", "graphql", "task", "*.graphqls"))
+	gqlgentest.AddGqlSchemaFile(t, filepath.Join(testdataDir, "apis", "graphql", "todo", "*.graphqls"))
 	gqlgentest.AddGqlSchemaFile(t, filepath.Join(testdataDir, "apis", "graphql", "user", "*.graphqls"))
 	gqlgentest.AddGqlSchema("schema.graphqls", `
 directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
@@ -76,7 +76,7 @@ scalar DateTime`)
 extend type Query {
   currentUser: User!
 }`)
-	gqlgentest.AddGqlSchema("task.graphqls", `
+	gqlgentest.AddGqlSchema("todo.graphqls", `
 extend type Task {
   assignees: [User!]!
   author: User!
@@ -91,7 +91,7 @@ extend type Query {
   latestTask: Task!
 }`)
 	gqlgentest.AddGoModReplace("github.com/izumin5210/remixer", rootDir)
-	gqlgentest.AddGoModReplace("apis/go/task", filepath.Join(testdataDir, "apis", "go", "task"))
+	gqlgentest.AddGoModReplace("apis/go/todo", filepath.Join(testdataDir, "apis", "go", "todo"))
 	gqlgentest.AddGoModReplace("apis/go/user", filepath.Join(testdataDir, "apis", "go", "user"))
 
 	gqlgentest.Run(t, func(t *testing.T, err error) {
@@ -171,7 +171,7 @@ func TestGenerateForProto_WhenUpdate(t *testing.T) {
 		gqlgenplugin.AddPluginBefore(protomodelgen.New(), "modelgen"),
 		gqlgenplugin.AddPluginBefore(protoresolvergen.New(), "resolvergen"),
 	)
-	gqlgentest.AddGqlSchemaFile(t, filepath.Join(testdataDir, "apis", "graphql", "task", "*.graphqls"))
+	gqlgentest.AddGqlSchemaFile(t, filepath.Join(testdataDir, "apis", "graphql", "todo", "*.graphqls"))
 	gqlgentest.AddGqlSchemaFile(t, filepath.Join(testdataDir, "apis", "graphql", "user", "*.graphqls"))
 	gqlgentest.AddGqlSchema("schema.graphqls", `
 directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
@@ -197,7 +197,7 @@ extend type Query {
   latestTask: Task!
 }`)
 	gqlgentest.AddGoModReplace("github.com/izumin5210/remixer", rootDir)
-	gqlgentest.AddGoModReplace("apis/go/task", filepath.Join(testdataDir, "apis", "go", "task"))
+	gqlgentest.AddGoModReplace("apis/go/todo", filepath.Join(testdataDir, "apis", "go", "todo"))
 	gqlgentest.AddGoModReplace("apis/go/user", filepath.Join(testdataDir, "apis", "go", "user"))
 
 	gqlgentest.Run(t, func(t *testing.T, err error) {
@@ -232,7 +232,7 @@ extend type Query {
 				buf.WriteString(lines[i])
 				buf.WriteString("\n")
 				if strings.HasPrefix(lines[i], "func (r *queryProtoResolver) Tasks") {
-					buf.WriteString("\treturn []*task_pb.Task{}, nil\n")
+					buf.WriteString("\treturn []*todo_pb.Task{}, nil\n")
 					i++
 				}
 				if lines[i] == "import (" {

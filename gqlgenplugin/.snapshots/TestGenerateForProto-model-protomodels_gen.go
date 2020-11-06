@@ -3,7 +3,7 @@
 package model
 
 import (
-	task_pb "apis/go/task"
+	todo_pb "apis/go/todo"
 	"fmt"
 	"io"
 	"strconv"
@@ -21,7 +21,7 @@ type Task struct {
 	AuthorID uint64
 }
 
-func TaskListFromRepeatedProto(in []*task_pb.Task) []*Task {
+func TaskListFromRepeatedProto(in []*todo_pb.Task) []*Task {
 	out := make([]*Task, len(in))
 	for i, m := range in {
 		out[i] = TaskFromProto(m)
@@ -29,7 +29,7 @@ func TaskListFromRepeatedProto(in []*task_pb.Task) []*Task {
 	return out
 }
 
-func TaskFromProto(in *task_pb.Task) *Task {
+func TaskFromProto(in *todo_pb.Task) *Task {
 	return &Task{
 
 		ID: in.Id,
@@ -44,16 +44,16 @@ func TaskFromProto(in *task_pb.Task) *Task {
 	}
 }
 
-func TaskListToRepeatedProto(in []*Task) []*task_pb.Task {
-	out := make([]*task_pb.Task, len(in))
+func TaskListToRepeatedProto(in []*Task) []*todo_pb.Task {
+	out := make([]*todo_pb.Task, len(in))
 	for i, m := range in {
 		out[i] = TaskToProto(m)
 	}
 	return out
 }
 
-func TaskToProto(in *Task) *task_pb.Task {
-	return &task_pb.Task{
+func TaskToProto(in *Task) *todo_pb.Task {
+	return &todo_pb.Task{
 
 		Id: in.ID,
 
@@ -79,7 +79,7 @@ type TaskInput struct {
 	AuthorID uint64
 }
 
-func TaskInputListFromRepeatedProto(in []*task_pb.Task) []*TaskInput {
+func TaskInputListFromRepeatedProto(in []*todo_pb.Task) []*TaskInput {
 	out := make([]*TaskInput, len(in))
 	for i, m := range in {
 		out[i] = TaskInputFromProto(m)
@@ -87,7 +87,7 @@ func TaskInputListFromRepeatedProto(in []*task_pb.Task) []*TaskInput {
 	return out
 }
 
-func TaskInputFromProto(in *task_pb.Task) *TaskInput {
+func TaskInputFromProto(in *todo_pb.Task) *TaskInput {
 	return &TaskInput{
 
 		ID: in.Id,
@@ -102,16 +102,16 @@ func TaskInputFromProto(in *task_pb.Task) *TaskInput {
 	}
 }
 
-func TaskInputListToRepeatedProto(in []*TaskInput) []*task_pb.Task {
-	out := make([]*task_pb.Task, len(in))
+func TaskInputListToRepeatedProto(in []*TaskInput) []*todo_pb.Task {
+	out := make([]*todo_pb.Task, len(in))
 	for i, m := range in {
 		out[i] = TaskInputToProto(m)
 	}
 	return out
 }
 
-func TaskInputToProto(in *TaskInput) *task_pb.Task {
-	return &task_pb.Task{
+func TaskInputToProto(in *TaskInput) *todo_pb.Task {
+	return &todo_pb.Task{
 
 		Id: in.ID,
 
@@ -126,10 +126,10 @@ func TaskInputToProto(in *TaskInput) *task_pb.Task {
 }
 
 type TaskStatus struct {
-	Proto task_pb.Task_Status
+	Proto todo_pb.Task_Status
 }
 
-func TaskStatusListFromRepeatedProto(in []task_pb.Task_Status) []*TaskStatus {
+func TaskStatusListFromRepeatedProto(in []todo_pb.Task_Status) []*TaskStatus {
 	out := make([]*TaskStatus, len(in))
 	for i, m := range in {
 		out[i] = TaskStatusFromProto(m)
@@ -137,19 +137,19 @@ func TaskStatusListFromRepeatedProto(in []task_pb.Task_Status) []*TaskStatus {
 	return out
 }
 
-func TaskStatusFromProto(in task_pb.Task_Status) *TaskStatus {
+func TaskStatusFromProto(in todo_pb.Task_Status) *TaskStatus {
 	return &TaskStatus{Proto: in}
 }
 
-func TaskStatusListToRepeatedProto(in []*TaskStatus) []task_pb.Task_Status {
-	out := make([]task_pb.Task_Status, len(in))
+func TaskStatusListToRepeatedProto(in []*TaskStatus) []todo_pb.Task_Status {
+	out := make([]todo_pb.Task_Status, len(in))
 	for i, m := range in {
 		out[i] = TaskStatusToProto(m)
 	}
 	return out
 }
 
-func TaskStatusToProto(in *TaskStatus) task_pb.Task_Status {
+func TaskStatusToProto(in *TaskStatus) todo_pb.Task_Status {
 	return in.Proto
 }
 
@@ -163,7 +163,7 @@ func (e *TaskStatus) UnmarshalGQL(v interface{}) error {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	e.Proto = task_pb.Task_Status(task_pb.Task_Status_value[str])
+	e.Proto = todo_pb.Task_Status(todo_pb.Task_Status_value[str])
 	return nil
 }
 

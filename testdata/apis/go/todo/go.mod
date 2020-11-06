@@ -1,4 +1,4 @@
-module apis/go/task
+module apis/go/todo
 
 go 1.15
 
