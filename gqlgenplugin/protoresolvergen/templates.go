@@ -2,7 +2,6 @@ package protoresolvergen
 
 var templateProtoResolvers = `
 {{ reserveImport "context" }}
-{{ reserveImport "fmt" }}
 
 {{ range $imp := .Imports }}
 	{{ if (ne $imp.Alias "") }}
