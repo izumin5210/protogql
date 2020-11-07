@@ -81,7 +81,7 @@ func (p *Plugin) generatePerSchema(data *codegen.Data) error {
 			if d := goutil.GetStruct(pkg, file.ProtoResolverImplementationName(o)); d != nil {
 				copiedDecls[d] = struct{}{}
 			}
-			if d := goutil.GetMethod(pkg, file.ProtoResolverImplementationName(o), o.Name); d != nil {
+			if d := goutil.GetMethod(pkg, file.ResolverTypeName(), o.Name); d != nil {
 				copiedDecls[d] = struct{}{}
 			}
 		}
