@@ -1,7 +1,7 @@
 package gqlgenplugin_test
 
 import (
-	"bytes"
+	"bufio"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -205,47 +205,28 @@ extend type Query {
 			t.Fatalf("failed to generate code: %v", err)
 		}
 
-		{
-			data, err := ioutil.ReadFile("resolver/user.resolvers.proto.go")
-			if err != nil {
-				t.Fatalf("failed to read generated file: %v", err)
-			}
-			buf := bytes.NewBuffer(data)
-			buf.WriteString("const (\n\tTestConstant = 1\n)\n")
-			buf.WriteString("var (\n\tTestVariable = 1\n)\n")
-			buf.WriteString("type TestStruct struct {\n\tFoo string\n}\n")
-			buf.WriteString("func TestFunction() string { return \"Test\" }\n")
-
-			err = ioutil.WriteFile("resolver/user.resolvers.proto.go", buf.Bytes(), os.FileMode(0644))
-			if err != nil {
-				t.Fatalf("failed to overwrite generated file: %v", err)
-			}
-		}
-		{
-			data, err := ioutil.ReadFile("resolver/task.resolvers.proto.go")
-			if err != nil {
-				t.Fatalf("failed to read generated file: %v", err)
-			}
-			lines := strings.Split(string(data), "\n")
-			var buf bytes.Buffer
+		rewriteFile(t, "resolver/user.resolvers.proto.go", func(input string, write func(string)) {
+			write(input)
+			write("const (\n\tTestConstant = 1\n)\n")
+			write("var (\n\tTestVariable = 1\n)\n")
+			write("type TestStruct struct {\n\tFoo string\n}\n")
+			write("func TestFunction() string { return \"Test\" }\n")
+		})
+		rewriteFile(t, "resolver/task.resolvers.proto.go", func(input string, write func(string)) {
+			lines := strings.Split(input, "\n")
 			for i := 0; i < len(lines); i++ {
-				buf.WriteString(lines[i])
-				buf.WriteString("\n")
+				write(lines[i])
+				write("\n")
 				if strings.HasPrefix(lines[i], "func (r *queryProtoResolver) Tasks") {
-					buf.WriteString("\treturn []*todo_pb.Task{}, nil\n")
+					write("\treturn []*todo_pb.Task{}, nil\n")
 					i++
 				}
 				if lines[i] == "import (" {
-					buf.WriteString("\t_ \"net/http/pprof\"\n")
+					write("\t_ \"net/http/pprof\"\n")
 					i++
 				}
 			}
-
-			err = ioutil.WriteFile("resolver/task.resolvers.proto.go", buf.Bytes(), os.FileMode(0644))
-			if err != nil {
-				t.Fatalf("failed to overwrite generated file: %v", err)
-			}
-		}
+		})
 	})
 
 	gqlgentest.ReplaceGqlSchema("task.graphqls", `
@@ -292,4 +273,29 @@ extend type Query {
 func getModuleRoot() string {
 	_, filename, _, _ := runtime.Caller(1)
 	return filepath.Clean(filepath.Join(filepath.Dir(filename), ".."))
+}
+
+func rewriteFile(t *testing.T, filename string, f func(string, func(string))) {
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		t.Fatalf("failed to read file: %v", err)
+	}
+
+	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE, os.FileMode(0644))
+	if err != nil {
+		t.Fatalf("failed to open file for writing: %v", err)
+	}
+
+	w := bufio.NewWriter(file)
+	f(string(data), func(out string) {
+		_, err := w.WriteString(out)
+		if err != nil {
+			t.Fatalf("failed to write file: %v", err)
+		}
+	})
+
+	err = w.Flush()
+	if err != nil {
+		t.Fatalf("failed to write file: %v", err)
+	}
 }
