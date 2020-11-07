@@ -9,7 +9,6 @@ require (
 	github.com/iancoleman/strcase v0.1.1
 	github.com/pkg/errors v0.9.1
 	github.com/vektah/gqlparser/v2 v2.1.0
-	golang.org/x/mod v0.3.0
 	golang.org/x/tools v0.0.0-20200114235610-7ae403b6b589
 	google.golang.org/protobuf v1.25.0
 )
