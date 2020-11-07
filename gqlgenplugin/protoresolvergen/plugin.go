@@ -209,22 +209,6 @@ type ResolverArg struct {
 	Name, Type string
 }
 
-func (r *Resolver) IsScalar() bool {
-	if r.TypeReference.IsScalar() {
-		return true
-	}
-	switch r.ProtoField.Type {
-	case "google.protobuf.Int32Value", "google.protobuf.Int64Value",
-		"google.protobuf.UInt32Value", "google.protobuf.UInt64Value",
-		"google.protobuf.FloatValue", "google.protobuf.DoubleValue",
-		"google.protobuf.BoolValue",
-		"google.protobuf.StringValue",
-		"google.protobuf.Timestamp":
-		return true
-	}
-	return false
-}
-
 func (r *Resolver) ShortProtoResolverDeclaration() (string, error) {
 	var proto *gqlutil.ProtoDirective
 	var err error
@@ -350,8 +334,6 @@ func (r *Resolver) ProtoResolverBody() string {
 
 	return notImplemented
 }
-
-func (r *Resolver) IsList() bool { return r.Type.Elem != nil }
 
 type File struct {
 	gqlFilename                  string
