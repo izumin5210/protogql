@@ -6,6 +6,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/99designs/gqlgen/codegen"
 	"github.com/99designs/gqlgen/codegen/config"
 	"github.com/99designs/gqlgen/codegen/templates"
 	"github.com/99designs/gqlgen/plugin"
@@ -23,7 +24,8 @@ func New() *Plugin {
 }
 
 var (
-	_ plugin.ConfigMutator
+	_ plugin.ConfigMutator = (*Plugin)(nil)
+	_ plugin.CodeGenerator = (*Plugin)(nil)
 )
 
 func (p *Plugin) Name() string { return "protomodelgen" }
@@ -34,7 +36,7 @@ func (p *Plugin) MutateConfig(cfg *config.Config) error {
 		return err
 	}
 
-	for _, obj := range binding.Objects {
+	for _, obj := range binding.ProtoObjects {
 		cfg.Models.Add(obj.Name, cfg.Model.ImportPath()+"."+obj.Name)
 		for _, f := range obj.Fields {
 			if f.Proto != nil {
@@ -102,20 +104,38 @@ func (p *Plugin) MutateConfig(cfg *config.Config) error {
 		Packages:        cfg.Packages,
 		Funcs: template.FuncMap{
 			"findGQLFieldType": binding.FindGQLFieldType,
+			"hasProto":         binding.HasProto,
 		},
 	})
 }
 
-type ProtoField struct {
-	FullName  string
-	Package   string
-	Name      string
-	GoPackage string
-	GoName    string
+func (p *Plugin) GenerateCode(data *codegen.Data) error {
+	binding, err := createBinding(data.Schema)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	err = binding.PrepareObjectsHasProto()
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	return templates.Render(templates.Options{
+		PackageName:     data.Config.Model.Package,
+		Filename:        filepath.Join(data.Config.Model.Dir(), "protomodels_gen.go"),
+		Data:            binding,
+		GeneratedHeader: true,
+		Packages:        data.Config.Packages,
+		Funcs: template.FuncMap{
+			"findGQLFieldType": binding.FindGQLFieldType,
+			"hasProto":         binding.HasProto,
+		},
+	})
 }
 
 func createBinding(s *ast.Schema) (*Binding, error) {
 	binding := new(Binding)
+	binding.schema = s
 
 	for _, typ := range s.Types {
 		proto, err := gqlutil.ExtractProtoDirective(typ.Directives)
@@ -128,15 +148,11 @@ func createBinding(s *ast.Schema) (*Binding, error) {
 
 		switch typ.Kind {
 		case ast.Object, ast.InputObject:
-			obj := &Object{Name: typ.Name, Proto: proto}
-			for _, f := range typ.Fields {
-				proto, err := gqlutil.ExtractProtoFieldDirective(f.Directives)
-				if err != nil {
-					return nil, errors.Wrapf(err, "%s has invalid directive", f.Name)
-				}
-				obj.Fields = append(obj.Fields, &Field{Name: f.Name, GQL: f, Proto: proto, List: f.Type.NamedType == ""})
+			obj, err := binding.newObject(typ)
+			if err != nil {
+				return nil, errors.WithStack(err)
 			}
-			binding.Objects = append(binding.Objects, obj)
+			binding.ProtoObjects = append(binding.ProtoObjects, obj)
 
 		case ast.Enum:
 			enum := &Enum{Name: typ.Name, Proto: proto}
@@ -147,15 +163,74 @@ func createBinding(s *ast.Schema) (*Binding, error) {
 		}
 	}
 
-	sort.Slice(binding.Objects, func(i, j int) bool { return binding.Objects[i].Name < binding.Objects[j].Name })
+	sort.Slice(binding.ProtoObjects, func(i, j int) bool { return binding.ProtoObjects[i].Name < binding.ProtoObjects[j].Name })
 	sort.Slice(binding.Enums, func(i, j int) bool { return binding.Enums[i].Name < binding.Enums[j].Name })
 
 	return binding, nil
 }
 
+func (b *Binding) PrepareObjectsHasProto() error {
+	for _, def := range b.schema.Types {
+		if !(def.Kind == ast.Object || def.Kind == ast.InputObject) {
+			continue
+		}
+		if strings.HasPrefix(def.Name, "__") {
+			continue
+		}
+		if q, m := b.schema.Query, b.schema.Mutation; (q != nil && def.Name == q.Name) || (m != nil && def.Name == m.Name) {
+			continue
+		}
+		proto, err := gqlutil.ExtractProtoDirective(def.Directives)
+		if err != nil {
+			return errors.Wrapf(err, "%s has invalid directive", def.Name)
+		}
+		if proto != nil {
+			continue
+		}
+		if ok, err := b.HasProto(def); err != nil {
+			return errors.WithStack(err)
+		} else if !ok {
+			continue
+		}
+
+		obj, err := b.newObject(def)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		b.ObjectsHasProto = append(b.ObjectsHasProto, obj)
+	}
+	sort.Slice(b.ObjectsHasProto, func(i, j int) bool { return b.ObjectsHasProto[i].Name < b.ObjectsHasProto[j].Name })
+
+	return nil
+}
+
+func (b *Binding) newObject(typ *ast.Definition) (*Object, error) {
+	proto, err := gqlutil.ExtractProtoDirective(typ.Directives)
+	if err != nil {
+		return nil, errors.Wrapf(err, "%s has invalid directive", typ.Name)
+	}
+
+	obj := &Object{Name: typ.Name, Proto: proto}
+	for _, f := range typ.Fields {
+		proto, err := gqlutil.ExtractProtoFieldDirective(f.Directives)
+		if err != nil {
+			return nil, errors.Wrapf(err, "%s has invalid directive", f.Name)
+		}
+
+		def := b.schema.Types[f.Type.Name()]
+
+		obj.Fields = append(obj.Fields, &Field{Name: f.Name, GQL: f, Proto: proto, List: f.Type.NamedType == "", TypeDef: def})
+	}
+
+	return obj, nil
+}
+
 type Binding struct {
-	Objects []*Object
-	Enums   []*Enum
+	schema          *ast.Schema
+	ProtoObjects    []*Object
+	ObjectsHasProto []*Object
+	Enums           []*Enum
 }
 
 func (b *Binding) FindGQLFieldType(f *Field) (string, error) {
@@ -180,7 +255,7 @@ func (b *Binding) FindGQLFieldType(f *Field) (string, error) {
 	case "google.protobuf.Timestamp":
 		return "DateTime", nil
 	}
-	for _, o := range b.Objects {
+	for _, o := range b.ProtoObjects {
 		if o.Proto.FullName == f.Proto.Type {
 			return o.Name, nil
 		}
@@ -193,6 +268,10 @@ func (b *Binding) FindGQLFieldType(f *Field) (string, error) {
 	return "", errors.Errorf("corresponding GraphQL type was not found: %s", f.Proto.Type)
 }
 
+func (b *Binding) HasProto(def *ast.Definition) (bool, error) {
+	return gqlutil.HasProto(def, b.schema.Types)
+}
+
 type Object struct {
 	Name   string
 	Proto  *gqlutil.ProtoDirective
@@ -200,10 +279,11 @@ type Object struct {
 }
 
 type Field struct {
-	Name  string
-	GQL   *ast.FieldDefinition
-	Proto *gqlutil.ProtoFieldDirective
-	List  bool
+	Name    string
+	GQL     *ast.FieldDefinition
+	Proto   *gqlutil.ProtoFieldDirective
+	List    bool
+	TypeDef *ast.Definition
 }
 
 func (f *Field) IsWrapperType() bool {
@@ -233,6 +313,17 @@ func (f *Field) IsBuiltinType() bool {
 		}
 	}
 	return strings.ToLower(f.Proto.Type) == f.Proto.Type
+}
+
+func (f *Field) TypeProto() *gqlutil.ProtoDirective {
+	if f.TypeDef == nil {
+		return nil
+	}
+	proto, err := gqlutil.ExtractProtoDirective(f.TypeDef.Directives)
+	if err != nil {
+		return nil
+	}
+	return proto
 }
 
 type Enum struct {

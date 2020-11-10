@@ -54,7 +54,7 @@ func (p *Plugin) generateSingleFile(data *codegen.Data) error {
 }
 
 func (p *Plugin) generatePerSchema(data *codegen.Data) error {
-	files := NewFiles(data.Config.Resolver)
+	files := NewFiles(data.Config.Resolver, data.Config.Model, data.Schema)
 
 	var (
 		pkg *packages.Package
@@ -180,17 +180,19 @@ func (p *Plugin) generatePerSchema(data *codegen.Data) error {
 }
 
 type Files struct {
-	Files map[string]*File
-	cfg   config.ResolverConfig
+	Files    map[string]*File
+	cfg      config.ResolverConfig
+	modelCfg config.PackageConfig
+	schema   *ast.Schema
 }
 
-func NewFiles(cfg config.ResolverConfig) *Files {
-	return &Files{Files: map[string]*File{}, cfg: cfg}
+func NewFiles(cfg config.ResolverConfig, modelCfg config.PackageConfig, schema *ast.Schema) *Files {
+	return &Files{Files: map[string]*File{}, cfg: cfg, modelCfg: modelCfg, schema: schema}
 }
 
 func (f *Files) FindOrInitialize(gqlFilename string) *File {
 	if _, ok := f.Files[gqlFilename]; !ok {
-		f.Files[gqlFilename] = &File{gqlFilename: gqlFilename, cfg: f.cfg}
+		f.Files[gqlFilename] = &File{gqlFilename: gqlFilename, cfg: f.cfg, modelCfg: f.modelCfg, schema: f.schema}
 	}
 	return f.Files[gqlFilename]
 }
@@ -229,7 +231,15 @@ func (r *Resolver) ShortProtoResolverDeclaration() (string, error) {
 
 	var result string
 	if proto == nil {
-		result = templates.CurrentImports.LookupType(r.TypeReference.GO)
+		typeDef := r.GQLTypeDefinition
+		if typeDef.Kind == ast.Object || typeDef.Kind == ast.InputObject {
+			if ok, err := gqlutil.HasProto(typeDef, r.file.schema.Types); err == nil && ok {
+				result = fmt.Sprintf("*%s.%s", templates.CurrentImports.Lookup(r.file.modelCfg.ImportPath()), typeDef.Name+"_Proto")
+			}
+		}
+		if result == "" {
+			result = templates.CurrentImports.LookupType(r.TypeReference.GO)
+		}
 	} else {
 		result = fmt.Sprintf("*%s.%s", templates.CurrentImports.Lookup(proto.GoPackage), proto.GoName)
 		if r.Type.Elem != nil {
@@ -258,7 +268,6 @@ func (r *Resolver) ResolverArgs() ([]ResolverArg, error) {
 	}
 
 	for _, arg := range r.Args {
-		// TODO: proto にする
 		args = append(args, ResolverArg{Name: arg.VarName, Type: templates.CurrentImports.LookupType(arg.TypeReference.GO)})
 	}
 
@@ -338,6 +347,8 @@ func (r *Resolver) ProtoResolverBody() string {
 type File struct {
 	gqlFilename                  string
 	cfg                          config.ResolverConfig
+	modelCfg                     config.PackageConfig
+	schema                       *ast.Schema
 	Objects                      []*codegen.Object
 	Resolvers                    []*Resolver
 	Imports                      []*goutil.Import
