@@ -159,6 +159,98 @@ func CreateTaskPayloadToProto(in *CreateTaskPayload) *CreateTaskPayload_Proto {
 	}
 }
 
+type TaskByUserEdge_Proto struct {
+	Node *todo_pb.Task
+
+	Cursor string
+}
+
+func TaskByUserEdgeListFromRepeatedProto(in []*TaskByUserEdge_Proto) []*TaskByUserEdge {
+	out := make([]*TaskByUserEdge, len(in))
+	for i, m := range in {
+		out[i] = TaskByUserEdgeFromProto(m)
+	}
+	return out
+}
+
+func TaskByUserEdgeFromProto(in *TaskByUserEdge_Proto) *TaskByUserEdge {
+	return &TaskByUserEdge{
+
+		Node: TaskFromProto(in.Node),
+
+		Cursor: in.Cursor,
+	}
+}
+
+func TaskByUserEdgeListToRepeatedProto(in []*TaskByUserEdge) []*TaskByUserEdge_Proto {
+	out := make([]*TaskByUserEdge_Proto, len(in))
+	for i, m := range in {
+		out[i] = TaskByUserEdgeToProto(m)
+	}
+	return out
+}
+
+func TaskByUserEdgeToProto(in *TaskByUserEdge) *TaskByUserEdge_Proto {
+	return &TaskByUserEdge_Proto{
+
+		Node: TaskToProto(in.Node),
+
+		Cursor: in.Cursor,
+	}
+}
+
+type TasksByUserConnection_Proto struct {
+	TotalCount int
+
+	Edges []*TaskByUserEdge_Proto
+
+	Nodes []*todo_pb.Task
+
+	PageInfo *TasksByUserConnectionPageInfo
+}
+
+func TasksByUserConnectionListFromRepeatedProto(in []*TasksByUserConnection_Proto) []*TasksByUserConnection {
+	out := make([]*TasksByUserConnection, len(in))
+	for i, m := range in {
+		out[i] = TasksByUserConnectionFromProto(m)
+	}
+	return out
+}
+
+func TasksByUserConnectionFromProto(in *TasksByUserConnection_Proto) *TasksByUserConnection {
+	return &TasksByUserConnection{
+
+		TotalCount: in.TotalCount,
+
+		Edges: TaskByUserEdgeListFromRepeatedProto(in.Edges),
+
+		Nodes: TaskListFromRepeatedProto(in.Nodes),
+
+		PageInfo: in.PageInfo,
+	}
+}
+
+func TasksByUserConnectionListToRepeatedProto(in []*TasksByUserConnection) []*TasksByUserConnection_Proto {
+	out := make([]*TasksByUserConnection_Proto, len(in))
+	for i, m := range in {
+		out[i] = TasksByUserConnectionToProto(m)
+	}
+	return out
+}
+
+func TasksByUserConnectionToProto(in *TasksByUserConnection) *TasksByUserConnection_Proto {
+	return &TasksByUserConnection_Proto{
+
+		TotalCount: in.TotalCount,
+
+		Edges: TaskByUserEdgeListToRepeatedProto(in.Edges),
+
+		Nodes: TaskListToRepeatedProto(in.Nodes),
+
+		PageInfo: in.PageInfo,
+	}
+}
+
 type TaskStatus struct {
 	Proto todo_pb.Task_Status
 }

@@ -10,3 +10,20 @@ type CreateTaskPayload struct {
 	Task *Task `json:"task"`
 }
 
+type TaskByUserEdge struct {
+	Node   *Task  `json:"node"`
+	Cursor string `json:"cursor"`
+}
+
+type TasksByUserConnection struct {
+	TotalCount int                            `json:"totalCount"`
+	Edges      []*TaskByUserEdge              `json:"edges"`
+	Nodes      []*Task                        `json:"nodes"`
+	PageInfo   *TasksByUserConnectionPageInfo `json:"pageInfo"`
+}
+
+type TasksByUserConnectionPageInfo struct {
+	EndCursor   string `json:"endCursor"`
+	HasNextPage bool   `json:"hasNextPage"`
+}
+
