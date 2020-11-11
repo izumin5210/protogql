@@ -55,7 +55,7 @@
 					{{ if or $f.IsBuiltinType $f.IsWrapperType }}
 						{{ $f.Proto.GoName }}: in.{{ go $f.Name }},
 					{{ else if $f.List }}
-						{{ $f.Proto.GoName }}: List{{ findGQLFieldType $f }}ToRepeatedProto(in.{{ go $f.Name }}),
+						{{ $f.Proto.GoName }}: {{ findGQLFieldType $f }}ListToRepeatedProto(in.{{ go $f.Name }}),
 					{{ else }}
 						{{ $f.Proto.GoName }}: {{ findGQLFieldType $f }}ToProto(in.{{ go $f.Name }}),
 					{{ end }}
@@ -93,9 +93,11 @@
 		return &{{ $obj.Name }}{
 			{{ range $f := $obj.Fields }}
 				{{ if or $f.IsBuiltinType $f.IsWrapperType }}
-					{{ go $f.Name }}: in.{{ $f.Proto.GoName }},
+					{{ go $f.Name }}: in.{{ go $f.Name }},
+				{{ else if or (not $f.TypeDef) (not (hasProto $f.TypeDef)) }}
+					{{ go $f.Name }}: in.{{ go $f.Name }},
 				{{ else if $f.List }}
-					{{ go $f.Name }}: List{{ findGQLFieldType $f }}FromRepeatedProto(in.{{ go $f.Name }}),
+					{{ go $f.Name }}: {{ findGQLFieldType $f }}ListFromRepeatedProto(in.{{ go $f.Name }}),
 				{{ else }}
 					{{ go $f.Name }}: {{ findGQLFieldType $f }}FromProto(in.{{ go $f.Name }}),
 				{{ end }}
@@ -116,8 +118,10 @@
 			{{ range $f := $obj.Fields }}
 				{{ if or $f.IsBuiltinType $f.IsWrapperType }}
 					{{ go $f.Name }}: in.{{ go $f.Name }},
+				{{ else if or (not $f.TypeDef) (not (hasProto $f.TypeDef)) }}
+					{{ go $f.Name }}: in.{{ go $f.Name }},
 				{{ else if $f.List }}
-					{{ go $f.Name }}: List{{ findGQLFieldType $f }}ToRepeatedProto(in.{{ go $f.Name }}),
+					{{ go $f.Name }}: {{ findGQLFieldType $f }}ListToRepeatedProto(in.{{ go $f.Name }}),
 				{{ else }}
 					{{ go $f.Name }}: {{ findGQLFieldType $f }}ToProto(in.{{ go $f.Name }}),
 				{{ end }}

@@ -294,6 +294,27 @@ type CreateTaskPayload {
   task: Task!
 }
 
+type TasksByUserConnection {
+  totalCount: Int!
+  edges: [TaskByUserEdge!]!
+  nodes: [Task!]!
+  pageInfo: TasksByUserConnectionPageInfo!
+}
+
+type TaskByUserEdge {
+  node: Task!
+  cursor: String!
+}
+
+type TasksByUserConnectionPageInfo {
+  endCursor: String!
+  hasNextPage: Boolean!
+}
+
+extend type Query {
+  tasksByUser(userId: Int!): TasksByUserConnection!
+}
+
 extend type Mutation {
   createTask(input: CreateTaskInput): CreateTaskPayload!
 }`)

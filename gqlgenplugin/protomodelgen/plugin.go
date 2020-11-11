@@ -1,6 +1,7 @@
 package protomodelgen
 
 import (
+	"go/types"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -120,6 +121,8 @@ func (p *Plugin) GenerateCode(data *codegen.Data) error {
 		return errors.WithStack(err)
 	}
 
+	binding.data = data
+
 	return templates.Render(templates.Options{
 		PackageName:     data.Config.Model.Package,
 		Filename:        filepath.Join(data.Config.Model.Dir(), "protomodels_gen.go"),
@@ -211,7 +214,7 @@ func (b *Binding) newObject(typ *ast.Definition) (*Object, error) {
 		return nil, errors.Wrapf(err, "%s has invalid directive", typ.Name)
 	}
 
-	obj := &Object{Name: typ.Name, Proto: proto}
+	obj := &Object{Name: typ.Name, Proto: proto, TypeDef: typ}
 	for _, f := range typ.Fields {
 		proto, err := gqlutil.ExtractProtoFieldDirective(f.Directives)
 		if err != nil {
@@ -220,7 +223,7 @@ func (b *Binding) newObject(typ *ast.Definition) (*Object, error) {
 
 		def := b.schema.Types[f.Type.Name()]
 
-		obj.Fields = append(obj.Fields, &Field{Name: f.Name, GQL: f, Proto: proto, List: f.Type.NamedType == "", TypeDef: def})
+		obj.Fields = append(obj.Fields, &Field{Name: f.Name, GQL: f, Proto: proto, List: f.Type.NamedType == "", TypeDef: def, Object: obj})
 	}
 
 	return obj, nil
@@ -228,6 +231,7 @@ func (b *Binding) newObject(typ *ast.Definition) (*Object, error) {
 
 type Binding struct {
 	schema          *ast.Schema
+	data            *codegen.Data
 	ProtoObjects    []*Object
 	ObjectsHasProto []*Object
 	Enums           []*Enum
@@ -235,6 +239,26 @@ type Binding struct {
 
 func (b *Binding) FindGQLFieldType(f *Field) (string, error) {
 	if f.Proto == nil {
+		if b.data != nil {
+			byName := b.data.Objects.ByName
+			if f.Object.TypeDef.Kind == ast.InputObject {
+				byName = b.data.Inputs.ByName
+			}
+			obj := byName(f.Object.Name)
+			for _, field := range obj.Fields {
+				if field.Name == f.Name {
+					t := field.TypeReference.GO
+					for {
+						p, ok := t.(interface{ Elem() types.Type })
+						if !ok {
+							break
+						}
+						t = p.Elem()
+					}
+					return templates.CurrentImports.LookupType(t), nil
+				}
+			}
+		}
 		return f.GQL.Type.Name(), nil
 	}
 
@@ -273,9 +297,10 @@ func (b *Binding) HasProto(def *ast.Definition) (bool, error) {
 }
 
 type Object struct {
-	Name   string
-	Proto  *gqlutil.ProtoDirective
-	Fields []*Field
+	Name    string
+	Proto   *gqlutil.ProtoDirective
+	Fields  []*Field
+	TypeDef *ast.Definition
 }
 
 type Field struct {
@@ -284,6 +309,7 @@ type Field struct {
 	Proto   *gqlutil.ProtoFieldDirective
 	List    bool
 	TypeDef *ast.Definition
+	Object  *Object
 }
 
 func (f *Field) IsWrapperType() bool {
