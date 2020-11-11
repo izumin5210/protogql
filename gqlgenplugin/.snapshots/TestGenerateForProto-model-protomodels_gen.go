@@ -10,15 +10,11 @@ import (
 )
 
 type Task struct {
-	ID uint64
-
-	Title string
-
-	Status *TaskStatus
-
+	ID          uint64
+	Title       string
+	Status      *TaskStatus
 	AssigneeIds []uint64
-
-	AuthorID uint64
+	AuthorID    uint64
 }
 
 func TaskListFromRepeatedProto(in []*todo_pb.Task) []*Task {
@@ -31,16 +27,11 @@ func TaskListFromRepeatedProto(in []*todo_pb.Task) []*Task {
 
 func TaskFromProto(in *todo_pb.Task) *Task {
 	return &Task{
-
-		ID: in.Id,
-
-		Title: in.Title,
-
-		Status: TaskStatusFromProto(in.Status),
-
+		ID:          in.Id,
+		Title:       in.Title,
+		Status:      TaskStatusFromProto(in.Status),
 		AssigneeIds: in.AssigneeIds,
-
-		AuthorID: in.AuthorId,
+		AuthorID:    in.AuthorId,
 	}
 }
 
@@ -54,29 +45,20 @@ func TaskListToRepeatedProto(in []*Task) []*todo_pb.Task {
 
 func TaskToProto(in *Task) *todo_pb.Task {
 	return &todo_pb.Task{
-
-		Id: in.ID,
-
-		Title: in.Title,
-
-		Status: TaskStatusToProto(in.Status),
-
+		Id:          in.ID,
+		Title:       in.Title,
+		Status:      TaskStatusToProto(in.Status),
 		AssigneeIds: in.AssigneeIds,
-
-		AuthorId: in.AuthorID,
+		AuthorId:    in.AuthorID,
 	}
 }
 
 type TaskInput struct {
-	ID uint64
-
-	Title string
-
-	Status *TaskStatus
-
+	ID          uint64
+	Title       string
+	Status      *TaskStatus
 	AssigneeIds []uint64
-
-	AuthorID uint64
+	AuthorID    uint64
 }
 
 func TaskInputListFromRepeatedProto(in []*todo_pb.Task) []*TaskInput {
@@ -89,16 +71,11 @@ func TaskInputListFromRepeatedProto(in []*todo_pb.Task) []*TaskInput {
 
 func TaskInputFromProto(in *todo_pb.Task) *TaskInput {
 	return &TaskInput{
-
-		ID: in.Id,
-
-		Title: in.Title,
-
-		Status: TaskStatusFromProto(in.Status),
-
+		ID:          in.Id,
+		Title:       in.Title,
+		Status:      TaskStatusFromProto(in.Status),
 		AssigneeIds: in.AssigneeIds,
-
-		AuthorID: in.AuthorId,
+		AuthorID:    in.AuthorId,
 	}
 }
 
@@ -112,16 +89,11 @@ func TaskInputListToRepeatedProto(in []*TaskInput) []*todo_pb.Task {
 
 func TaskInputToProto(in *TaskInput) *todo_pb.Task {
 	return &todo_pb.Task{
-
-		Id: in.ID,
-
-		Title: in.Title,
-
-		Status: TaskStatusToProto(in.Status),
-
+		Id:          in.ID,
+		Title:       in.Title,
+		Status:      TaskStatusToProto(in.Status),
 		AssigneeIds: in.AssigneeIds,
-
-		AuthorId: in.AuthorID,
+		AuthorId:    in.AuthorID,
 	}
 }
 

@@ -10,15 +10,11 @@ import (
 )
 
 type Task struct {
-	ID uint64
-
-	Title string
-
-	Status *TaskStatus
-
+	ID          uint64
+	Title       string
+	Status      *TaskStatus
 	AssigneeIds []uint64
-
-	AuthorID uint64
+	AuthorID    uint64
 }
 
 func TaskListFromRepeatedProto(in []*todo_pb.Task) []*Task {
@@ -31,16 +27,11 @@ func TaskListFromRepeatedProto(in []*todo_pb.Task) []*Task {
 
 func TaskFromProto(in *todo_pb.Task) *Task {
 	return &Task{
-
-		ID: in.Id,
-
-		Title: in.Title,
-
-		Status: TaskStatusFromProto(in.Status),
-
+		ID:          in.Id,
+		Title:       in.Title,
+		Status:      TaskStatusFromProto(in.Status),
 		AssigneeIds: in.AssigneeIds,
-
-		AuthorID: in.AuthorId,
+		AuthorID:    in.AuthorId,
 	}
 }
 
@@ -54,29 +45,20 @@ func TaskListToRepeatedProto(in []*Task) []*todo_pb.Task {
 
 func TaskToProto(in *Task) *todo_pb.Task {
 	return &todo_pb.Task{
-
-		Id: in.ID,
-
-		Title: in.Title,
-
-		Status: TaskStatusToProto(in.Status),
-
+		Id:          in.ID,
+		Title:       in.Title,
+		Status:      TaskStatusToProto(in.Status),
 		AssigneeIds: in.AssigneeIds,
-
-		AuthorId: in.AuthorID,
+		AuthorId:    in.AuthorID,
 	}
 }
 
 type TaskInput struct {
-	ID uint64
-
-	Title string
-
-	Status *TaskStatus
-
+	ID          uint64
+	Title       string
+	Status      *TaskStatus
 	AssigneeIds []uint64
-
-	AuthorID uint64
+	AuthorID    uint64
 }
 
 func TaskInputListFromRepeatedProto(in []*todo_pb.Task) []*TaskInput {
@@ -89,16 +71,11 @@ func TaskInputListFromRepeatedProto(in []*todo_pb.Task) []*TaskInput {
 
 func TaskInputFromProto(in *todo_pb.Task) *TaskInput {
 	return &TaskInput{
-
-		ID: in.Id,
-
-		Title: in.Title,
-
-		Status: TaskStatusFromProto(in.Status),
-
+		ID:          in.Id,
+		Title:       in.Title,
+		Status:      TaskStatusFromProto(in.Status),
 		AssigneeIds: in.AssigneeIds,
-
-		AuthorID: in.AuthorId,
+		AuthorID:    in.AuthorId,
 	}
 }
 
@@ -112,16 +89,11 @@ func TaskInputListToRepeatedProto(in []*TaskInput) []*todo_pb.Task {
 
 func TaskInputToProto(in *TaskInput) *todo_pb.Task {
 	return &todo_pb.Task{
-
-		Id: in.ID,
-
-		Title: in.Title,
-
-		Status: TaskStatusToProto(in.Status),
-
+		Id:          in.ID,
+		Title:       in.Title,
+		Status:      TaskStatusToProto(in.Status),
 		AssigneeIds: in.AssigneeIds,
-
-		AuthorId: in.AuthorID,
+		AuthorId:    in.AuthorID,
 	}
 }
 
@@ -139,7 +111,6 @@ func CreateTaskPayloadListFromRepeatedProto(in []*CreateTaskPayload_Proto) []*Cr
 
 func CreateTaskPayloadFromProto(in *CreateTaskPayload_Proto) *CreateTaskPayload {
 	return &CreateTaskPayload{
-
 		Task: TaskFromProto(in.Task),
 	}
 }
@@ -154,14 +125,12 @@ func CreateTaskPayloadListToRepeatedProto(in []*CreateTaskPayload) []*CreateTask
 
 func CreateTaskPayloadToProto(in *CreateTaskPayload) *CreateTaskPayload_Proto {
 	return &CreateTaskPayload_Proto{
-
 		Task: TaskToProto(in.Task),
 	}
 }
 
 type TaskByUserEdge_Proto struct {
-	Node *todo_pb.Task
-
+	Node   *todo_pb.Task
 	Cursor string
 }
 
@@ -175,9 +144,7 @@ func TaskByUserEdgeListFromRepeatedProto(in []*TaskByUserEdge_Proto) []*TaskByUs
 
 func TaskByUserEdgeFromProto(in *TaskByUserEdge_Proto) *TaskByUserEdge {
 	return &TaskByUserEdge{
-
-		Node: TaskFromProto(in.Node),
-
+		Node:   TaskFromProto(in.Node),
 		Cursor: in.Cursor,
 	}
 }
@@ -192,20 +159,16 @@ func TaskByUserEdgeListToRepeatedProto(in []*TaskByUserEdge) []*TaskByUserEdge_P
 
 func TaskByUserEdgeToProto(in *TaskByUserEdge) *TaskByUserEdge_Proto {
 	return &TaskByUserEdge_Proto{
-
-		Node: TaskToProto(in.Node),
-
+		Node:   TaskToProto(in.Node),
 		Cursor: in.Cursor,
 	}
 }
 
 type TasksByUserConnection_Proto struct {
 	TotalCount int
+	Edges      []*TaskByUserEdge_Proto
 
-	Edges []*TaskByUserEdge_Proto
-
-	Nodes []*todo_pb.Task
-
+	Nodes    []*todo_pb.Task
 	PageInfo *TasksByUserConnectionPageInfo
 }
 
@@ -219,14 +182,10 @@ func TasksByUserConnectionListFromRepeatedProto(in []*TasksByUserConnection_Prot
 
 func TasksByUserConnectionFromProto(in *TasksByUserConnection_Proto) *TasksByUserConnection {
 	return &TasksByUserConnection{
-
 		TotalCount: in.TotalCount,
-
-		Edges: TaskByUserEdgeListFromRepeatedProto(in.Edges),
-
-		Nodes: TaskListFromRepeatedProto(in.Nodes),
-
-		PageInfo: in.PageInfo,
+		Edges:      TaskByUserEdgeListFromRepeatedProto(in.Edges),
+		Nodes:      TaskListFromRepeatedProto(in.Nodes),
+		PageInfo:   in.PageInfo,
 	}
 }
 
@@ -240,14 +199,10 @@ func TasksByUserConnectionListToRepeatedProto(in []*TasksByUserConnection) []*Ta
 
 func TasksByUserConnectionToProto(in *TasksByUserConnection) *TasksByUserConnection_Proto {
 	return &TasksByUserConnection_Proto{
-
 		TotalCount: in.TotalCount,
-
-		Edges: TaskByUserEdgeListToRepeatedProto(in.Edges),
-
-		Nodes: TaskListToRepeatedProto(in.Nodes),
-
-		PageInfo: in.PageInfo,
+		Edges:      TaskByUserEdgeListToRepeatedProto(in.Edges),
+		Nodes:      TaskListToRepeatedProto(in.Nodes),
+		PageInfo:   in.PageInfo,
 	}
 }
 
