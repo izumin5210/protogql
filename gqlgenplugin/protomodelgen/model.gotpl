@@ -2,18 +2,18 @@
 {{ reserveImport "io" }}
 {{ reserveImport "strconv" }}
 
-{{ range $obj := .ProtoObjects }}
+{{- range $obj := .ProtoObjects }}
 	{{ $pbGoImport := lookupImport $obj.Proto.GoPackage }}
 	{{ $pbGoName := printf "%s.%s" $pbGoImport $obj.Proto.GoName }}
 
 	type {{ $obj.Name }} struct {
-		{{ range $f := $obj.Fields }}
-			{{ if $f.IsWrapperType }}
+		{{- range $f := $obj.Fields }}
+			{{- if $f.IsWrapperType }}
 				{{ go $f.Name }} {{ if $f.List }}[]{{ end }}*{{ lookupImport $f.Proto.GoTypePackage }}.{{ $f.Proto.GoTypeName }}
-			{{ else }}
+			{{- else }}
 				{{ go $f.Name }} {{ if $f.List }}[]{{ end }}{{ if not $f.IsBuiltinType }}*{{ end }}{{ findGQLFieldType $f }}
-			{{ end }}
-		{{ end }}
+			{{- end }}
+		{{- end }}
 	}
 
 	func {{ $obj.Name }}ListFromRepeatedProto(in []*{{ $pbGoName }}) []*{{ $obj.Name }} {
@@ -26,17 +26,17 @@
 
 	func {{ $obj.Name }}FromProto(in *{{ $pbGoName }}) *{{ $obj.Name }} {
 		return &{{ $obj.Name }}{
-			{{ range $f := $obj.Fields }}
-				{{ if $f.Proto }}
-					{{ if or $f.IsBuiltinType $f.IsWrapperType }}
+			{{- range $f := $obj.Fields }}
+				{{- if $f.Proto }}
+					{{- if or $f.IsBuiltinType $f.IsWrapperType }}
 						{{ go $f.Name }}: in.{{ $f.Proto.GoName }},
-					{{ else if $f.List }}
+					{{- else if $f.List }}
 						{{ go $f.Name }}: List{{ findGQLFieldType $f }}FromRepeatedProto(in.{{ $f.Proto.GoName }}),
-					{{ else }}
+					{{- else }}
 						{{ go $f.Name }}: {{ findGQLFieldType $f }}FromProto(in.{{ $f.Proto.GoName }}),
-					{{ end }}
-				{{ end }}
-			{{ end }}
+					{{- end }}
+				{{- end }}
+			{{- end }}
 		}
 	}
 
@@ -50,35 +50,35 @@
 
 	func {{ $obj.Name }}ToProto(in *{{ $obj.Name }}) *{{ $pbGoName }} {
 		return &{{ $pbGoName }}{
-			{{ range $f := $obj.Fields }}
-				{{ if $f.Proto }}
-					{{ if or $f.IsBuiltinType $f.IsWrapperType }}
+			{{- range $f := $obj.Fields }}
+				{{- if $f.Proto }}
+					{{- if or $f.IsBuiltinType $f.IsWrapperType }}
 						{{ $f.Proto.GoName }}: in.{{ go $f.Name }},
-					{{ else if $f.List }}
+					{{- else if $f.List }}
 						{{ $f.Proto.GoName }}: {{ findGQLFieldType $f }}ListToRepeatedProto(in.{{ go $f.Name }}),
-					{{ else }}
+					{{- else }}
 						{{ $f.Proto.GoName }}: {{ findGQLFieldType $f }}ToProto(in.{{ go $f.Name }}),
-					{{ end }}
-				{{ end }}
-			{{ end }}
+					{{- end }}
+				{{- end }}
+			{{- end }}
 		}
 	}
 {{ end }}
 
-{{ range $obj := .ObjectsHasProto }}
+{{- range $obj := .ObjectsHasProto }}
 	type {{ $obj.Name }}_Proto struct {
-		{{ range $f := $obj.Fields }}
-			{{ if $f.TypeProto }}
+		{{- range $f := $obj.Fields }}
+			{{- if $f.TypeProto }}
 				{{ $proto := $f.TypeProto }}
 				{{ $pbGoImport := lookupImport $proto.GoPackage }}
 				{{ $pbGoName := printf "%s.%s" $pbGoImport $proto.GoName }}
 				{{ go $f.Name }} {{ if $f.List }}[]{{ end }}*{{ $pbGoName }}
-			{{ else if and $f.TypeDef (hasProto $f.TypeDef) }}
+			{{- else if and $f.TypeDef (hasProto $f.TypeDef) }}
 				{{ go $f.Name }} {{ if $f.List }}[]{{ end }}*{{ findGQLFieldType $f }}_Proto
-			{{ else }}
+			{{- else }}
 				{{ go $f.Name }} {{ if $f.List }}[]{{ end }}{{ if not $f.IsBuiltinType }}*{{ end }}{{ findGQLFieldType $f }}
-			{{ end }}
-		{{ end }}
+			{{- end }}
+		{{- end }}
 	}
 
 	func {{ $obj.Name }}ListFromRepeatedProto(in []*{{ $obj.Name }}_Proto) []*{{ $obj.Name }} {
@@ -91,17 +91,17 @@
 
 	func {{ $obj.Name }}FromProto(in *{{ $obj.Name }}_Proto) *{{ $obj.Name }} {
 		return &{{ $obj.Name }}{
-			{{ range $f := $obj.Fields }}
-				{{ if or $f.IsBuiltinType $f.IsWrapperType }}
+			{{- range $f := $obj.Fields }}
+				{{- if or $f.IsBuiltinType $f.IsWrapperType }}
 					{{ go $f.Name }}: in.{{ go $f.Name }},
-				{{ else if or (not $f.TypeDef) (not (hasProto $f.TypeDef)) }}
+				{{- else if or (not $f.TypeDef) (not (hasProto $f.TypeDef)) }}
 					{{ go $f.Name }}: in.{{ go $f.Name }},
-				{{ else if $f.List }}
+				{{- else if $f.List }}
 					{{ go $f.Name }}: {{ findGQLFieldType $f }}ListFromRepeatedProto(in.{{ go $f.Name }}),
-				{{ else }}
+				{{- else }}
 					{{ go $f.Name }}: {{ findGQLFieldType $f }}FromProto(in.{{ go $f.Name }}),
-				{{ end }}
-			{{ end }}
+				{{- end }}
+			{{- end }}
 		}
 	}
 
@@ -115,22 +115,22 @@
 
 	func {{ $obj.Name }}ToProto(in *{{ $obj.Name }}) *{{ $obj.Name }}_Proto {
 		return &{{ $obj.Name }}_Proto{
-			{{ range $f := $obj.Fields }}
-				{{ if or $f.IsBuiltinType $f.IsWrapperType }}
+			{{- range $f := $obj.Fields }}
+				{{- if or $f.IsBuiltinType $f.IsWrapperType }}
 					{{ go $f.Name }}: in.{{ go $f.Name }},
-				{{ else if or (not $f.TypeDef) (not (hasProto $f.TypeDef)) }}
+				{{- else if or (not $f.TypeDef) (not (hasProto $f.TypeDef)) }}
 					{{ go $f.Name }}: in.{{ go $f.Name }},
-				{{ else if $f.List }}
+				{{- else if $f.List }}
 					{{ go $f.Name }}: {{ findGQLFieldType $f }}ListToRepeatedProto(in.{{ go $f.Name }}),
-				{{ else }}
+				{{- else }}
 					{{ go $f.Name }}: {{ findGQLFieldType $f }}ToProto(in.{{ go $f.Name }}),
-				{{ end }}
-			{{ end }}
+				{{- end }}
+			{{- end }}
 		}
 	}
 {{ end }}
 
-{{ range $enum := .Enums }}
+{{- range $enum := .Enums }}
 	{{ $pbGoImport := lookupImport $enum.Proto.GoPackage }}
 	{{ $pbGoName := printf "%s.%s" $pbGoImport $enum.Proto.GoName }}
 
