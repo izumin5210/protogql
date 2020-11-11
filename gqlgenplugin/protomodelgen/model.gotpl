@@ -2,7 +2,7 @@
 {{ reserveImport "io" }}
 {{ reserveImport "strconv" }}
 
-{{ range $obj := .Objects }}
+{{ range $obj := .ProtoObjects }}
 	{{ $pbGoImport := lookupImport $obj.Proto.GoPackage }}
 	{{ $pbGoName := printf "%s.%s" $pbGoImport $obj.Proto.GoName }}
 
@@ -55,10 +55,75 @@
 					{{ if or $f.IsBuiltinType $f.IsWrapperType }}
 						{{ $f.Proto.GoName }}: in.{{ go $f.Name }},
 					{{ else if $f.List }}
-						{{ $f.Proto.GoName }}: List{{ findGQLFieldType $f }}ToRepeatedProto(in.{{ go $f.Name }}),
+						{{ $f.Proto.GoName }}: {{ findGQLFieldType $f }}ListToRepeatedProto(in.{{ go $f.Name }}),
 					{{ else }}
 						{{ $f.Proto.GoName }}: {{ findGQLFieldType $f }}ToProto(in.{{ go $f.Name }}),
 					{{ end }}
+				{{ end }}
+			{{ end }}
+		}
+	}
+{{ end }}
+
+{{ range $obj := .ObjectsHasProto }}
+	type {{ $obj.Name }}_Proto struct {
+		{{ range $f := $obj.Fields }}
+			{{ if $f.TypeProto }}
+				{{ $proto := $f.TypeProto }}
+				{{ $pbGoImport := lookupImport $proto.GoPackage }}
+				{{ $pbGoName := printf "%s.%s" $pbGoImport $proto.GoName }}
+				{{ go $f.Name }} {{ if $f.List }}[]{{ end }}*{{ $pbGoName }}
+			{{ else if and $f.TypeDef (hasProto $f.TypeDef) }}
+				{{ go $f.Name }} {{ if $f.List }}[]{{ end }}*{{ findGQLFieldType $f }}_Proto
+			{{ else }}
+				{{ go $f.Name }} {{ if $f.List }}[]{{ end }}{{ if not $f.IsBuiltinType }}*{{ end }}{{ findGQLFieldType $f }}
+			{{ end }}
+		{{ end }}
+	}
+
+	func {{ $obj.Name }}ListFromRepeatedProto(in []*{{ $obj.Name }}_Proto) []*{{ $obj.Name }} {
+		out := make([]*{{ $obj.Name }}, len(in))
+		for i, m := range in {
+			out[i] = {{ $obj.Name }}FromProto(m)
+		}
+		return out
+	}
+
+	func {{ $obj.Name }}FromProto(in *{{ $obj.Name }}_Proto) *{{ $obj.Name }} {
+		return &{{ $obj.Name }}{
+			{{ range $f := $obj.Fields }}
+				{{ if or $f.IsBuiltinType $f.IsWrapperType }}
+					{{ go $f.Name }}: in.{{ go $f.Name }},
+				{{ else if or (not $f.TypeDef) (not (hasProto $f.TypeDef)) }}
+					{{ go $f.Name }}: in.{{ go $f.Name }},
+				{{ else if $f.List }}
+					{{ go $f.Name }}: {{ findGQLFieldType $f }}ListFromRepeatedProto(in.{{ go $f.Name }}),
+				{{ else }}
+					{{ go $f.Name }}: {{ findGQLFieldType $f }}FromProto(in.{{ go $f.Name }}),
+				{{ end }}
+			{{ end }}
+		}
+	}
+
+	func {{ $obj.Name }}ListToRepeatedProto(in []*{{ $obj.Name }}) []*{{ $obj.Name }}_Proto {
+		out := make([]*{{ $obj.Name }}_Proto, len(in))
+		for i, m := range in {
+			out[i] = {{ $obj.Name }}ToProto(m)
+		}
+		return out
+	}
+
+	func {{ $obj.Name }}ToProto(in *{{ $obj.Name }}) *{{ $obj.Name }}_Proto {
+		return &{{ $obj.Name }}_Proto{
+			{{ range $f := $obj.Fields }}
+				{{ if or $f.IsBuiltinType $f.IsWrapperType }}
+					{{ go $f.Name }}: in.{{ go $f.Name }},
+				{{ else if or (not $f.TypeDef) (not (hasProto $f.TypeDef)) }}
+					{{ go $f.Name }}: in.{{ go $f.Name }},
+				{{ else if $f.List }}
+					{{ go $f.Name }}: {{ findGQLFieldType $f }}ListToRepeatedProto(in.{{ go $f.Name }}),
+				{{ else }}
+					{{ go $f.Name }}: {{ findGQLFieldType $f }}ToProto(in.{{ go $f.Name }}),
 				{{ end }}
 			{{ end }}
 		}

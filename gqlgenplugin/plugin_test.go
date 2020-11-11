@@ -270,6 +270,78 @@ extend type Query {
 	})
 }
 
+func TestGenerateForProto_WithPlainGqlTypes(t *testing.T) {
+	rootDir := getModuleRoot()
+	testdataDir := filepath.Join(rootDir, "testdata")
+
+	gqlgentest := gqlgentest.New(t)
+	gqlgentest.AddGqlGenOption(
+		gqlgenplugin.AddPluginBefore(protomodelgen.New(), "modelgen"),
+		gqlgenplugin.AddPluginBefore(protoresolvergen.New(), "resolvergen"),
+	)
+	gqlgentest.AddGqlSchemaFile(t, filepath.Join(testdataDir, "apis", "graphql", "todo", "*.graphqls"))
+	gqlgentest.AddGqlSchema("schema.graphqls", `
+directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
+directive @proto(fullName: String!, package: String!, name: String!, goPackage: String!, goName: String!) on OBJECT | INPUT_OBJECT | ENUM
+directive @protoField(name: String!, type: String!, goName: String!, goTypeName: String!, goTypePackage: String) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+scalar DateTime`)
+	gqlgentest.AddGqlSchema("task.graphqls", `
+input CreateTaskInput {
+  title: String!
+}
+
+type CreateTaskPayload {
+  task: Task!
+}
+
+type TasksByUserConnection {
+  totalCount: Int!
+  edges: [TaskByUserEdge!]!
+  nodes: [Task!]!
+  pageInfo: TasksByUserConnectionPageInfo!
+}
+
+type TaskByUserEdge {
+  node: Task!
+  cursor: String!
+}
+
+type TasksByUserConnectionPageInfo {
+  endCursor: String!
+  hasNextPage: Boolean!
+}
+
+extend type Query {
+  tasksByUser(userId: Int!): TasksByUserConnection!
+}
+
+extend type Mutation {
+  createTask(input: CreateTaskInput): CreateTaskPayload!
+}`)
+	gqlgentest.AddGoModReplace("github.com/izumin5210/remixer", rootDir)
+	gqlgentest.AddGoModReplace("apis/go/todo", filepath.Join(testdataDir, "apis", "go", "todo"))
+
+	gqlgentest.Run(t, func(t *testing.T, err error) {
+		if err != nil {
+			t.Errorf("failed to generate code: %v", err)
+		}
+
+		if entries, err := filepath.Glob("**/*"); err != nil {
+			t.Errorf("failed to search files: %v", err)
+		} else if got, want := len(entries), 6; got != want {
+			t.Errorf("found %d files, want %d", got, want)
+		}
+
+		gqlgentest.SnapshotFile(t,
+			"model/models_gen.go",
+			"model/protomodels_gen.go",
+			"resolver/resolver.go",
+			"resolver/task.resolvers.go",
+			"resolver/task.resolvers.proto.go",
+		)
+	})
+}
+
 func getModuleRoot() string {
 	_, filename, _, _ := runtime.Caller(1)
 	return filepath.Clean(filepath.Join(filepath.Dir(filename), ".."))
