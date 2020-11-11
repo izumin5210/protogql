@@ -45,17 +45,10 @@ func hasProto(def *ast.Definition, defMap map[string]*ast.Definition, cache map[
 			}
 		}
 		return false, nil
-	case ast.Enum:
-		return false, nil
 	case ast.Scalar:
-		// TODO
 		return false, nil
-	case ast.Interface:
-		// TODO
-		return false, nil
-	case ast.Union:
-		// TODO
-		return false, nil
+	case ast.Enum, ast.Interface, ast.Union:
+		panic("not supported")
 	default:
 		panic("unreachable")
 	}
