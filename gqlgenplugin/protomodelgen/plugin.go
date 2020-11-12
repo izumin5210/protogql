@@ -129,19 +129,19 @@ func (p *Plugin) GenerateCode(data *codegen.Data) error {
 }
 
 type Registry struct {
-	objectsFromProto map[string]*NewObjectFromProto
-	objectsHasProto  map[string]*NewObjectHasProto
-	plainObjects     map[string]*NewPlainObject
-	enumsFromProto   map[string]*NewEnumFromProto
+	objectsFromProto map[string]*ObjectFromProto
+	objectsHasProto  map[string]*ObjectHasProto
+	plainObjects     map[string]*PlainObject
+	enumsFromProto   map[string]*EnumFromProto
 	data             *codegen.Data
 }
 
 func CreateRegistry(schema *ast.Schema) (*Registry, error) {
 	reg := &Registry{
-		objectsFromProto: map[string]*NewObjectFromProto{},
-		objectsHasProto:  map[string]*NewObjectHasProto{},
-		plainObjects:     map[string]*NewPlainObject{},
-		enumsFromProto:   map[string]*NewEnumFromProto{},
+		objectsFromProto: map[string]*ObjectFromProto{},
+		objectsHasProto:  map[string]*ObjectHasProto{},
+		plainObjects:     map[string]*PlainObject{},
+		enumsFromProto:   map[string]*EnumFromProto{},
 	}
 
 	for _, def := range schema.Types {
@@ -159,11 +159,11 @@ func CreateRegistry(schema *ast.Schema) (*Registry, error) {
 				return nil, errors.Wrapf(err, "%s has invalid directive", def.Name)
 			}
 			if proto != nil {
-				reg.objectsFromProto[def.Name] = &NewObjectFromProto{def: def, proto: proto, registry: reg}
+				reg.objectsFromProto[def.Name] = &ObjectFromProto{def: def, proto: proto, registry: reg}
 			} else if ok, err := gqlutil.HasProto(def, schema.Types); err == nil && ok {
-				reg.objectsHasProto[def.Name] = &NewObjectHasProto{def: def, registry: reg}
+				reg.objectsHasProto[def.Name] = &ObjectHasProto{def: def, registry: reg}
 			} else {
-				reg.plainObjects[def.Name] = &NewPlainObject{def: def}
+				reg.plainObjects[def.Name] = &PlainObject{def: def}
 			}
 
 		case ast.Enum:
@@ -172,7 +172,7 @@ func CreateRegistry(schema *ast.Schema) (*Registry, error) {
 				return nil, errors.Wrapf(err, "%s has invalid directive", def.Name)
 			}
 			if proto != nil {
-				reg.enumsFromProto[def.Name] = &NewEnumFromProto{def: def, proto: proto}
+				reg.enumsFromProto[def.Name] = &EnumFromProto{def: def, proto: proto}
 			} else {
 				panic("Plain GraphQL Enums is not supported yet")
 			}
@@ -189,7 +189,7 @@ func CreateRegistry(schema *ast.Schema) (*Registry, error) {
 	return reg, nil
 }
 
-func (r *Registry) FindType(name string) NewType {
+func (r *Registry) FindType(name string) Type {
 	if obj, ok := r.objectsFromProto[name]; ok {
 		return obj
 	}
@@ -231,8 +231,8 @@ func (r *Registry) FindProtoLikeType(name string) ProtoLikeType {
 	return nil
 }
 
-func (r *Registry) ObjectsFromProto() []*NewObjectFromProto {
-	objs := make([]*NewObjectFromProto, 0, len(r.objectsFromProto))
+func (r *Registry) ObjectsFromProto() []*ObjectFromProto {
+	objs := make([]*ObjectFromProto, 0, len(r.objectsFromProto))
 	for _, o := range r.objectsFromProto {
 		objs = append(objs, o)
 	}
@@ -242,13 +242,13 @@ func (r *Registry) ObjectsFromProto() []*NewObjectFromProto {
 	return objs
 }
 
-func (r *Registry) ObjectsHasProto() []*NewObjectHasProto {
+func (r *Registry) ObjectsHasProto() []*ObjectHasProto {
 	// FIXME
 	if r.data == nil {
-		return []*NewObjectHasProto{}
+		return []*ObjectHasProto{}
 	}
 
-	objs := make([]*NewObjectHasProto, 0, len(r.objectsHasProto))
+	objs := make([]*ObjectHasProto, 0, len(r.objectsHasProto))
 	for _, o := range r.objectsHasProto {
 		objs = append(objs, o)
 	}
@@ -258,8 +258,8 @@ func (r *Registry) ObjectsHasProto() []*NewObjectHasProto {
 	return objs
 }
 
-func (r *Registry) EnumsFromProto() []*NewEnumFromProto {
-	enums := make([]*NewEnumFromProto, 0, len(r.enumsFromProto))
+func (r *Registry) EnumsFromProto() []*EnumFromProto {
+	enums := make([]*EnumFromProto, 0, len(r.enumsFromProto))
 	for _, e := range r.enumsFromProto {
 		enums = append(enums, e)
 	}
@@ -270,55 +270,55 @@ func (r *Registry) EnumsFromProto() []*NewEnumFromProto {
 }
 
 type ProtoType interface {
-	NewType
+	Type
 	ProtoLikeType
 	PbGoTypeName() string
 }
 type ProtoLikeType interface {
-	NewType
+	Type
 	FuncNameFromProto() string
 	FuncNameFromRepeatedProto() string
 	FuncNameToProto() string
 	FuncNameToRepeatedProto() string
 }
 
-type NewType interface {
+type Type interface {
 	GoTypeName() string
 }
 
-type NewPlainObject struct {
+type PlainObject struct {
 	def *ast.Definition
 }
 
-func (o *NewPlainObject) GoTypeName() string {
+func (o *PlainObject) GoTypeName() string {
 	return o.def.Name
 }
 
-type NewObjectFromProto struct {
+type ObjectFromProto struct {
 	def      *ast.Definition
 	proto    *gqlutil.ProtoDirective
 	registry *Registry
 }
 
-func (o *NewObjectFromProto) GoTypeName() string {
+func (o *ObjectFromProto) GoTypeName() string {
 	return o.def.Name
 }
 
-func (o *NewObjectFromProto) Fields() ([]*NewFieldFromProto, error) {
-	fields := make([]*NewFieldFromProto, len(o.def.Fields))
+func (o *ObjectFromProto) Fields() ([]*FieldFromProto, error) {
+	fields := make([]*FieldFromProto, len(o.def.Fields))
 
 	for i, f := range o.def.Fields {
 		proto, err := gqlutil.ExtractProtoFieldDirective(f.Directives)
 		if err != nil {
 			return nil, errors.Wrapf(err, "%s has invalid directive", f.Name)
 		}
-		fields[i] = &NewFieldFromProto{gql: f, proto: proto, object: o}
+		fields[i] = &FieldFromProto{gql: f, proto: proto, object: o}
 	}
 
 	return fields, nil
 }
 
-func (o *NewObjectFromProto) PbGoTypeName() string {
+func (o *ObjectFromProto) PbGoTypeName() string {
 	var b strings.Builder
 
 	b.WriteString(templates.CurrentImports.Lookup(o.proto.GoPackage))
@@ -328,37 +328,37 @@ func (o *NewObjectFromProto) PbGoTypeName() string {
 	return b.String()
 }
 
-func (o *NewObjectFromProto) FuncNameFromProto() string {
+func (o *ObjectFromProto) FuncNameFromProto() string {
 	return o.GoTypeName() + "FromProto"
 }
 
-func (o *NewObjectFromProto) FuncNameFromRepeatedProto() string {
+func (o *ObjectFromProto) FuncNameFromRepeatedProto() string {
 	return o.GoTypeName() + "ListFromRepeatedProto"
 }
 
-func (o *NewObjectFromProto) FuncNameToProto() string {
+func (o *ObjectFromProto) FuncNameToProto() string {
 	return o.GoTypeName() + "ToProto"
 }
 
-func (o *NewObjectFromProto) FuncNameToRepeatedProto() string {
+func (o *ObjectFromProto) FuncNameToRepeatedProto() string {
 	return o.GoTypeName() + "ListToRepeatedProto"
 }
 
-type NewFieldFromProto struct {
+type FieldFromProto struct {
 	gql    *ast.FieldDefinition
 	proto  *gqlutil.ProtoFieldDirective
-	object *NewObjectFromProto
+	object *ObjectFromProto
 }
 
-func (f *NewFieldFromProto) GoFieldName() string {
+func (f *FieldFromProto) GoFieldName() string {
 	return templates.ToGo(f.gql.Name)
 }
 
-func (f *NewFieldFromProto) PbGoFieldName() string {
+func (f *FieldFromProto) PbGoFieldName() string {
 	return f.proto.GoName
 }
 
-func (f *NewFieldFromProto) GoFieldTypeDefinition() string {
+func (f *FieldFromProto) GoFieldTypeDefinition() string {
 	var b strings.Builder
 
 	if f.isList() {
@@ -382,7 +382,7 @@ func (f *NewFieldFromProto) GoFieldTypeDefinition() string {
 	return b.String()
 }
 
-func (f *NewFieldFromProto) FromProtoStatement(receiver string) string {
+func (f *FieldFromProto) FromProtoStatement(receiver string) string {
 	if f.proto == nil {
 		return ""
 	}
@@ -415,7 +415,7 @@ func (f *NewFieldFromProto) FromProtoStatement(receiver string) string {
 	return b.String()
 }
 
-func (f *NewFieldFromProto) ToProtoStatement(receiver string) string {
+func (f *FieldFromProto) ToProtoStatement(receiver string) string {
 	if f.proto == nil {
 		return ""
 	}
@@ -448,11 +448,11 @@ func (f *NewFieldFromProto) ToProtoStatement(receiver string) string {
 	return b.String()
 }
 
-func (f *NewFieldFromProto) isList() bool {
+func (f *FieldFromProto) isList() bool {
 	return f.gql.Type.NamedType == ""
 }
 
-func (f *NewFieldFromProto) isGoBuiltinType() bool {
+func (f *FieldFromProto) isGoBuiltinType() bool {
 	if f.proto == nil {
 		switch f.gql.Type.Name() {
 		case "ID", "Int", "Float", "String", "Boolean":
@@ -464,7 +464,7 @@ func (f *NewFieldFromProto) isGoBuiltinType() bool {
 	return strings.ToLower(f.proto.Type) == f.proto.Type
 }
 
-func (f *NewFieldFromProto) isProtoWellKnownType() bool {
+func (f *FieldFromProto) isProtoWellKnownType() bool {
 	if f.proto == nil {
 		return false
 	}
@@ -480,55 +480,55 @@ func (f *NewFieldFromProto) isProtoWellKnownType() bool {
 	return false
 }
 
-type NewObjectHasProto struct {
+type ObjectHasProto struct {
 	def      *ast.Definition
 	registry *Registry
 }
 
-func (o *NewObjectHasProto) GoWrapperTypeName() string {
+func (o *ObjectHasProto) GoWrapperTypeName() string {
 	return o.GoTypeName() + "_Proto"
 }
 
-func (o *NewObjectHasProto) GoTypeName() string {
+func (o *ObjectHasProto) GoTypeName() string {
 	return o.def.Name
 }
 
-func (o *NewObjectHasProto) Fields() ([]*NewFieldHasProto, error) {
-	fields := make([]*NewFieldHasProto, len(o.def.Fields))
+func (o *ObjectHasProto) Fields() ([]*FieldHasProto, error) {
+	fields := make([]*FieldHasProto, len(o.def.Fields))
 
 	for i, f := range o.def.Fields {
-		fields[i] = &NewFieldHasProto{gql: f, object: o}
+		fields[i] = &FieldHasProto{gql: f, object: o}
 	}
 
 	return fields, nil
 }
 
-func (o *NewObjectHasProto) FuncNameFromProto() string {
+func (o *ObjectHasProto) FuncNameFromProto() string {
 	return o.GoTypeName() + "FromProto"
 }
 
-func (o *NewObjectHasProto) FuncNameFromRepeatedProto() string {
+func (o *ObjectHasProto) FuncNameFromRepeatedProto() string {
 	return o.GoTypeName() + "ListFromRepeatedProto"
 }
 
-func (o *NewObjectHasProto) FuncNameToProto() string {
+func (o *ObjectHasProto) FuncNameToProto() string {
 	return o.GoTypeName() + "ToProto"
 }
 
-func (o *NewObjectHasProto) FuncNameToRepeatedProto() string {
+func (o *ObjectHasProto) FuncNameToRepeatedProto() string {
 	return o.GoTypeName() + "ListToRepeatedProto"
 }
 
-type NewFieldHasProto struct {
+type FieldHasProto struct {
 	gql    *ast.FieldDefinition
-	object *NewObjectHasProto
+	object *ObjectHasProto
 }
 
-func (f *NewFieldHasProto) GoFieldName() string {
+func (f *FieldHasProto) GoFieldName() string {
 	return templates.ToGo(f.gql.Name)
 }
 
-func (f *NewFieldHasProto) GoFieldTypeDefinition() string {
+func (f *FieldHasProto) GoFieldTypeDefinition() string {
 	var b strings.Builder
 
 	if f.isList() {
@@ -542,7 +542,7 @@ func (f *NewFieldHasProto) GoFieldTypeDefinition() string {
 	switch typ := f.object.registry.FindType(f.gql.Type.Name()).(type) {
 	case ProtoType:
 		b.WriteString(typ.PbGoTypeName())
-	case *NewObjectHasProto:
+	case *ObjectHasProto:
 		b.WriteString(typ.GoWrapperTypeName())
 	default:
 		byName := f.object.registry.data.Objects.ByName
@@ -569,7 +569,7 @@ func (f *NewFieldHasProto) GoFieldTypeDefinition() string {
 	return b.String()
 }
 
-func (f *NewFieldHasProto) FromProtoStatement(receiver string) string {
+func (f *FieldHasProto) FromProtoStatement(receiver string) string {
 	var b strings.Builder
 
 	if typ := f.object.registry.FindProtoLikeType(f.gql.Type.Name()); typ != nil {
@@ -592,7 +592,7 @@ func (f *NewFieldHasProto) FromProtoStatement(receiver string) string {
 	return b.String()
 }
 
-func (f *NewFieldHasProto) ToProtoStatement(receiver string) string {
+func (f *FieldHasProto) ToProtoStatement(receiver string) string {
 	var b strings.Builder
 
 	if typ := f.object.registry.FindProtoLikeType(f.gql.Type.Name()); typ != nil {
@@ -615,11 +615,11 @@ func (f *NewFieldHasProto) ToProtoStatement(receiver string) string {
 	return b.String()
 }
 
-func (f *NewFieldHasProto) isList() bool {
+func (f *FieldHasProto) isList() bool {
 	return f.gql.Type.NamedType == ""
 }
 
-func (f *NewFieldHasProto) isGoBuiltinType() bool {
+func (f *FieldHasProto) isGoBuiltinType() bool {
 	switch f.gql.Type.Name() {
 	case "ID", "Int", "Float", "String", "Boolean":
 		return true
@@ -628,16 +628,16 @@ func (f *NewFieldHasProto) isGoBuiltinType() bool {
 	}
 }
 
-type NewEnumFromProto struct {
+type EnumFromProto struct {
 	def   *ast.Definition
 	proto *gqlutil.ProtoDirective
 }
 
-func (e *NewEnumFromProto) GoTypeName() string {
+func (e *EnumFromProto) GoTypeName() string {
 	return e.def.Name
 }
 
-func (e *NewEnumFromProto) PbGoTypeName() string {
+func (e *EnumFromProto) PbGoTypeName() string {
 	var b strings.Builder
 
 	b.WriteString(templates.CurrentImports.Lookup(e.proto.GoPackage))
@@ -647,18 +647,18 @@ func (e *NewEnumFromProto) PbGoTypeName() string {
 	return b.String()
 }
 
-func (e *NewEnumFromProto) FuncNameFromProto() string {
+func (e *EnumFromProto) FuncNameFromProto() string {
 	return e.GoTypeName() + "FromProto"
 }
 
-func (e *NewEnumFromProto) FuncNameFromRepeatedProto() string {
+func (e *EnumFromProto) FuncNameFromRepeatedProto() string {
 	return e.GoTypeName() + "ListFromRepeatedProto"
 }
 
-func (e *NewEnumFromProto) FuncNameToProto() string {
+func (e *EnumFromProto) FuncNameToProto() string {
 	return e.GoTypeName() + "ToProto"
 }
 
-func (e *NewEnumFromProto) FuncNameToRepeatedProto() string {
+func (e *EnumFromProto) FuncNameToRepeatedProto() string {
 	return e.GoTypeName() + "ListToRepeatedProto"
 }
