@@ -167,9 +167,8 @@ func TaskByUserEdgeToProto(in *TaskByUserEdge) *TaskByUserEdge_Proto {
 type TasksByUserConnection_Proto struct {
 	TotalCount int
 	Edges      []*TaskByUserEdge_Proto
-
-	Nodes    []*todo_pb.Task
-	PageInfo *TasksByUserConnectionPageInfo
+	Nodes      []*todo_pb.Task
+	PageInfo   *TasksByUserConnectionPageInfo
 }
 
 func TasksByUserConnectionListFromRepeatedProto(in []*TasksByUserConnection_Proto) []*TasksByUserConnection {

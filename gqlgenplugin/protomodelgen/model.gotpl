@@ -2,63 +2,44 @@
 {{ reserveImport "io" }}
 {{ reserveImport "strconv" }}
 
-{{- range $obj := .ProtoObjects }}
-	{{ $pbGoImport := lookupImport $obj.Proto.GoPackage }}
-	{{ $pbGoName := printf "%s.%s" $pbGoImport $obj.Proto.GoName }}
-
-	type {{ $obj.Name }} struct {
+{{- range $obj := .ObjectsFromProto }}
+	type {{ $obj.GoTypeName }} struct {
 		{{- range $f := $obj.Fields }}
-			{{- if $f.IsWrapperType }}
-				{{ go $f.Name }} {{ if $f.List }}[]{{ end }}*{{ lookupImport $f.Proto.GoTypePackage }}.{{ $f.Proto.GoTypeName }}
-			{{- else }}
-				{{ go $f.Name }} {{ if $f.List }}[]{{ end }}{{ if not $f.IsBuiltinType }}*{{ end }}{{ findGQLFieldType $f }}
-			{{- end }}
+			{{ $f.GoFieldName }} {{ $f.GoFieldTypeDefinition }}
 		{{- end }}
 	}
 
-	func {{ $obj.Name }}ListFromRepeatedProto(in []*{{ $pbGoName }}) []*{{ $obj.Name }} {
-		out := make([]*{{ $obj.Name }}, len(in))
+	func {{ $obj.FuncNameFromRepeatedProto }}(in []*{{ $obj.PbGoTypeName }}) []*{{ $obj.GoTypeName }} {
+		out := make([]*{{ $obj.GoTypeName }}, len(in))
 		for i, m := range in {
-			out[i] = {{ $obj.Name }}FromProto(m)
+			out[i] = {{ $obj.FuncNameFromProto }}(m)
 		}
 		return out
 	}
 
-	func {{ $obj.Name }}FromProto(in *{{ $pbGoName }}) *{{ $obj.Name }} {
-		return &{{ $obj.Name }}{
+	func {{ $obj.FuncNameFromProto }}(in *{{ $obj.PbGoTypeName }}) *{{ $obj.GoTypeName }} {
+		return &{{ $obj.GoTypeName }}{
 			{{- range $f := $obj.Fields }}
-				{{- if $f.Proto }}
-					{{- if or $f.IsBuiltinType $f.IsWrapperType }}
-						{{ go $f.Name }}: in.{{ $f.Proto.GoName }},
-					{{- else if $f.List }}
-						{{ go $f.Name }}: List{{ findGQLFieldType $f }}FromRepeatedProto(in.{{ $f.Proto.GoName }}),
-					{{- else }}
-						{{ go $f.Name }}: {{ findGQLFieldType $f }}FromProto(in.{{ $f.Proto.GoName }}),
-					{{- end }}
+				{{- with ($f.FromProtoStatement "in") }}
+					{{ $f.GoFieldName }}: {{ . }},
 				{{- end }}
 			{{- end }}
 		}
 	}
 
-	func {{ $obj.Name }}ListToRepeatedProto(in []*{{ $obj.Name }}) []*{{ $pbGoName }} {
-		out := make([]*{{ $pbGoName }}, len(in))
+	func {{ $obj.FuncNameToRepeatedProto }}(in []*{{ $obj.GoTypeName }}) []*{{ $obj.PbGoTypeName }} {
+		out := make([]*{{ $obj.PbGoTypeName }}, len(in))
 		for i, m := range in {
-			out[i] = {{ $obj.Name }}ToProto(m)
+			out[i] = {{ $obj.FuncNameToProto }}(m)
 		}
 		return out
 	}
 
-	func {{ $obj.Name }}ToProto(in *{{ $obj.Name }}) *{{ $pbGoName }} {
-		return &{{ $pbGoName }}{
+	func {{ $obj.FuncNameToProto }}(in *{{ $obj.GoTypeName }}) *{{ $obj.PbGoTypeName }} {
+		return &{{ $obj.PbGoTypeName}}{
 			{{- range $f := $obj.Fields }}
-				{{- if $f.Proto }}
-					{{- if or $f.IsBuiltinType $f.IsWrapperType }}
-						{{ $f.Proto.GoName }}: in.{{ go $f.Name }},
-					{{- else if $f.List }}
-						{{ $f.Proto.GoName }}: {{ findGQLFieldType $f }}ListToRepeatedProto(in.{{ go $f.Name }}),
-					{{- else }}
-						{{ $f.Proto.GoName }}: {{ findGQLFieldType $f }}ToProto(in.{{ go $f.Name }}),
-					{{- end }}
+				{{- with ($f.ToProtoStatement "in") }}
+					{{ $f.PbGoFieldName }}: {{ . }},
 				{{- end }}
 			{{- end }}
 		}
@@ -66,113 +47,85 @@
 {{ end }}
 
 {{- range $obj := .ObjectsHasProto }}
-	type {{ $obj.Name }}_Proto struct {
+	type {{ $obj.GoWrapperTypeName }} struct {
 		{{- range $f := $obj.Fields }}
-			{{- if $f.TypeProto }}
-				{{ $proto := $f.TypeProto }}
-				{{ $pbGoImport := lookupImport $proto.GoPackage }}
-				{{ $pbGoName := printf "%s.%s" $pbGoImport $proto.GoName }}
-				{{ go $f.Name }} {{ if $f.List }}[]{{ end }}*{{ $pbGoName }}
-			{{- else if and $f.TypeDef (hasProto $f.TypeDef) }}
-				{{ go $f.Name }} {{ if $f.List }}[]{{ end }}*{{ findGQLFieldType $f }}_Proto
-			{{- else }}
-				{{ go $f.Name }} {{ if $f.List }}[]{{ end }}{{ if not $f.IsBuiltinType }}*{{ end }}{{ findGQLFieldType $f }}
-			{{- end }}
+			{{ $f.GoFieldName }} {{ $f.GoFieldTypeDefinition }}
 		{{- end }}
 	}
 
-	func {{ $obj.Name }}ListFromRepeatedProto(in []*{{ $obj.Name }}_Proto) []*{{ $obj.Name }} {
-		out := make([]*{{ $obj.Name }}, len(in))
+	func {{ $obj.FuncNameFromRepeatedProto }}(in []*{{ $obj.GoWrapperTypeName }}) []*{{ $obj.GoTypeName }} {
+		out := make([]*{{ $obj.GoTypeName }}, len(in))
 		for i, m := range in {
-			out[i] = {{ $obj.Name }}FromProto(m)
+			out[i] = {{ $obj.FuncNameFromProto }}(m)
 		}
 		return out
 	}
 
-	func {{ $obj.Name }}FromProto(in *{{ $obj.Name }}_Proto) *{{ $obj.Name }} {
-		return &{{ $obj.Name }}{
+	func {{ $obj.FuncNameFromProto }}(in *{{ $obj.GoWrapperTypeName }}) *{{ $obj.GoTypeName }} {
+		return &{{ $obj.GoTypeName }}{
 			{{- range $f := $obj.Fields }}
-				{{- if or $f.IsBuiltinType $f.IsWrapperType }}
-					{{ go $f.Name }}: in.{{ go $f.Name }},
-				{{- else if or (not $f.TypeDef) (not (hasProto $f.TypeDef)) }}
-					{{ go $f.Name }}: in.{{ go $f.Name }},
-				{{- else if $f.List }}
-					{{ go $f.Name }}: {{ findGQLFieldType $f }}ListFromRepeatedProto(in.{{ go $f.Name }}),
-				{{- else }}
-					{{ go $f.Name }}: {{ findGQLFieldType $f }}FromProto(in.{{ go $f.Name }}),
-				{{- end }}
+				{{ $f.GoFieldName }}: {{ $f.FromProtoStatement "in" }},
 			{{- end }}
 		}
 	}
 
-	func {{ $obj.Name }}ListToRepeatedProto(in []*{{ $obj.Name }}) []*{{ $obj.Name }}_Proto {
-		out := make([]*{{ $obj.Name }}_Proto, len(in))
+	func {{ $obj.FuncNameToRepeatedProto }}(in []*{{ $obj.GoTypeName }}) []*{{ $obj.GoWrapperTypeName }}{
+		out := make([]*{{ $obj.GoWrapperTypeName }}, len(in))
 		for i, m := range in {
-			out[i] = {{ $obj.Name }}ToProto(m)
+			out[i] = {{ $obj.FuncNameToProto }}(m)
 		}
 		return out
 	}
 
-	func {{ $obj.Name }}ToProto(in *{{ $obj.Name }}) *{{ $obj.Name }}_Proto {
-		return &{{ $obj.Name }}_Proto{
+	func {{ $obj.FuncNameToProto }}(in *{{ $obj.GoTypeName }}) *{{ $obj.GoWrapperTypeName }}{
+		return &{{ $obj.GoWrapperTypeName }}{
 			{{- range $f := $obj.Fields }}
-				{{- if or $f.IsBuiltinType $f.IsWrapperType }}
-					{{ go $f.Name }}: in.{{ go $f.Name }},
-				{{- else if or (not $f.TypeDef) (not (hasProto $f.TypeDef)) }}
-					{{ go $f.Name }}: in.{{ go $f.Name }},
-				{{- else if $f.List }}
-					{{ go $f.Name }}: {{ findGQLFieldType $f }}ListToRepeatedProto(in.{{ go $f.Name }}),
-				{{- else }}
-					{{ go $f.Name }}: {{ findGQLFieldType $f }}ToProto(in.{{ go $f.Name }}),
-				{{- end }}
+				{{ $f.GoFieldName }}: {{ $f.ToProtoStatement "in" }},
 			{{- end }}
 		}
 	}
 {{ end }}
 
-{{- range $enum := .Enums }}
-	{{ $pbGoImport := lookupImport $enum.Proto.GoPackage }}
-	{{ $pbGoName := printf "%s.%s" $pbGoImport $enum.Proto.GoName }}
-
-	type {{ $enum.Name }} struct {
-		Proto {{ $pbGoName }}
+{{- range $enum := .EnumsFromProto }}
+	type {{ $enum.GoTypeName }} struct {
+		Proto {{ $enum.PbGoTypeName }}
 	}
 
-	func {{ $enum.Name }}ListFromRepeatedProto(in []{{ $pbGoName }}) []*{{ $enum.Name }} {
-		out := make([]*{{ $enum.Name }}, len(in))
+	func {{ $enum.FuncNameFromRepeatedProto }}(in []{{ $enum.PbGoTypeName }}) []*{{ $enum.GoTypeName }} {
+		out := make([]*{{ $enum.GoTypeName }}, len(in))
 		for i, m := range in {
-			out[i] = {{ $enum.Name }}FromProto(m)
+			out[i] = {{ $enum.FuncNameFromProto }}(m)
 		}
 		return out
 	}
 
-	func {{ $enum.Name }}FromProto(in {{ $pbGoName }}) *{{ $enum.Name }} {
-		return &{{ $enum.Name }}{Proto: in}
+	func {{ $enum.FuncNameFromProto }}(in {{ $enum.PbGoTypeName }}) *{{ $enum.GoTypeName }} {
+		return &{{ $enum.GoTypeName }}{Proto: in}
 	}
 
-	func {{ $enum.Name }}ListToRepeatedProto(in []*{{ $enum.Name }}) []{{ $pbGoName }} {
-		out := make([]{{ $pbGoName }}, len(in))
+	func {{ $enum.FuncNameToRepeatedProto }}(in []*{{ $enum.GoTypeName }}) []{{ $enum.PbGoTypeName }} {
+		out := make([]{{ $enum.PbGoTypeName }}, len(in))
 		for i, m := range in {
-			out[i] = {{ $enum.Name }}ToProto(m)
+			out[i] = {{ $enum.FuncNameToProto }}(m)
 		}
 		return out
 	}
 
-	func {{ $enum.Name }}ToProto(in *{{ $enum.Name }}) {{ $pbGoName }} {
+	func {{ $enum.FuncNameToProto }}(in *{{ $enum.GoTypeName }}) {{ $enum.PbGoTypeName }} {
 		return in.Proto
 	}
 
-	func (e {{ $enum.Name }}) MarshalGQL(w io.Writer) {
+	func (e {{ $enum.GoTypeName }}) MarshalGQL(w io.Writer) {
 		fmt.Fprint(w, strconv.Quote(e.Proto.String()))
 	}
 
-	func (e *{{ $enum.Name }}) UnmarshalGQL(v interface{}) error {
+	func (e *{{ $enum.GoTypeName }}) UnmarshalGQL(v interface{}) error {
 		str, ok := v.(string)
 		if !ok {
 			return fmt.Errorf("enums must be strings")
 		}
 
-		e.Proto = {{ $pbGoName }}({{ $pbGoName }}_value[str])
+		e.Proto = {{ $enum.PbGoTypeName }}({{ $enum.PbGoTypeName }}_value[str])
 		return nil
 	}
 {{ end }}
