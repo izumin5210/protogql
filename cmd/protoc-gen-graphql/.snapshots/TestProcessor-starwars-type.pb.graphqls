@@ -1,13 +1,38 @@
+"""
+The episodes in the Star Wars trilogy
+"""
 enum Episode @proto(fullName: "testapi.starwars.Episode", package: "testapi.starwars", name: "Episode", goPackage: "apis/go/starwars", goName: "Episode") {
 	EPISODE_UNSPECIFIED
+	"""
+	Star Wars Episode IV: A New Hope, released in 1977.
+	"""
 	NEWHOPE
+	"""
+	Star Wars Episode V: The Empire Strikes Back, released in 1980.
+	"""
 	EMPIRE
+	"""
+	Star Wars Episode VI: Return of the Jedi, released in 1983.
+	"""
 	JEDI
 }
+"""
+Units of height
+"""
 enum LengthUnit @proto(fullName: "testapi.starwars.LengthUnit", package: "testapi.starwars", name: "LengthUnit", goPackage: "apis/go/starwars", goName: "LengthUnit") {
 	LENGTH_UNIT_UNSPECIFIED
+	"""
+	The standard unit around the world
+	"""
 	METER
+	"""
+	Primarily used in the United States
+	"""
 	FOOT
+	"""
+	DEPRECATED. Test deprecated enum case.
+	Ancient unit used during the Middle Ages
+	"""
 	CUBIT
 }
 

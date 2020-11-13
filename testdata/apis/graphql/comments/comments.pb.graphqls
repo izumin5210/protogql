@@ -1,0 +1,23 @@
+enum CommentEnum @proto(fullName: "testapi.comments.CommentEnum", package: "testapi.comments", name: "CommentEnum", goPackage: "apis/go/comments", goName: "CommentEnum") {
+	COMMENT_ENUM_UNSPECIFIED
+	FOO
+	BAR
+}
+type ParentMessage @proto(fullName: "testapi.comments.ParentMessage", package: "testapi.comments", name: "ParentMessage", goPackage: "apis/go/comments", goName: "ParentMessage") {
+	id: Int! @protoField(name: "id", type: "int32", goName: "Id", goTypeName: "int32")
+	body: String! @protoField(name: "body", type: "string", goName: "Body", goTypeName: "string")
+	commentEnum: CommentEnum! @protoField(name: "comment_enum", type: "testapi.comments.CommentEnum", goName: "CommentEnum", goTypeName: "CommentEnum", goTypePackage: "apis/go/comments")
+	nested: ParentMessageNestedMessage! @protoField(name: "nested", type: "testapi.comments.ParentMessage.NestedMessage", goName: "Nested", goTypeName: "ParentMessage_NestedMessage", goTypePackage: "apis/go/comments")
+}
+input ParentMessageInput @proto(fullName: "testapi.comments.ParentMessage", package: "testapi.comments", name: "ParentMessage", goPackage: "apis/go/comments", goName: "ParentMessage") {
+	id: Int! @protoField(name: "id", type: "int32", goName: "Id", goTypeName: "int32")
+	body: String! @protoField(name: "body", type: "string", goName: "Body", goTypeName: "string")
+	commentEnum: CommentEnum! @protoField(name: "comment_enum", type: "testapi.comments.CommentEnum", goName: "CommentEnum", goTypeName: "CommentEnum", goTypePackage: "apis/go/comments")
+	nested: ParentMessageNestedMessageInput! @protoField(name: "nested", type: "testapi.comments.ParentMessage.NestedMessage", goName: "Nested", goTypeName: "ParentMessage_NestedMessage", goTypePackage: "apis/go/comments")
+}
+type ParentMessageNestedMessage @proto(fullName: "testapi.comments.ParentMessage.NestedMessage", package: "testapi.comments", name: "NestedMessage", goPackage: "apis/go/comments", goName: "ParentMessage_NestedMessage") {
+	nestedBody: String! @protoField(name: "nested_body", type: "string", goName: "NestedBody", goTypeName: "string")
+}
+input ParentMessageNestedMessageInput @proto(fullName: "testapi.comments.ParentMessage.NestedMessage", package: "testapi.comments", name: "NestedMessage", goPackage: "apis/go/comments", goName: "ParentMessage_NestedMessage") {
+	nestedBody: String! @protoField(name: "nested_body", type: "string", goName: "NestedBody", goTypeName: "string")
+}

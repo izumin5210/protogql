@@ -2,6 +2,7 @@ package gqls
 
 import (
 	"github.com/iancoleman/strcase"
+	"github.com/izumin5210/remixer/codegen/protoutil"
 	"github.com/vektah/gqlparser/v2/ast"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/reflect/protoreflect"
@@ -34,9 +35,10 @@ func (t *InputObjectType) GoIdent() protogen.GoIdent                { return t.b
 
 func (t *InputObjectType) DefinitionAST() (*ast.Definition, error) {
 	def := &ast.Definition{
-		Kind:       ast.InputObject,
-		Name:       string(t.Name()),
-		Directives: messageDirectivesAST(t.base.Proto),
+		Kind:        ast.InputObject,
+		Name:        string(t.Name()),
+		Directives:  messageDirectivesAST(t.base.Proto),
+		Description: protoutil.FormatComments(t.base.Proto.Comments),
 	}
 
 	for _, f := range t.base.Proto.Fields {
@@ -63,9 +65,10 @@ func (t *InputObjectType) DefinitionAST() (*ast.Definition, error) {
 		}
 		ft = origType
 		def.Fields = append(def.Fields, &ast.FieldDefinition{
-			Name:       strcase.ToLowerCamel(string(f.Desc.Name())),
-			Type:       ft.TypeAST(),
-			Directives: inputFieldDirectivesAST(f, ft),
+			Name:        strcase.ToLowerCamel(string(f.Desc.Name())),
+			Type:        ft.TypeAST(),
+			Directives:  inputFieldDirectivesAST(f, ft),
+			Description: protoutil.FormatComments(f.Comments),
 		})
 	}
 
