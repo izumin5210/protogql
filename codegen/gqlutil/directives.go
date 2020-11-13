@@ -2,6 +2,7 @@ package gqlutil
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -30,6 +31,23 @@ type ProtoFieldDirective struct {
 
 func (d *ProtoFieldDirective) IsValid() bool {
 	return d.Name != "" && d.Type != "" && d.GoName != "" && d.GoTypeName != ""
+}
+
+func (d *ProtoFieldDirective) IsWellKnownType() bool {
+	switch d.Type {
+	case "google.protobuf.Int32Value", "google.protobuf.Int64Value",
+		"google.protobuf.UInt32Value", "google.protobuf.UInt64Value",
+		"google.protobuf.FloatValue", "google.protobuf.DoubleValue",
+		"google.protobuf.BoolValue",
+		"google.protobuf.StringValue",
+		"google.protobuf.Timestamp":
+		return true
+	}
+	return false
+}
+
+func (d *ProtoFieldDirective) IsGoBuiltinType() bool {
+	return strings.ToLower(d.Type) == d.Type
 }
 
 func ExtractProtoDirective(directives ast.DirectiveList) (*ProtoDirective, error) {

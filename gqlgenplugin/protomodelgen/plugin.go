@@ -2,7 +2,6 @@ package protomodelgen
 
 import (
 	"fmt"
-	"go/types"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -449,35 +448,18 @@ func (f *FieldFromProto) ToProtoStatement(receiver string) string {
 }
 
 func (f *FieldFromProto) isList() bool {
-	return f.gql.Type.NamedType == ""
+	return gqlutil.IsListType(f.gql.Type)
 }
 
 func (f *FieldFromProto) isGoBuiltinType() bool {
-	if f.proto == nil {
-		switch f.gql.Type.Name() {
-		case "ID", "Int", "Float", "String", "Boolean":
-			return true
-		default:
-			return false
-		}
+	if f.proto != nil {
+		return f.proto.IsGoBuiltinType()
 	}
-	return strings.ToLower(f.proto.Type) == f.proto.Type
+	return gqlutil.IsBuiltinType(f.gql.Type)
 }
 
 func (f *FieldFromProto) isProtoWellKnownType() bool {
-	if f.proto == nil {
-		return false
-	}
-	switch f.proto.Type {
-	case "google.protobuf.Int32Value", "google.protobuf.Int64Value",
-		"google.protobuf.UInt32Value", "google.protobuf.UInt64Value",
-		"google.protobuf.FloatValue", "google.protobuf.DoubleValue",
-		"google.protobuf.BoolValue",
-		"google.protobuf.StringValue",
-		"google.protobuf.Timestamp":
-		return true
-	}
-	return false
+	return f.proto != nil && f.proto.IsWellKnownType()
 }
 
 type ObjectHasProto struct {
@@ -616,16 +598,11 @@ func (f *FieldHasProto) ToProtoStatement(receiver string) string {
 }
 
 func (f *FieldHasProto) isList() bool {
-	return f.gql.Type.NamedType == ""
+	return gqlutil.IsListType(f.gql.Type)
 }
 
 func (f *FieldHasProto) isGoBuiltinType() bool {
-	switch f.gql.Type.Name() {
-	case "ID", "Int", "Float", "String", "Boolean":
-		return true
-	default:
-		return false
-	}
+	return gqlutil.IsBuiltinType(f.gql.Type)
 }
 
 type EnumFromProto struct {
