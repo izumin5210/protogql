@@ -534,15 +534,8 @@ func (f *FieldHasProto) GoFieldTypeDefinition() string {
 		obj := byName(f.object.def.Name)
 		for _, field := range obj.Fields {
 			if field.Name == f.gql.Name {
-				t := field.TypeReference.GO
-				for {
-					p, ok := t.(interface{ Elem() types.Type })
-					if !ok {
-						break
-					}
-					t = p.Elem()
-				}
-				b.WriteString(templates.CurrentImports.LookupType(t))
+				b.Reset()
+				b.WriteString(templates.CurrentImports.LookupType(field.TypeReference.GO))
 				break
 			}
 		}
