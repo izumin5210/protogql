@@ -196,17 +196,11 @@ func createRegistry(data *codegen.Data, schema *ast.Schema) (*Registry, error) {
 }
 
 func (r *Registry) FindType(name string) Type {
-	if obj, ok := r.objectsFromProto[name]; ok {
-		return obj
-	}
-	if obj, ok := r.objectsHasProto[name]; ok {
-		return obj
+	if typ := r.FindProtoLikeType(name); typ != nil {
+		return typ
 	}
 	if obj, ok := r.plainObjects[name]; ok {
 		return obj
-	}
-	if enum, ok := r.enumsFromProto[name]; ok {
-		return enum
 	}
 
 	return nil
@@ -224,14 +218,11 @@ func (r *Registry) FindProtoType(name string) ProtoType {
 }
 
 func (r *Registry) FindProtoLikeType(name string) ProtoLikeType {
-	if obj, ok := r.objectsFromProto[name]; ok {
-		return obj
+	if typ := r.FindProtoType(name); typ != nil {
+		return typ
 	}
 	if obj, ok := r.objectsHasProto[name]; ok {
 		return obj
-	}
-	if enum, ok := r.enumsFromProto[name]; ok {
-		return enum
 	}
 
 	return nil
