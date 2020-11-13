@@ -31,7 +31,7 @@ var (
 func (p *Plugin) Name() string { return "protomodelgen" }
 
 func (p *Plugin) MutateConfig(cfg *config.Config) error {
-	reg, err := CreateRegistry(cfg.Schema)
+	reg, err := CreateRegistryFromSchema(cfg.Schema)
 	if err != nil {
 		return err
 	}
@@ -111,12 +111,10 @@ func (p *Plugin) MutateConfig(cfg *config.Config) error {
 }
 
 func (p *Plugin) GenerateCode(data *codegen.Data) error {
-	reg, err := CreateRegistry(data.Schema)
+	reg, err := CreateRegistry(data)
 	if err != nil {
 		return err
 	}
-
-	reg.data = data
 
 	return templates.Render(templates.Options{
 		PackageName:     data.Config.Model.Package,
@@ -135,12 +133,21 @@ type Registry struct {
 	data             *codegen.Data
 }
 
-func CreateRegistry(schema *ast.Schema) (*Registry, error) {
+func CreateRegistry(data *codegen.Data) (*Registry, error) {
+	return createRegistry(data, data.Schema)
+}
+
+func CreateRegistryFromSchema(schema *ast.Schema) (*Registry, error) {
+	return createRegistry(nil, schema)
+}
+
+func createRegistry(data *codegen.Data, schema *ast.Schema) (*Registry, error) {
 	reg := &Registry{
 		objectsFromProto: map[string]*ObjectFromProto{},
 		objectsHasProto:  map[string]*ObjectHasProto{},
 		plainObjects:     map[string]*PlainObject{},
 		enumsFromProto:   map[string]*EnumFromProto{},
+		data:             data,
 	}
 
 	for _, def := range schema.Types {
@@ -228,6 +235,13 @@ func (r *Registry) FindProtoLikeType(name string) ProtoLikeType {
 	}
 
 	return nil
+}
+
+func (r *Registry) FindObjectOrInput(def *ast.Definition) *codegen.Object {
+	if def.Kind == ast.InputObject {
+		return r.data.Inputs.ByName(def.Name)
+	}
+	return r.data.Objects.ByName(def.Name)
 }
 
 func (r *Registry) ObjectsFromProto() []*ObjectFromProto {
@@ -501,6 +515,10 @@ func (o *ObjectHasProto) FuncNameToRepeatedProto() string {
 	return o.GoTypeName() + "ListToRepeatedProto"
 }
 
+func (o *ObjectHasProto) CodegenObject() *codegen.Object {
+	return o.registry.FindObjectOrInput(o.def)
+}
+
 type FieldHasProto struct {
 	gql    *ast.FieldDefinition
 	object *ObjectHasProto
@@ -527,12 +545,7 @@ func (f *FieldHasProto) GoFieldTypeDefinition() string {
 	case *ObjectHasProto:
 		b.WriteString(typ.GoWrapperTypeName())
 	default:
-		byName := f.object.registry.data.Objects.ByName
-		if f.object.def.Kind == ast.InputObject {
-			byName = f.object.registry.data.Inputs.ByName
-		}
-		obj := byName(f.object.def.Name)
-		for _, field := range obj.Fields {
+		for _, field := range f.object.CodegenObject().Fields {
 			if field.Name == f.gql.Name {
 				b.Reset()
 				b.WriteString(templates.CurrentImports.LookupType(field.TypeReference.GO))
