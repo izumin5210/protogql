@@ -120,6 +120,38 @@ extend type Query {
 	})
 }
 
+func TestGenerateForProto_WithProtoComments(t *testing.T) {
+	rootDir := getModuleRoot()
+	testdataDir := filepath.Join(rootDir, "testdata")
+
+	gqlgentest := gqlgentest.New(t)
+	gqlgentest.AddGqlGenOption(
+		gqlgenplugin.AddPluginBefore(protomodelgen.New(), "modelgen"),
+		// gqlgenplugin.AddPluginBefore(protoresolvergen.New(), "resolvergen"),
+	)
+	gqlgentest.AddGqlSchemaFile(t, filepath.Join(testdataDir, "apis", "graphql", "comments", "*.graphqls"))
+	gqlgentest.AddGqlSchema("schema.graphqls", `
+directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
+directive @proto(fullName: String!, package: String!, name: String!, goPackage: String!, goName: String!) on OBJECT | INPUT_OBJECT | ENUM
+directive @protoField(name: String!, type: String!, goName: String!, goTypeName: String!, goTypePackage: String) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+`)
+	gqlgentest.AddGoModReplace("github.com/izumin5210/remixer", rootDir)
+	gqlgentest.AddGoModReplace("apis/go/comments", filepath.Join(testdataDir, "apis", "go", "comments"))
+
+	gqlgentest.Run(t, func(t *testing.T, err error) {
+		if err != nil {
+			t.Errorf("failed to generate code: %v", err)
+		}
+
+		gqlgentest.SnapshotFile(t,
+			"model/protomodels_gen.go",
+			// "resolver/resolver.go",
+			// "resolver/schema.resolvers.go",
+			// "resolver/schema.resolvers.proto.go",
+		)
+	})
+}
+
 func TestGenerateForProto_WithProtoWellKnownTypes(t *testing.T) {
 	rootDir := getModuleRoot()
 	testdataDir := filepath.Join(rootDir, "testdata")
