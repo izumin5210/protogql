@@ -1,8 +1,20 @@
 type Starship @proto(fullName: "testapi.starwars.Starship", package: "testapi.starwars", name: "Starship", goPackage: "apis/go/starwars", goName: "Starship") {
+	"""
+	The ID of the starship
+	"""
 	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
+	"""
+	The name of the starship
+	"""
 	name: String! @protoField(name: "name", type: "string", goName: "Name", goTypeName: "string")
 }
 input StarshipInput @proto(fullName: "testapi.starwars.Starship", package: "testapi.starwars", name: "Starship", goPackage: "apis/go/starwars", goName: "Starship") {
+	"""
+	The ID of the starship
+	"""
 	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
+	"""
+	The name of the starship
+	"""
 	name: String! @protoField(name: "name", type: "string", goName: "Name", goTypeName: "string")
 }
