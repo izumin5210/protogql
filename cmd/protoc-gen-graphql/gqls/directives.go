@@ -19,14 +19,19 @@ func enumDirectivesAST(e *protogen.Enum) ast.DirectiveList {
 }
 
 func fieldDirectivesAST(f *protogen.Field, typ Type) ast.DirectiveList {
+	if f.Oneof != nil {
+		return ast.DirectiveList{
+			protobufFieldDirectiveAST(f.Oneof.GoName, f.Oneof.Desc, typ),
+		}
+	}
 	return ast.DirectiveList{
-		protobufFieldDirectiveAST(f, typ),
+		protobufFieldDirectiveAST(f.GoName, f.Desc, typ),
 	}
 }
 
 func inputFieldDirectivesAST(f *protogen.Field, typ Type) ast.DirectiveList {
 	return ast.DirectiveList{
-		protobufFieldDirectiveAST(f, typ),
+		protobufFieldDirectiveAST(f.GoName, f.Desc, typ),
 	}
 }
 
@@ -43,7 +48,7 @@ func protobufTypeDirectiveAST(desc protoreflect.Descriptor, goIdent protogen.GoI
 	}
 }
 
-func protobufFieldDirectiveAST(f *protogen.Field, typ Type) *ast.Directive {
+func protobufFieldDirectiveAST(goName string, desc protoreflect.Descriptor, typ Type) *ast.Directive {
 	var protoType, goTypeName, goTypePackage string
 
 	switch typ := UnwrapType(typ).(type) {
@@ -61,9 +66,9 @@ func protobufFieldDirectiveAST(f *protogen.Field, typ Type) *ast.Directive {
 	d := &ast.Directive{
 		Name: "protoField",
 		Arguments: ast.ArgumentList{
-			{Name: "name", Value: &ast.Value{Raw: string(f.Desc.Name()), Kind: ast.StringValue}},
+			{Name: "name", Value: &ast.Value{Raw: string(desc.Name()), Kind: ast.StringValue}},
 			{Name: "type", Value: &ast.Value{Raw: protoType, Kind: ast.StringValue}},
-			{Name: "goName", Value: &ast.Value{Raw: f.GoName, Kind: ast.StringValue}},
+			{Name: "goName", Value: &ast.Value{Raw: goName, Kind: ast.StringValue}},
 			{Name: "goTypeName", Value: &ast.Value{Raw: goTypeName, Kind: ast.StringValue}},
 		},
 	}

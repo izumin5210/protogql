@@ -41,6 +41,11 @@ func (b *SchemaBuilder) Build(f *protogen.File) (*Schema, error) {
 			return nil, err
 		}
 		types = append(types, t)
+
+		// collect oneofs
+		for _, o := range m.Oneofs {
+			types = append(types, NewUnionType(o))
+		}
 	}
 	for _, e := range enums {
 		types = append(types, NewEnumType(e))

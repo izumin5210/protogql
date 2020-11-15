@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package testapi.oneof;
+
+option go_package = "apis/go/oneof;oneof_pb";
+
+message Entry {
+  int32 author_id = 1;
+
+  oneof content {
+    Text text = 11;
+    Image image = 12;
+    Link link = 13;
+  }
+}
+
+message Text {
+  int32 id = 1;
+  string body = 2;
+}
+
+message Image {
+  int32 id = 1;
+  string url = 2;
+  uint32 width = 3;
+  uint32 height = 4;
+}
+
+message Link {
+  int32 id = 1;
+  string url = 2;
+}

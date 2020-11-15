@@ -1,0 +1,49 @@
+type Entry @proto(fullName: "testapi.oneof.Entry", package: "testapi.oneof", name: "Entry", goPackage: "apis/go/oneof", goName: "Entry") {
+	authorId: Int! @protoField(name: "author_id", type: "int32", goName: "AuthorId", goTypeName: "int32")
+	content: EntryContent! @protoField(name: "content", type: "testapi.oneof.Entry.content", goName: "Content", goTypeName: "Entry_Content", goTypePackage: "apis/go/oneof")
+}
+union EntryContent = Text | Image | Link
+input EntryInput @proto(fullName: "testapi.oneof.Entry", package: "testapi.oneof", name: "Entry", goPackage: "apis/go/oneof", goName: "Entry") {
+	authorId: Int! @protoField(name: "author_id", type: "int32", goName: "AuthorId", goTypeName: "int32")
+	"""
+	At most one field, `text`, `image`, and `link` will be set at the same time.
+	"""
+	text: TextInput @protoField(name: "text", type: "testapi.oneof.Text", goName: "Text", goTypeName: "Text", goTypePackage: "apis/go/oneof")
+	"""
+	At most one field, `text`, `image`, and `link` will be set at the same time.
+	"""
+	image: ImageInput @protoField(name: "image", type: "testapi.oneof.Image", goName: "Image", goTypeName: "Image", goTypePackage: "apis/go/oneof")
+	"""
+	At most one field, `text`, `image`, and `link` will be set at the same time.
+	"""
+	link: LinkInput @protoField(name: "link", type: "testapi.oneof.Link", goName: "Link", goTypeName: "Link", goTypePackage: "apis/go/oneof")
+}
+type Image @proto(fullName: "testapi.oneof.Image", package: "testapi.oneof", name: "Image", goPackage: "apis/go/oneof", goName: "Image") {
+	id: Int! @protoField(name: "id", type: "int32", goName: "Id", goTypeName: "int32")
+	url: String! @protoField(name: "url", type: "string", goName: "Url", goTypeName: "string")
+	width: Int! @protoField(name: "width", type: "uint32", goName: "Width", goTypeName: "uint32")
+	height: Int! @protoField(name: "height", type: "uint32", goName: "Height", goTypeName: "uint32")
+}
+input ImageInput @proto(fullName: "testapi.oneof.Image", package: "testapi.oneof", name: "Image", goPackage: "apis/go/oneof", goName: "Image") {
+	id: Int! @protoField(name: "id", type: "int32", goName: "Id", goTypeName: "int32")
+	url: String! @protoField(name: "url", type: "string", goName: "Url", goTypeName: "string")
+	width: Int! @protoField(name: "width", type: "uint32", goName: "Width", goTypeName: "uint32")
+	height: Int! @protoField(name: "height", type: "uint32", goName: "Height", goTypeName: "uint32")
+}
+type Link @proto(fullName: "testapi.oneof.Link", package: "testapi.oneof", name: "Link", goPackage: "apis/go/oneof", goName: "Link") {
+	id: Int! @protoField(name: "id", type: "int32", goName: "Id", goTypeName: "int32")
+	url: String! @protoField(name: "url", type: "string", goName: "Url", goTypeName: "string")
+}
+input LinkInput @proto(fullName: "testapi.oneof.Link", package: "testapi.oneof", name: "Link", goPackage: "apis/go/oneof", goName: "Link") {
+	id: Int! @protoField(name: "id", type: "int32", goName: "Id", goTypeName: "int32")
+	url: String! @protoField(name: "url", type: "string", goName: "Url", goTypeName: "string")
+}
+type Text @proto(fullName: "testapi.oneof.Text", package: "testapi.oneof", name: "Text", goPackage: "apis/go/oneof", goName: "Text") {
+	id: Int! @protoField(name: "id", type: "int32", goName: "Id", goTypeName: "int32")
+	body: String! @protoField(name: "body", type: "string", goName: "Body", goTypeName: "string")
+}
+input TextInput @proto(fullName: "testapi.oneof.Text", package: "testapi.oneof", name: "Text", goPackage: "apis/go/oneof", goName: "Text") {
+	id: Int! @protoField(name: "id", type: "int32", goName: "Id", goTypeName: "int32")
+	body: String! @protoField(name: "body", type: "string", goName: "Body", goTypeName: "string")
+}
+

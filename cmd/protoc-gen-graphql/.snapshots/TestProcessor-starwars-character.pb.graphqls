@@ -2,15 +2,21 @@
 A character from the Star Wars universe
 """
 type Character @proto(fullName: "testapi.starwars.Character", package: "testapi.starwars", name: "Character", goPackage: "apis/go/starwars", goName: "Character") {
-	human: Human! @protoField(name: "human", type: "testapi.starwars.Human", goName: "Human", goTypeName: "Human", goTypePackage: "apis/go/starwars")
-	droid: Droid! @protoField(name: "droid", type: "testapi.starwars.Droid", goName: "Droid", goTypeName: "Droid", goTypePackage: "apis/go/starwars")
+	character: CharacterCharacter! @protoField(name: "character", type: "testapi.starwars.Character.character", goName: "Character", goTypeName: "Character_Character", goTypePackage: "apis/go/starwars")
 }
+union CharacterCharacter = Human | Droid
 """
 A character from the Star Wars universe
 """
 input CharacterInput @proto(fullName: "testapi.starwars.Character", package: "testapi.starwars", name: "Character", goPackage: "apis/go/starwars", goName: "Character") {
-	human: HumanInput! @protoField(name: "human", type: "testapi.starwars.Human", goName: "Human", goTypeName: "Human", goTypePackage: "apis/go/starwars")
-	droid: DroidInput! @protoField(name: "droid", type: "testapi.starwars.Droid", goName: "Droid", goTypeName: "Droid", goTypePackage: "apis/go/starwars")
+	"""
+	At most one field, `human`, and `droid` will be set at the same time.
+	"""
+	human: HumanInput @protoField(name: "human", type: "testapi.starwars.Human", goName: "Human", goTypeName: "Human", goTypePackage: "apis/go/starwars")
+	"""
+	At most one field, `human`, and `droid` will be set at the same time.
+	"""
+	droid: DroidInput @protoField(name: "droid", type: "testapi.starwars.Droid", goName: "Droid", goTypeName: "Droid", goTypePackage: "apis/go/starwars")
 }
 """
 An autonomous mechanical character in the Star Wars universe

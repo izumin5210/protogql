@@ -34,13 +34,29 @@ func (t *ObjectType) DefinitionAST() (*ast.Definition, error) {
 		Description: protoutil.FormatComments(t.Proto.Comments),
 	}
 
+	visitedOneofNames := map[protoreflect.FullName]struct{}{}
 	for _, f := range t.Proto.Fields {
-		ft, err := TypeFromProtoField(f)
-		if err != nil {
-			return nil, err
+		var ft Type
+		var name protoreflect.Name
+
+		if f.Oneof != nil {
+			if _, ok := visitedOneofNames[f.Oneof.Desc.FullName()]; ok {
+				continue
+			}
+			ft = NewUnionType(f.Oneof)
+			name = f.Oneof.Desc.Name()
+			visitedOneofNames[f.Oneof.Desc.FullName()] = struct{}{}
+		} else {
+			var err error
+			ft, err = TypeFromProtoField(f)
+			if err != nil {
+				return nil, err
+			}
+			name = f.Desc.Name()
 		}
+
 		def.Fields = append(def.Fields, &ast.FieldDefinition{
-			Name:        strcase.ToLowerCamel(string(f.Desc.Name())),
+			Name:        strcase.ToLowerCamel(string(name)),
 			Type:        ft.TypeAST(),
 			Directives:  fieldDirectivesAST(f, ft),
 			Description: protoutil.FormatComments(f.Comments),
