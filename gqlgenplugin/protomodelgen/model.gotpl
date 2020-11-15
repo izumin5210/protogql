@@ -3,8 +3,14 @@
 {{ reserveImport "strconv" }}
 
 {{- range $obj := .ObjectsFromProto }}
+	{{- with $obj.Godoc }}
+		{{ . }}
+	{{- end }}
 	type {{ $obj.GoTypeName }} struct {
 		{{- range $f := $obj.Fields }}
+			{{- with $f.Godoc }}
+				{{ . }}
+			{{- end }}
 			{{ $f.GoFieldName }} {{ $f.GoFieldTypeDefinition }}
 		{{- end }}
 	}
@@ -47,8 +53,14 @@
 {{ end }}
 
 {{- range $obj := .ObjectsHasProto }}
+	{{- with $obj.Godoc }}
+		{{ . }}
+	{{- end }}
 	type {{ $obj.GoWrapperTypeName }} struct {
 		{{- range $f := $obj.Fields }}
+			{{- with $f.Godoc }}
+				{{ . }}
+			{{- end }}
 			{{ $f.GoFieldName }} {{ $f.GoFieldTypeDefinition }}
 		{{- end }}
 	}
@@ -87,6 +99,9 @@
 {{ end }}
 
 {{- range $enum := .EnumsFromProto }}
+	{{- with $enum.Godoc }}
+		{{ . }}
+	{{- end }}
 	type {{ $enum.GoTypeName }} struct {
 		Proto {{ $enum.PbGoTypeName }}
 	}

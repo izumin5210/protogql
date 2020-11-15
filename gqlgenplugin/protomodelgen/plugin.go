@@ -13,6 +13,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/vektah/gqlparser/v2/ast"
 
+	"github.com/izumin5210/remixer/codegen/goutil"
 	"github.com/izumin5210/remixer/codegen/gqlutil"
 )
 
@@ -308,6 +309,10 @@ func (o *ObjectFromProto) GoTypeName() string {
 	return o.def.Name
 }
 
+func (o *ObjectFromProto) Godoc() string {
+	return goutil.ToComment(o.def.Description)
+}
+
 func (o *ObjectFromProto) Fields() ([]*FieldFromProto, error) {
 	fields := make([]*FieldFromProto, len(o.def.Fields))
 
@@ -360,6 +365,10 @@ func (f *FieldFromProto) GoFieldName() string {
 
 func (f *FieldFromProto) PbGoFieldName() string {
 	return f.proto.GoName
+}
+
+func (f *FieldFromProto) Godoc() string {
+	return goutil.ToComment(f.gql.Description)
 }
 
 func (f *FieldFromProto) GoFieldTypeDefinition() string {
@@ -480,6 +489,10 @@ func (o *ObjectHasProto) GoTypeName() string {
 	return o.def.Name
 }
 
+func (o *ObjectHasProto) Godoc() string {
+	return goutil.ToComment(o.def.Description)
+}
+
 func (o *ObjectHasProto) Fields() ([]*FieldHasProto, error) {
 	fields := make([]*FieldHasProto, len(o.def.Fields))
 
@@ -517,6 +530,10 @@ type FieldHasProto struct {
 
 func (f *FieldHasProto) GoFieldName() string {
 	return templates.ToGo(f.gql.Name)
+}
+
+func (f *FieldHasProto) Godoc() string {
+	return goutil.ToComment(f.gql.Description)
 }
 
 func (f *FieldHasProto) GoFieldTypeDefinition() string {
@@ -619,6 +636,10 @@ func (e *EnumFromProto) PbGoTypeName() string {
 	b.WriteString(e.proto.GoName)
 
 	return b.String()
+}
+
+func (e *EnumFromProto) Godoc() string {
+	return goutil.ToComment(e.def.Description)
 }
 
 func (e *EnumFromProto) FuncNameFromProto() string {

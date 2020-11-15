@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package testapi.comments;
+
+option go_package = "apis/go/comments;comments_pb";
+
+// ParentMessage Leading Comment Line 1
+// ParentMessage Leading Comment Line 2
+//
+// ParentMessage Leading Comment Line 3
+message ParentMessage {
+  // NestedMessage Leading line 1
+  //
+  // NestedMessage Leading line 2
+  message NestedMessage {
+    // NestedMessage body leading comment
+    string nested_body = 1; // NestedMessage body trailing comment
+  }
+
+  // ParentMessage id leading line 1
+  // ParentMessage id leading line 2
+  int32 id = 1; // ParentMessage id trailing comment
+
+  // ParentMessage body leading comment
+  string body = 2; // ParentMessage body trailing comment
+
+  // ParentMessage comment_enum leading comment
+  CommentEnum comment_enum = 3;
+
+  // ParentMessage nested leading comment
+  NestedMessage nested = 4;
+} // ParentMessage trailing
+
+// CommentEnum leading line 1
+//
+// CommentEnum leading line 2
+enum CommentEnum {
+  COMMENT_ENUM_UNSPECIFIED = 0;
+  // FOO leading line 1
+  // FOO leading line 2
+  FOO = 1; // FOO trailing
+  // Bar leading
+  BAR = 2; 
+} // CommentEnum trailing
