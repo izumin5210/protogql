@@ -1,14 +1,22 @@
 type Entry @proto(fullName: "testapi.oneof.Entry", package: "testapi.oneof", name: "Entry", goPackage: "apis/go/oneof", goName: "Entry") {
 	authorId: Int! @protoField(name: "author_id", type: "int32", goName: "AuthorId", goTypeName: "int32")
-	text: Text! @protoField(name: "text", type: "testapi.oneof.Text", goName: "Text", goTypeName: "Text", goTypePackage: "apis/go/oneof")
-	image: Image! @protoField(name: "image", type: "testapi.oneof.Image", goName: "Image", goTypeName: "Image", goTypePackage: "apis/go/oneof")
-	link: Link! @protoField(name: "link", type: "testapi.oneof.Link", goName: "Link", goTypeName: "Link", goTypePackage: "apis/go/oneof")
+	content: EntryContent! @protoField(name: "content", type: "testapi.oneof.Entry.content", goName: "Content", goTypeName: "Entry_Content", goTypePackage: "apis/go/oneof")
 }
+union EntryContent @proto(fullName: "testapi.oneof.Entry.content", package: "testapi.oneof", name: "content", goPackage: "apis/go/oneof", goName: "Entry_Content") = Text | Image | Link
 input EntryInput @proto(fullName: "testapi.oneof.Entry", package: "testapi.oneof", name: "Entry", goPackage: "apis/go/oneof", goName: "Entry") {
 	authorId: Int! @protoField(name: "author_id", type: "int32", goName: "AuthorId", goTypeName: "int32")
-	text: TextInput! @protoField(name: "text", type: "testapi.oneof.Text", goName: "Text", goTypeName: "Text", goTypePackage: "apis/go/oneof")
-	image: ImageInput! @protoField(name: "image", type: "testapi.oneof.Image", goName: "Image", goTypeName: "Image", goTypePackage: "apis/go/oneof")
-	link: LinkInput! @protoField(name: "link", type: "testapi.oneof.Link", goName: "Link", goTypeName: "Link", goTypePackage: "apis/go/oneof")
+	"""
+	At most one field, `text`, `image`, and `link` will be set at the same time.
+	"""
+	text: TextInput @protoField(name: "text", type: "testapi.oneof.Text", goName: "Text", goTypeName: "Text", goTypePackage: "apis/go/oneof")
+	"""
+	At most one field, `text`, `image`, and `link` will be set at the same time.
+	"""
+	image: ImageInput @protoField(name: "image", type: "testapi.oneof.Image", goName: "Image", goTypeName: "Image", goTypePackage: "apis/go/oneof")
+	"""
+	At most one field, `text`, `image`, and `link` will be set at the same time.
+	"""
+	link: LinkInput @protoField(name: "link", type: "testapi.oneof.Link", goName: "Link", goTypeName: "Link", goTypePackage: "apis/go/oneof")
 }
 type Image @proto(fullName: "testapi.oneof.Image", package: "testapi.oneof", name: "Image", goPackage: "apis/go/oneof", goName: "Image") {
 	id: Int! @protoField(name: "id", type: "int32", goName: "Id", goTypeName: "int32")
