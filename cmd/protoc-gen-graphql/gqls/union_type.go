@@ -30,9 +30,9 @@ func (t *UnionType) GoIdent() protogen.GoIdent                { return t.Proto.G
 
 func (t *UnionType) DefinitionAST() (*ast.Definition, error) {
 	def := &ast.Definition{
-		Kind: ast.Union,
-		Name: string(t.Name()),
-		// Directives:  messageDirectivesAST(t.Proto),
+		Kind:        ast.Union,
+		Name:        string(t.Name()),
+		Directives:  oneofDirectivesAST(t.Proto),
 		Description: protoutil.FormatComments(t.Proto.Comments),
 	}
 

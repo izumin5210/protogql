@@ -12,6 +12,12 @@ func messageDirectivesAST(m *protogen.Message) ast.DirectiveList {
 	}
 }
 
+func oneofDirectivesAST(o *protogen.Oneof) ast.DirectiveList {
+	return ast.DirectiveList{
+		protobufTypeDirectiveAST(o.Desc, o.GoIdent),
+	}
+}
+
 func enumDirectivesAST(e *protogen.Enum) ast.DirectiveList {
 	return ast.DirectiveList{
 		protobufTypeDirectiveAST(e.Desc, e.GoIdent),

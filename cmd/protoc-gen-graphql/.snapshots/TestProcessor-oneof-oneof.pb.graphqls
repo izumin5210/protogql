@@ -2,7 +2,7 @@ type Entry @proto(fullName: "testapi.oneof.Entry", package: "testapi.oneof", nam
 	authorId: Int! @protoField(name: "author_id", type: "int32", goName: "AuthorId", goTypeName: "int32")
 	content: EntryContent! @protoField(name: "content", type: "testapi.oneof.Entry.content", goName: "Content", goTypeName: "Entry_Content", goTypePackage: "apis/go/oneof")
 }
-union EntryContent = Text | Image | Link
+union EntryContent @proto(fullName: "testapi.oneof.Entry.content", package: "testapi.oneof", name: "content", goPackage: "apis/go/oneof", goName: "Entry_Content") = Text | Image | Link
 input EntryInput @proto(fullName: "testapi.oneof.Entry", package: "testapi.oneof", name: "Entry", goPackage: "apis/go/oneof", goName: "Entry") {
 	authorId: Int! @protoField(name: "author_id", type: "int32", goName: "AuthorId", goTypeName: "int32")
 	"""
