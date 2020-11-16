@@ -4,7 +4,7 @@ A character from the Star Wars universe
 type Character @proto(fullName: "testapi.starwars.Character", package: "testapi.starwars", name: "Character", goPackage: "apis/go/starwars", goName: "Character") {
 	character: CharacterCharacter! @protoField(name: "character", type: "testapi.starwars.Character.character", goName: "Character", goTypeName: "Character_Character", goTypePackage: "apis/go/starwars")
 }
-union CharacterCharacter @proto(fullName: "testapi.starwars.Character.character", package: "testapi.starwars", name: "character", goPackage: "apis/go/starwars", goName: "Character_Character") = Human | Droid
+union CharacterCharacter @proto(fullName: "testapi.starwars.Character.character", package: "testapi.starwars", name: "character", goPackage: "apis/go/starwars", goName: "Character_Character", oneof: {fields:[{name:"Human",goName:"Character_Human"},{name:"Droid",goName:"Character_Droid"}]}) = Human | Droid
 """
 A character from the Star Wars universe
 """

@@ -32,7 +32,6 @@ func (t *UnionType) DefinitionAST() (*ast.Definition, error) {
 	def := &ast.Definition{
 		Kind:        ast.Union,
 		Name:        string(t.Name()),
-		Directives:  oneofDirectivesAST(t.Proto),
 		Description: protoutil.FormatComments(t.Proto.Comments),
 	}
 
@@ -44,6 +43,8 @@ func (t *UnionType) DefinitionAST() (*ast.Definition, error) {
 
 		def.Types = append(def.Types, ft.Name())
 	}
+
+	def.Directives = oneofDirectivesAST(t.Proto, def.Types)
 
 	return def, nil
 }

@@ -12,10 +12,31 @@ func messageDirectivesAST(m *protogen.Message) ast.DirectiveList {
 	}
 }
 
-func oneofDirectivesAST(o *protogen.Oneof) ast.DirectiveList {
-	return ast.DirectiveList{
-		protobufTypeDirectiveAST(o.Desc, o.GoIdent),
+func oneofDirectivesAST(o *protogen.Oneof, gqlTypeNames []string) ast.DirectiveList {
+	d := protobufTypeDirectiveAST(o.Desc, o.GoIdent)
+
+	oneofFields := make(ast.ChildValueList, len(o.Fields))
+	for i, f := range o.Fields {
+		oneofFields[i] = &ast.ChildValue{Value: &ast.Value{
+			Children: ast.ChildValueList{
+				{Name: "name", Value: &ast.Value{Raw: gqlTypeNames[i], Kind: ast.StringValue}},
+				{Name: "goName", Value: &ast.Value{Raw: f.GoIdent.GoName, Kind: ast.StringValue}},
+			},
+			Kind: ast.ObjectValue,
+		}}
 	}
+
+	d.Arguments = append(d.Arguments, &ast.Argument{
+		Name: "oneof",
+		Value: &ast.Value{
+			Children: ast.ChildValueList{
+				{Name: "fields", Value: &ast.Value{Children: oneofFields, Kind: ast.ListValue}},
+			},
+			Kind: ast.ObjectValue,
+		},
+	})
+
+	return ast.DirectiveList{d}
 }
 
 func enumDirectivesAST(e *protogen.Enum) ast.DirectiveList {
@@ -30,6 +51,7 @@ func fieldDirectivesAST(f *protogen.Field, typ Type) ast.DirectiveList {
 			protobufFieldDirectiveAST(f.Oneof.GoName, f.Oneof.Desc, typ),
 		}
 	}
+
 	return ast.DirectiveList{
 		protobufFieldDirectiveAST(f.GoName, f.Desc, typ),
 	}
