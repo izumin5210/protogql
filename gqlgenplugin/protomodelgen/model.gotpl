@@ -24,13 +24,15 @@
 	}
 
 	func {{ $obj.FuncNameFromProto }}(in *{{ $obj.PbGoTypeName }}) *{{ $obj.GoTypeName }} {
-		return &{{ $obj.GoTypeName }}{
+		out := &{{ $obj.GoTypeName }}{
 			{{- range $f := $obj.Fields }}
 				{{- with ($f.FromProtoStatement "in") }}
 					{{ $f.GoFieldName }}: {{ . }},
 				{{- end }}
 			{{- end }}
 		}
+
+		return out
 	}
 
 	func {{ $obj.FuncNameToRepeatedProto }}(in []*{{ $obj.GoTypeName }}) []*{{ $obj.PbGoTypeName }} {
@@ -42,13 +44,15 @@
 	}
 
 	func {{ $obj.FuncNameToProto }}(in *{{ $obj.GoTypeName }}) *{{ $obj.PbGoTypeName }} {
-		return &{{ $obj.PbGoTypeName}}{
+		out := &{{ $obj.PbGoTypeName }}{
 			{{- range $f := $obj.Fields }}
 				{{- with ($f.ToProtoStatement "in") }}
 					{{ $f.PbGoFieldName }}: {{ . }},
 				{{- end }}
 			{{- end }}
 		}
+
+		return out
 	}
 {{ end }}
 

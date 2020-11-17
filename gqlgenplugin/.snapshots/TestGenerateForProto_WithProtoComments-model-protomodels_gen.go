@@ -34,12 +34,14 @@ func ParentMessageListFromRepeatedProto(in []*comments_pb.ParentMessage) []*Pare
 }
 
 func ParentMessageFromProto(in *comments_pb.ParentMessage) *ParentMessage {
-	return &ParentMessage{
-		ID:          in.Id,
-		Body:        in.Body,
-		CommentEnum: CommentEnumFromProto(in.CommentEnum),
-		Nested:      ParentMessageNestedMessageFromProto(in.Nested),
+	out := &ParentMessage{
+		ID:          in.GetId(),
+		Body:        in.GetBody(),
+		CommentEnum: CommentEnumFromProto(in.GetCommentEnum()),
+		Nested:      ParentMessageNestedMessageFromProto(in.GetNested()),
 	}
+
+	return out
 }
 
 func ParentMessageListToRepeatedProto(in []*ParentMessage) []*comments_pb.ParentMessage {
@@ -51,12 +53,14 @@ func ParentMessageListToRepeatedProto(in []*ParentMessage) []*comments_pb.Parent
 }
 
 func ParentMessageToProto(in *ParentMessage) *comments_pb.ParentMessage {
-	return &comments_pb.ParentMessage{
+	out := &comments_pb.ParentMessage{
 		Id:          in.ID,
 		Body:        in.Body,
 		CommentEnum: CommentEnumToProto(in.CommentEnum),
 		Nested:      ParentMessageNestedMessageToProto(in.Nested),
 	}
+
+	return out
 }
 
 // ParentMessage Leading Comment Line 1
@@ -84,12 +88,14 @@ func ParentMessageInputListFromRepeatedProto(in []*comments_pb.ParentMessage) []
 }
 
 func ParentMessageInputFromProto(in *comments_pb.ParentMessage) *ParentMessageInput {
-	return &ParentMessageInput{
-		ID:          in.Id,
-		Body:        in.Body,
-		CommentEnum: CommentEnumFromProto(in.CommentEnum),
-		Nested:      ParentMessageNestedMessageInputFromProto(in.Nested),
+	out := &ParentMessageInput{
+		ID:          in.GetId(),
+		Body:        in.GetBody(),
+		CommentEnum: CommentEnumFromProto(in.GetCommentEnum()),
+		Nested:      ParentMessageNestedMessageInputFromProto(in.GetNested()),
 	}
+
+	return out
 }
 
 func ParentMessageInputListToRepeatedProto(in []*ParentMessageInput) []*comments_pb.ParentMessage {
@@ -101,12 +107,14 @@ func ParentMessageInputListToRepeatedProto(in []*ParentMessageInput) []*comments
 }
 
 func ParentMessageInputToProto(in *ParentMessageInput) *comments_pb.ParentMessage {
-	return &comments_pb.ParentMessage{
+	out := &comments_pb.ParentMessage{
 		Id:          in.ID,
 		Body:        in.Body,
 		CommentEnum: CommentEnumToProto(in.CommentEnum),
 		Nested:      ParentMessageNestedMessageInputToProto(in.Nested),
 	}
+
+	return out
 }
 
 // NestedMessage Leading line 1
@@ -126,9 +134,11 @@ func ParentMessageNestedMessageListFromRepeatedProto(in []*comments_pb.ParentMes
 }
 
 func ParentMessageNestedMessageFromProto(in *comments_pb.ParentMessage_NestedMessage) *ParentMessageNestedMessage {
-	return &ParentMessageNestedMessage{
-		NestedBody: in.NestedBody,
+	out := &ParentMessageNestedMessage{
+		NestedBody: in.GetNestedBody(),
 	}
+
+	return out
 }
 
 func ParentMessageNestedMessageListToRepeatedProto(in []*ParentMessageNestedMessage) []*comments_pb.ParentMessage_NestedMessage {
@@ -140,9 +150,11 @@ func ParentMessageNestedMessageListToRepeatedProto(in []*ParentMessageNestedMess
 }
 
 func ParentMessageNestedMessageToProto(in *ParentMessageNestedMessage) *comments_pb.ParentMessage_NestedMessage {
-	return &comments_pb.ParentMessage_NestedMessage{
+	out := &comments_pb.ParentMessage_NestedMessage{
 		NestedBody: in.NestedBody,
 	}
+
+	return out
 }
 
 // NestedMessage Leading line 1
@@ -162,9 +174,11 @@ func ParentMessageNestedMessageInputListFromRepeatedProto(in []*comments_pb.Pare
 }
 
 func ParentMessageNestedMessageInputFromProto(in *comments_pb.ParentMessage_NestedMessage) *ParentMessageNestedMessageInput {
-	return &ParentMessageNestedMessageInput{
-		NestedBody: in.NestedBody,
+	out := &ParentMessageNestedMessageInput{
+		NestedBody: in.GetNestedBody(),
 	}
+
+	return out
 }
 
 func ParentMessageNestedMessageInputListToRepeatedProto(in []*ParentMessageNestedMessageInput) []*comments_pb.ParentMessage_NestedMessage {
@@ -176,9 +190,11 @@ func ParentMessageNestedMessageInputListToRepeatedProto(in []*ParentMessageNeste
 }
 
 func ParentMessageNestedMessageInputToProto(in *ParentMessageNestedMessageInput) *comments_pb.ParentMessage_NestedMessage {
-	return &comments_pb.ParentMessage_NestedMessage{
+	out := &comments_pb.ParentMessage_NestedMessage{
 		NestedBody: in.NestedBody,
 	}
+
+	return out
 }
 
 // CommentEnum leading line 1

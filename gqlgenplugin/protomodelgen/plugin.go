@@ -405,24 +405,25 @@ func (f *FieldFromProto) FromProtoStatement(receiver string) string {
 	switch {
 	case f.isGoBuiltinType(), f.isProtoWellKnownType():
 		b.WriteString(receiver)
-		b.WriteString(".")
+		b.WriteString(".Get")
 		b.WriteString(f.proto.GoName)
+		b.WriteString("()")
 	case f.isList():
 		typ := f.object.registry.FindProtoType(f.gql.Type.Name())
 		b.WriteString(typ.FuncNameFromRepeatedProto())
 		b.WriteString("(")
 		b.WriteString(receiver)
-		b.WriteString(".")
+		b.WriteString(".Get")
 		b.WriteString(f.proto.GoName)
-		b.WriteString(")")
+		b.WriteString("())")
 	default:
 		typ := f.object.registry.FindProtoType(f.gql.Type.Name())
 		b.WriteString(typ.FuncNameFromProto())
 		b.WriteString("(")
 		b.WriteString(receiver)
-		b.WriteString(".")
+		b.WriteString(".Get")
 		b.WriteString(f.proto.GoName)
-		b.WriteString(")")
+		b.WriteString("())")
 	}
 
 	return b.String()
