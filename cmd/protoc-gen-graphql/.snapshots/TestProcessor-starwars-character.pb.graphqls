@@ -2,7 +2,7 @@
 A character from the Star Wars universe
 """
 type Character @proto(fullName: "testapi.starwars.Character", package: "testapi.starwars", name: "Character", goPackage: "apis/go/starwars", goName: "Character") {
-	character: CharacterCharacter! @protoField(name: "character", type: "testapi.starwars.Character.character", goName: "Character", goTypeName: "Character_Character", goTypePackage: "apis/go/starwars")
+	character: CharacterCharacter! @protoField(name: "character", type: "testapi.starwars.Character.character", goName: "Character", goTypeName: "Character_Character", goTypePackage: "apis/go/starwars", oneofName: "character", oneofGoName: "Character")
 }
 union CharacterCharacter @proto(fullName: "testapi.starwars.Character.character", package: "testapi.starwars", name: "character", goPackage: "apis/go/starwars", goName: "Character_Character", oneof: {fields:[{name:"Human",goName:"Character_Human"},{name:"Droid",goName:"Character_Droid"}]}) = Human | Droid
 """
@@ -12,11 +12,11 @@ input CharacterInput @proto(fullName: "testapi.starwars.Character", package: "te
 	"""
 	At most one field, `human`, and `droid` will be set at the same time.
 	"""
-	human: HumanInput @protoField(name: "human", type: "testapi.starwars.Human", goName: "Human", goTypeName: "Human", goTypePackage: "apis/go/starwars")
+	human: HumanInput @protoField(name: "character", type: "testapi.starwars.Human", goName: "Character", goTypeName: "Human", goTypePackage: "apis/go/starwars", oneofName: "character", oneofGoName: "Character")
 	"""
 	At most one field, `human`, and `droid` will be set at the same time.
 	"""
-	droid: DroidInput @protoField(name: "droid", type: "testapi.starwars.Droid", goName: "Droid", goTypeName: "Droid", goTypePackage: "apis/go/starwars")
+	droid: DroidInput @protoField(name: "character", type: "testapi.starwars.Droid", goName: "Character", goTypeName: "Droid", goTypePackage: "apis/go/starwars", oneofName: "character", oneofGoName: "Character")
 }
 """
 An autonomous mechanical character in the Star Wars universe
