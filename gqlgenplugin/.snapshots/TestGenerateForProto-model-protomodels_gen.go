@@ -26,13 +26,15 @@ func TaskListFromRepeatedProto(in []*todo_pb.Task) []*Task {
 }
 
 func TaskFromProto(in *todo_pb.Task) *Task {
-	return &Task{
-		ID:          in.Id,
-		Title:       in.Title,
-		Status:      TaskStatusFromProto(in.Status),
-		AssigneeIds: in.AssigneeIds,
-		AuthorID:    in.AuthorId,
+	out := &Task{
+		ID:          in.GetId(),
+		Title:       in.GetTitle(),
+		Status:      TaskStatusFromProto(in.GetStatus()),
+		AssigneeIds: in.GetAssigneeIds(),
+		AuthorID:    in.GetAuthorId(),
 	}
+
+	return out
 }
 
 func TaskListToRepeatedProto(in []*Task) []*todo_pb.Task {
@@ -44,13 +46,15 @@ func TaskListToRepeatedProto(in []*Task) []*todo_pb.Task {
 }
 
 func TaskToProto(in *Task) *todo_pb.Task {
-	return &todo_pb.Task{
+	out := &todo_pb.Task{
 		Id:          in.ID,
 		Title:       in.Title,
 		Status:      TaskStatusToProto(in.Status),
 		AssigneeIds: in.AssigneeIds,
 		AuthorId:    in.AuthorID,
 	}
+
+	return out
 }
 
 type TaskInput struct {
@@ -70,13 +74,15 @@ func TaskInputListFromRepeatedProto(in []*todo_pb.Task) []*TaskInput {
 }
 
 func TaskInputFromProto(in *todo_pb.Task) *TaskInput {
-	return &TaskInput{
-		ID:          in.Id,
-		Title:       in.Title,
-		Status:      TaskStatusFromProto(in.Status),
-		AssigneeIds: in.AssigneeIds,
-		AuthorID:    in.AuthorId,
+	out := &TaskInput{
+		ID:          in.GetId(),
+		Title:       in.GetTitle(),
+		Status:      TaskStatusFromProto(in.GetStatus()),
+		AssigneeIds: in.GetAssigneeIds(),
+		AuthorID:    in.GetAuthorId(),
 	}
+
+	return out
 }
 
 func TaskInputListToRepeatedProto(in []*TaskInput) []*todo_pb.Task {
@@ -88,13 +94,15 @@ func TaskInputListToRepeatedProto(in []*TaskInput) []*todo_pb.Task {
 }
 
 func TaskInputToProto(in *TaskInput) *todo_pb.Task {
-	return &todo_pb.Task{
+	out := &todo_pb.Task{
 		Id:          in.ID,
 		Title:       in.Title,
 		Status:      TaskStatusToProto(in.Status),
 		AssigneeIds: in.AssigneeIds,
 		AuthorId:    in.AuthorID,
 	}
+
+	return out
 }
 
 type TaskStatus struct {
