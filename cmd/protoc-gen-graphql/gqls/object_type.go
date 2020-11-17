@@ -38,6 +38,7 @@ func (t *ObjectType) DefinitionAST() (*ast.Definition, error) {
 	for _, f := range t.Proto.Fields {
 		var ft Type
 		var name protoreflect.Name
+		var directives ast.DirectiveList
 
 		if f.Oneof != nil {
 			if _, ok := visitedOneofNames[f.Oneof.Desc.FullName()]; ok {
@@ -46,6 +47,7 @@ func (t *ObjectType) DefinitionAST() (*ast.Definition, error) {
 			ft = NewUnionType(f.Oneof)
 			name = f.Oneof.Desc.Name()
 			visitedOneofNames[f.Oneof.Desc.FullName()] = struct{}{}
+			directives = oneofFieldDirectivesAST(f.Oneof, ft)
 		} else {
 			var err error
 			ft, err = TypeFromProtoField(f)
@@ -53,12 +55,13 @@ func (t *ObjectType) DefinitionAST() (*ast.Definition, error) {
 				return nil, err
 			}
 			name = f.Desc.Name()
+			directives = fieldDirectivesAST(f, ft)
 		}
 
 		def.Fields = append(def.Fields, &ast.FieldDefinition{
 			Name:        strcase.ToLowerCamel(string(name)),
 			Type:        ft.TypeAST(),
-			Directives:  fieldDirectivesAST(f, ft),
+			Directives:  directives,
 			Description: protoutil.FormatComments(f.Comments),
 		})
 	}

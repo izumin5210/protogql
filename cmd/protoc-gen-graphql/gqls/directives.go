@@ -45,27 +45,27 @@ func enumDirectivesAST(e *protogen.Enum) ast.DirectiveList {
 	}
 }
 
-func fieldDirectivesAST(f *protogen.Field, typ Type) ast.DirectiveList {
-	if f.Oneof != nil {
-		return ast.DirectiveList{
-			protobufOneofFieldDirectiveAST(f, typ),
-		}
-	}
-
+func oneofFieldDirectivesAST(o *protogen.Oneof, typ Type) ast.DirectiveList {
 	return ast.DirectiveList{
-		protobufFieldDirectiveAST(f.GoName, f.Desc, typ),
+		&ast.Directive{
+			Name: "protoField",
+			Arguments: append(
+				append(ast.ArgumentList{}, protobufFieldDirectiveNameArgs(o.GoName, o.Desc.Name(), o)...),
+				append(ast.ArgumentList{}, protobufFieldDirectiveTypeArgs(typ)...)...,
+			),
+		},
+	}
+}
+
+func fieldDirectivesAST(f *protogen.Field, typ Type) ast.DirectiveList {
+	return ast.DirectiveList{
+		protobufFieldDirectiveAST(f, typ),
 	}
 }
 
 func inputFieldDirectivesAST(f *protogen.Field, typ Type) ast.DirectiveList {
-	if f.Oneof != nil {
-		return ast.DirectiveList{
-			protobufOneofFieldDirectiveAST(f, typ),
-		}
-	}
-
 	return ast.DirectiveList{
-		protobufFieldDirectiveAST(f.GoName, f.Desc, typ),
+		protobufFieldDirectiveAST(f, typ),
 	}
 }
 
@@ -82,16 +82,17 @@ func protobufTypeDirectiveAST(desc protoreflect.Descriptor, goIdent protogen.GoI
 	}
 }
 
-func protobufOneofFieldDirectiveAST(f *protogen.Field, typ Type) *ast.Directive {
-	d := protobufFieldDirectiveAST(f.Oneof.GoName, f.Oneof.Desc, typ)
-	d.Arguments = append(d.Arguments,
-		&ast.Argument{Name: "oneofName", Value: &ast.Value{Raw: string(f.Oneof.Desc.Name()), Kind: ast.StringValue}},
-		&ast.Argument{Name: "oneofGoName", Value: &ast.Value{Raw: f.Oneof.GoName, Kind: ast.StringValue}},
-	)
-	return d
+func protobufFieldDirectiveAST(f *protogen.Field, typ Type) *ast.Directive {
+	return &ast.Directive{
+		Name: "protoField",
+		Arguments: append(
+			append(ast.ArgumentList{}, protobufFieldDirectiveNameArgs(f.GoName, f.Desc.Name(), f.Oneof)...),
+			append(ast.ArgumentList{}, protobufFieldDirectiveTypeArgs(typ)...)...,
+		),
+	}
 }
 
-func protobufFieldDirectiveAST(goName string, desc protoreflect.Descriptor, typ Type) *ast.Directive {
+func protobufFieldDirectiveTypeArgs(typ Type) []*ast.Argument {
 	var protoType, goTypeName, goTypePackage string
 
 	switch typ := UnwrapType(typ).(type) {
@@ -106,18 +107,28 @@ func protobufFieldDirectiveAST(goName string, desc protoreflect.Descriptor, typ 
 		panic("unreachable")
 	}
 
-	d := &ast.Directive{
-		Name: "protoField",
-		Arguments: ast.ArgumentList{
-			{Name: "name", Value: &ast.Value{Raw: string(desc.Name()), Kind: ast.StringValue}},
-			{Name: "type", Value: &ast.Value{Raw: protoType, Kind: ast.StringValue}},
-			{Name: "goName", Value: &ast.Value{Raw: goName, Kind: ast.StringValue}},
-			{Name: "goTypeName", Value: &ast.Value{Raw: goTypeName, Kind: ast.StringValue}},
-		},
+	args := []*ast.Argument{
+		{Name: "type", Value: &ast.Value{Raw: protoType, Kind: ast.StringValue}},
+		{Name: "goTypeName", Value: &ast.Value{Raw: goTypeName, Kind: ast.StringValue}},
 	}
 	if goTypePackage != "" {
-		d.Arguments = append(d.Arguments,
+		args = append(args,
 			&ast.Argument{Name: "goTypePackage", Value: &ast.Value{Raw: goTypePackage, Kind: ast.StringValue}})
 	}
-	return d
+
+	return args
+}
+
+func protobufFieldDirectiveNameArgs(goName string, name protoreflect.Name, o *protogen.Oneof) []*ast.Argument {
+	args := []*ast.Argument{
+		{Name: "name", Value: &ast.Value{Raw: string(name), Kind: ast.StringValue}},
+		{Name: "goName", Value: &ast.Value{Raw: goName, Kind: ast.StringValue}},
+	}
+	if o != nil {
+		args = append(args,
+			&ast.Argument{Name: "oneofName", Value: &ast.Value{Raw: string(o.Desc.Name()), Kind: ast.StringValue}},
+			&ast.Argument{Name: "oneofGoName", Value: &ast.Value{Raw: o.GoName, Kind: ast.StringValue}},
+		)
+	}
+	return args
 }
