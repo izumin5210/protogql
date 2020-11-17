@@ -194,6 +194,54 @@ extend type Query {
 	})
 }
 
+func TestGenerateForProto_WithProtoOneofs(t *testing.T) {
+	rootDir := getModuleRoot()
+	testdataDir := filepath.Join(rootDir, "testdata")
+
+	gqlgentest := gqlgentest.New(t)
+	gqlgentest.AddGqlGenOption(
+		gqlgenplugin.AddPluginBefore(protomodelgen.New(), "modelgen"),
+		gqlgenplugin.AddPluginBefore(protoresolvergen.New(), "resolvergen"),
+	)
+	gqlgentest.AddGqlSchemaFile(t, filepath.Join(testdataDir, "apis", "graphql", "oneof", "*.graphqls"))
+	gqlgentest.AddGqlSchema("schema.graphqls", `
+directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
+directive @proto(fullName: String!, package: String!, name: String!, goPackage: String!, goName: String!) on OBJECT | INPUT_OBJECT | ENUM
+directive @protoField(name: String!, type: String!, goName: String!, goTypeName: String!, goTypePackage: String, oneofName: String, oneofGoName: String) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+input ProtoOneof {
+  fields: [ProtoOneofField!]!
+}
+input ProtoOneofField {
+  name: String!
+  goName: String!
+}
+
+extend type Query {
+  entries: [Entry!]!
+}`)
+	gqlgentest.AddGoModReplace("github.com/izumin5210/remixer", rootDir)
+	gqlgentest.AddGoModReplace("apis/go/oneof", filepath.Join(testdataDir, "apis", "go", "oneof"))
+
+	gqlgentest.Run(t, func(t *testing.T, err error) {
+		if err != nil {
+			t.Errorf("failed to generate code: %v", err)
+		}
+
+		if entries, err := filepath.Glob("resolver/**"); err != nil {
+			t.Errorf("failed to search files: %v", err)
+		} else if got, want := len(entries), 3; got != want {
+			t.Errorf("Files under resolver/ were found %d, want %d", got, want)
+		}
+
+		gqlgentest.SnapshotFile(t,
+			"model/protomodels_gen.go",
+			"resolver/resolver.go",
+			"resolver/schema.resolvers.go",
+			"resolver/schema.resolvers.proto.go",
+		)
+	})
+}
+
 func TestGenerateForProto_WhenUpdate(t *testing.T) {
 	rootDir := getModuleRoot()
 	testdataDir := filepath.Join(rootDir, "testdata")

@@ -37,8 +37,21 @@ func (p *Plugin) MutateConfig(cfg *config.Config) error {
 		return err
 	}
 
+	models := []ProtoType{}
+	for _, t := range reg.ObjectsFromProto() {
+		models = append(models, t)
+	}
+	for _, t := range reg.EnumsFromProto() {
+		models = append(models, t)
+	}
+	for _, t := range reg.UnionsFromProto() {
+		models = append(models, t)
+	}
+
+	for _, typ := range models {
+		cfg.Models.Add(typ.GoTypeName(), cfg.Model.ImportPath()+"."+typ.GoTypeName())
+	}
 	for _, obj := range reg.ObjectsFromProto() {
-		cfg.Models.Add(obj.def.Name, cfg.Model.ImportPath()+"."+obj.GoTypeName())
 		fields, err := obj.Fields()
 		if err != nil {
 			return errors.WithStack(err)
@@ -131,6 +144,7 @@ type Registry struct {
 	objectsHasProto  map[string]*ObjectHasProto
 	plainObjects     map[string]*PlainObject
 	enumsFromProto   map[string]*EnumFromProto
+	unionsFromProto  map[string]*UnionFromProto
 	data             *codegen.Data
 }
 
@@ -148,6 +162,7 @@ func createRegistry(data *codegen.Data, schema *ast.Schema) (*Registry, error) {
 		objectsHasProto:  map[string]*ObjectHasProto{},
 		plainObjects:     map[string]*PlainObject{},
 		enumsFromProto:   map[string]*EnumFromProto{},
+		unionsFromProto:  map[string]*UnionFromProto{},
 		data:             data,
 	}
 
@@ -187,6 +202,17 @@ func createRegistry(data *codegen.Data, schema *ast.Schema) (*Registry, error) {
 		case ast.Scalar:
 			// no-op
 
+		case ast.Union:
+			proto, err := gqlutil.ExtractProtoDirective(def.Directives)
+			if err != nil {
+				return nil, errors.Wrapf(err, "%s has invalid directive", def.Name)
+			}
+			if proto != nil {
+				reg.unionsFromProto[def.Name] = &UnionFromProto{def: def, proto: proto, registry: reg}
+			} else {
+				panic("Plain GraphQL Unions is not supported yet")
+			}
+
 		default:
 			// TODO: not implemented
 			panic(fmt.Errorf("%s is not supported yet", def.Kind))
@@ -213,6 +239,9 @@ func (r *Registry) FindProtoType(name string) ProtoType {
 	}
 	if enum, ok := r.enumsFromProto[name]; ok {
 		return enum
+	}
+	if union, ok := r.unionsFromProto[name]; ok {
+		return union
 	}
 
 	return nil
@@ -272,6 +301,17 @@ func (r *Registry) EnumsFromProto() []*EnumFromProto {
 	sort.Slice(enums, func(i, j int) bool { return enums[i].GoTypeName() < enums[j].GoTypeName() })
 
 	return enums
+}
+
+func (r *Registry) UnionsFromProto() []*UnionFromProto {
+	unions := make([]*UnionFromProto, 0, len(r.unionsFromProto))
+	for _, u := range r.unionsFromProto {
+		unions = append(unions, u)
+	}
+
+	sort.Slice(unions, func(i, j int) bool { return unions[i].GoTypeName() < unions[j].GoTypeName() })
+
+	return unions
 }
 
 type ProtoType interface {
@@ -387,8 +427,10 @@ func (f *FieldFromProto) GoFieldTypeDefinition() string {
 		b.WriteString(".")
 		b.WriteString(f.proto.GoTypeName)
 	default:
-		b.WriteString("*")
 		typ := f.object.registry.FindType(f.gql.Type.Name())
+		if _, ok := typ.(*UnionFromProto); !ok {
+			b.WriteString("*")
+		}
 		b.WriteString(typ.GoTypeName())
 	}
 
@@ -442,16 +484,14 @@ func (f *FieldFromProto) ToProtoStatement(receiver string) string {
 		b.WriteString(".")
 		b.WriteString(f.GoFieldName())
 	case f.isList():
-		typ := f.object.registry.FindProtoType(f.gql.Type.Name())
-		b.WriteString(typ.FuncNameToRepeatedProto())
+		b.WriteString(f.ProtoType().FuncNameToRepeatedProto())
 		b.WriteString("(")
 		b.WriteString(receiver)
 		b.WriteString(".")
 		b.WriteString(f.GoFieldName())
 		b.WriteString(")")
 	default:
-		typ := f.object.registry.FindProtoType(f.gql.Type.Name())
-		b.WriteString(typ.FuncNameToProto())
+		b.WriteString(f.ProtoType().FuncNameToProto())
 		b.WriteString("(")
 		b.WriteString(receiver)
 		b.WriteString(".")
@@ -460,6 +500,32 @@ func (f *FieldFromProto) ToProtoStatement(receiver string) string {
 	}
 
 	return b.String()
+}
+
+func (f *FieldFromProto) ProtoType() ProtoType {
+	return f.object.registry.FindProtoType(f.gql.Type.Name())
+}
+
+func (f *FieldFromProto) IsOneof() bool {
+	return f.proto != nil && f.proto.OneofName != ""
+}
+
+func (f *FieldFromProto) OneofMembers() []*UnionMemberFromProto {
+	typ := f.object.registry.FindProtoType(f.gql.Type.Name())
+	u, ok := typ.(*UnionFromProto)
+	if !ok {
+		return nil
+	}
+
+	return u.Members()
+}
+
+func (f *FieldFromProto) IsOneofMember() bool {
+	return f.proto != nil && f.proto.OneofName != "" && f.proto.OneofName != f.proto.Name
+}
+
+func (f *FieldFromProto) PbGoOneofName() string {
+	return f.proto.OneofGoName
 }
 
 func (f *FieldFromProto) isList() bool {
@@ -657,4 +723,86 @@ func (e *EnumFromProto) FuncNameToProto() string {
 
 func (e *EnumFromProto) FuncNameToRepeatedProto() string {
 	return e.GoTypeName() + "ListToRepeatedProto"
+}
+
+type UnionFromProto struct {
+	def      *ast.Definition
+	proto    *gqlutil.ProtoDirective
+	registry *Registry
+}
+
+func (u *UnionFromProto) GoTypeName() string {
+	return u.def.Name
+}
+
+func (u *UnionFromProto) PbGoOneofMethodName() string {
+	return "is" + u.proto.GoName
+}
+
+func (u *UnionFromProto) PbGoTypeName() string {
+	return u.GoTypeName() + "_Proto"
+}
+
+func (u *UnionFromProto) Godoc() string {
+	return goutil.ToComment(u.def.Description)
+}
+
+func (u *UnionFromProto) FuncNameFromProto() string {
+	return u.GoTypeName() + "FromProto"
+}
+
+func (u *UnionFromProto) FuncNameFromRepeatedProto() string {
+	return u.GoTypeName() + "ListFromRepeatedProto"
+}
+
+func (u *UnionFromProto) FuncNameToProto() string {
+	return u.GoTypeName() + "ToProto"
+}
+
+func (u *UnionFromProto) FuncNameToRepeatedProto() string {
+	return u.GoTypeName() + "ListToRepeatedProto"
+}
+
+func (u *UnionFromProto) Members() []*UnionMemberFromProto {
+	members := make([]*UnionMemberFromProto, len(u.proto.Oneof.Fields))
+	for i, f := range u.proto.Oneof.Fields {
+		members[i] = &UnionMemberFromProto{union: u, proto: f, typ: u.registry.FindProtoType(f.Name)}
+	}
+	return members
+}
+
+type UnionMemberFromProto struct {
+	union *UnionFromProto
+	proto *gqlutil.ProtoDirectiveOneofField
+	typ   ProtoType
+}
+
+func (m *UnionMemberFromProto) GoTypeName() string {
+	return m.typ.GoTypeName()
+}
+
+func (m *UnionMemberFromProto) PbGoTypeName() string {
+	var b strings.Builder
+
+	b.WriteString(templates.CurrentImports.Lookup(m.union.proto.GoPackage))
+	b.WriteString(".")
+	b.WriteString(m.proto.GoName)
+
+	return b.String()
+}
+
+func (m *UnionMemberFromProto) PbGoTypeFieldName() string {
+	return m.proto.Name
+}
+
+func (m *UnionMemberFromProto) FuncNameFromProto() string {
+	return m.typ.FuncNameFromProto()
+}
+
+func (m *UnionMemberFromProto) FuncNameToProto() string {
+	return m.proto.GoName + "ToProto"
+}
+
+func (m *UnionMemberFromProto) Type() ProtoType {
+	return m.typ
 }
