@@ -26,19 +26,19 @@ type ParentMessage @proto(fullName: "testapi.comments.ParentMessage", package: "
 	ParentMessage id leading line 1
 	ParentMessage id leading line 2
 	"""
-	id: Int! @protoField(name: "id", type: "int32", goName: "Id", goTypeName: "int32")
+	id: Int! @protoField(name: "id", goName: "Id", type: "int32", goTypeName: "int32")
 	"""
 	ParentMessage body leading comment
 	"""
-	body: String! @protoField(name: "body", type: "string", goName: "Body", goTypeName: "string")
+	body: String! @protoField(name: "body", goName: "Body", type: "string", goTypeName: "string")
 	"""
 	ParentMessage comment_enum leading comment
 	"""
-	commentEnum: CommentEnum! @protoField(name: "comment_enum", type: "testapi.comments.CommentEnum", goName: "CommentEnum", goTypeName: "CommentEnum", goTypePackage: "apis/go/comments")
+	commentEnum: CommentEnum! @protoField(name: "comment_enum", goName: "CommentEnum", type: "testapi.comments.CommentEnum", goTypeName: "CommentEnum", goTypePackage: "apis/go/comments")
 	"""
 	ParentMessage nested leading comment
 	"""
-	nested: ParentMessageNestedMessage! @protoField(name: "nested", type: "testapi.comments.ParentMessage.NestedMessage", goName: "Nested", goTypeName: "ParentMessage_NestedMessage", goTypePackage: "apis/go/comments")
+	nested: ParentMessageNestedMessage! @protoField(name: "nested", goName: "Nested", type: "testapi.comments.ParentMessage.NestedMessage", goTypeName: "ParentMessage_NestedMessage", goTypePackage: "apis/go/comments")
 }
 """
 ParentMessage Leading Comment Line 1
@@ -51,19 +51,19 @@ input ParentMessageInput @proto(fullName: "testapi.comments.ParentMessage", pack
 	ParentMessage id leading line 1
 	ParentMessage id leading line 2
 	"""
-	id: Int! @protoField(name: "id", type: "int32", goName: "Id", goTypeName: "int32")
+	id: Int! @protoField(name: "id", goName: "Id", type: "int32", goTypeName: "int32")
 	"""
 	ParentMessage body leading comment
 	"""
-	body: String! @protoField(name: "body", type: "string", goName: "Body", goTypeName: "string")
+	body: String! @protoField(name: "body", goName: "Body", type: "string", goTypeName: "string")
 	"""
 	ParentMessage comment_enum leading comment
 	"""
-	commentEnum: CommentEnum! @protoField(name: "comment_enum", type: "testapi.comments.CommentEnum", goName: "CommentEnum", goTypeName: "CommentEnum", goTypePackage: "apis/go/comments")
+	commentEnum: CommentEnum! @protoField(name: "comment_enum", goName: "CommentEnum", type: "testapi.comments.CommentEnum", goTypeName: "CommentEnum", goTypePackage: "apis/go/comments")
 	"""
 	ParentMessage nested leading comment
 	"""
-	nested: ParentMessageNestedMessageInput! @protoField(name: "nested", type: "testapi.comments.ParentMessage.NestedMessage", goName: "Nested", goTypeName: "ParentMessage_NestedMessage", goTypePackage: "apis/go/comments")
+	nested: ParentMessageNestedMessageInput! @protoField(name: "nested", goName: "Nested", type: "testapi.comments.ParentMessage.NestedMessage", goTypeName: "ParentMessage_NestedMessage", goTypePackage: "apis/go/comments")
 }
 """
 NestedMessage Leading line 1
@@ -74,7 +74,7 @@ type ParentMessageNestedMessage @proto(fullName: "testapi.comments.ParentMessage
 	"""
 	NestedMessage body leading comment
 	"""
-	nestedBody: String! @protoField(name: "nested_body", type: "string", goName: "NestedBody", goTypeName: "string")
+	nestedBody: String! @protoField(name: "nested_body", goName: "NestedBody", type: "string", goTypeName: "string")
 }
 """
 NestedMessage Leading line 1
@@ -85,5 +85,5 @@ input ParentMessageNestedMessageInput @proto(fullName: "testapi.comments.ParentM
 	"""
 	NestedMessage body leading comment
 	"""
-	nestedBody: String! @protoField(name: "nested_body", type: "string", goName: "NestedBody", goTypeName: "string")
+	nestedBody: String! @protoField(name: "nested_body", goName: "NestedBody", type: "string", goTypeName: "string")
 }

@@ -1,13 +1,14 @@
 package gqlutil
 
 import (
-	"errors"
+	stderrors "errors"
 	"strings"
 
+	"github.com/pkg/errors"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
-var ErrInvalidDirective = errors.New("invalid argument")
+var ErrInvalidDirective = stderrors.New("invalid argument")
 
 type ProtoDirective struct {
 	FullName  string
@@ -15,6 +16,16 @@ type ProtoDirective struct {
 	Name      string
 	GoPackage string
 	GoName    string
+	Oneof     *ProtoDirectiveOneof
+}
+
+type ProtoDirectiveOneof struct {
+	Fields []*ProtoDirectiveOneofField
+}
+
+type ProtoDirectiveOneofField struct {
+	Name   string
+	GoName string
 }
 
 func (d *ProtoDirective) IsValid() bool {
@@ -27,10 +38,16 @@ type ProtoFieldDirective struct {
 	GoName        string
 	GoTypeName    string
 	GoTypePackage string
+	OneofName     string
+	OneofGoName   string
 }
 
 func (d *ProtoFieldDirective) IsValid() bool {
 	return d.Name != "" && d.Type != "" && d.GoName != "" && d.GoTypeName != ""
+}
+
+func (f *ProtoDirectiveOneofField) IsValid() bool {
+	return f.Name != "" && f.GoName != ""
 }
 
 func (d *ProtoFieldDirective) IsWellKnownType() bool {
@@ -66,6 +83,12 @@ func ExtractProtoDirective(directives ast.DirectiveList) (*ProtoDirective, error
 					out.GoPackage = arg.Value.Raw
 				case arg.Name == "goName" && arg.Value.Kind == ast.StringValue:
 					out.GoName = arg.Value.Raw
+				case arg.Name == "oneof" && arg.Value.Kind == ast.ObjectValue:
+					oneof, err := extractProtoDirectiveOneof(arg.Value.Children)
+					if err != nil {
+						return nil, errors.WithStack(err)
+					}
+					out.Oneof = oneof
 				}
 			}
 			if !out.IsValid() {
@@ -93,6 +116,10 @@ func ExtractProtoFieldDirective(directives ast.DirectiveList) (*ProtoFieldDirect
 					out.GoTypeName = arg.Value.Raw
 				case arg.Name == "goTypePackage" && arg.Value.Kind == ast.StringValue:
 					out.GoTypePackage = arg.Value.Raw
+				case arg.Name == "oneofName" && arg.Value.Kind == ast.StringValue:
+					out.OneofName = arg.Value.Raw
+				case arg.Name == "oneofGoName" && arg.Value.Kind == ast.StringValue:
+					out.OneofGoName = arg.Value.Raw
 				}
 			}
 			if !out.IsValid() {
@@ -102,4 +129,29 @@ func ExtractProtoFieldDirective(directives ast.DirectiveList) (*ProtoFieldDirect
 		}
 	}
 	return nil, nil
+}
+
+func extractProtoDirectiveOneof(children ast.ChildValueList) (*ProtoDirectiveOneof, error) {
+	oneof := &ProtoDirectiveOneof{}
+	for _, child := range children {
+		switch {
+		case child.Name == "fields" && child.Value.Kind == ast.ListValue:
+			for _, child := range child.Value.Children {
+				f := &ProtoDirectiveOneofField{}
+				for _, child := range child.Value.Children {
+					switch {
+					case child.Name == "name" && child.Value.Kind == ast.StringValue:
+						f.Name = child.Value.Raw
+					case child.Name == "goName" && child.Value.Kind == ast.StringValue:
+						f.GoName = child.Value.Raw
+					}
+				}
+				if !f.IsValid() {
+					return nil, ErrInvalidDirective
+				}
+				oneof.Fields = append(oneof.Fields, f)
+			}
+		}
+	}
+	return oneof, nil
 }

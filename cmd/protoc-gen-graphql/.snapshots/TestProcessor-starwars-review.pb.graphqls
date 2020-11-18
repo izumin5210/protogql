@@ -2,17 +2,17 @@
 The input object sent when passing in a color
 """
 type Color @proto(fullName: "testapi.starwars.Color", package: "testapi.starwars", name: "Color", goPackage: "apis/go/starwars", goName: "Color") {
-	red: Int! @protoField(name: "red", type: "int32", goName: "Red", goTypeName: "int32")
-	green: Int! @protoField(name: "green", type: "int32", goName: "Green", goTypeName: "int32")
-	blue: Int! @protoField(name: "blue", type: "int32", goName: "Blue", goTypeName: "int32")
+	red: Int! @protoField(name: "red", goName: "Red", type: "int32", goTypeName: "int32")
+	green: Int! @protoField(name: "green", goName: "Green", type: "int32", goTypeName: "int32")
+	blue: Int! @protoField(name: "blue", goName: "Blue", type: "int32", goTypeName: "int32")
 }
 """
 The input object sent when passing in a color
 """
 input ColorInput @proto(fullName: "testapi.starwars.Color", package: "testapi.starwars", name: "Color", goPackage: "apis/go/starwars", goName: "Color") {
-	red: Int! @protoField(name: "red", type: "int32", goName: "Red", goTypeName: "int32")
-	green: Int! @protoField(name: "green", type: "int32", goName: "Green", goTypeName: "int32")
-	blue: Int! @protoField(name: "blue", type: "int32", goName: "Blue", goTypeName: "int32")
+	red: Int! @protoField(name: "red", goName: "Red", type: "int32", goTypeName: "int32")
+	green: Int! @protoField(name: "green", goName: "Green", type: "int32", goTypeName: "int32")
+	blue: Int! @protoField(name: "blue", goName: "Blue", type: "int32", goTypeName: "int32")
 }
 """
 Represents a review for a movie
@@ -21,11 +21,11 @@ type Review @proto(fullName: "testapi.starwars.Review", package: "testapi.starwa
 	"""
 	The number of stars this review gave, 1-5
 	"""
-	stars: Int! @protoField(name: "stars", type: "int32", goName: "Stars", goTypeName: "int32")
+	stars: Int! @protoField(name: "stars", goName: "Stars", type: "int32", goTypeName: "int32")
 	"""
 	Comment about the movie
 	"""
-	commentary: String! @protoField(name: "commentary", type: "string", goName: "Commentary", goTypeName: "string")
+	commentary: String! @protoField(name: "commentary", goName: "Commentary", type: "string", goTypeName: "string")
 }
 """
 Represents a review for a movie
@@ -34,10 +34,10 @@ input ReviewInput @proto(fullName: "testapi.starwars.Review", package: "testapi.
 	"""
 	The number of stars this review gave, 1-5
 	"""
-	stars: Int! @protoField(name: "stars", type: "int32", goName: "Stars", goTypeName: "int32")
+	stars: Int! @protoField(name: "stars", goName: "Stars", type: "int32", goTypeName: "int32")
 	"""
 	Comment about the movie
 	"""
-	commentary: String! @protoField(name: "commentary", type: "string", goName: "Commentary", goTypeName: "string")
+	commentary: String! @protoField(name: "commentary", goName: "Commentary", type: "string", goTypeName: "string")
 }
 

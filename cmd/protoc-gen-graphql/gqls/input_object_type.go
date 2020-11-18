@@ -1,6 +1,9 @@
 package gqls
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/iancoleman/strcase"
 	"github.com/izumin5210/remixer/codegen/protoutil"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -41,6 +44,10 @@ func (t *InputObjectType) DefinitionAST() (*ast.Definition, error) {
 		Description: protoutil.FormatComments(t.base.Proto.Comments),
 	}
 
+	getFieldName := func(f *protogen.Field) string {
+		return strcase.ToLowerCamel(string(f.Desc.Name()))
+	}
+
 	for _, f := range t.base.Proto.Fields {
 		ft, err := TypeFromProtoField(f)
 		if err != nil {
@@ -57,18 +64,32 @@ func (t *InputObjectType) DefinitionAST() (*ast.Definition, error) {
 		if ot, ok := origType.(*ObjectType); ok {
 			origType = NewInputObjectType(ot)
 		}
-		if ft.IsNullable() {
+		if ft.IsNullable() || f.Oneof != nil {
 			origType = NullableType(origType)
 		}
 		if ft.IsList() {
 			origType = ListType(origType)
 		}
 		ft = origType
+		desc := protoutil.FormatComments(f.Comments)
+		if f.Oneof != nil {
+			if desc != "" {
+				desc += "\n\n"
+			}
+			fields := make([]string, 0, len(f.Oneof.Fields))
+			for _, of := range f.Oneof.Fields {
+				fields = append(fields, fmt.Sprintf("`%s`", getFieldName(of)))
+			}
+			desc += fmt.Sprintf(
+				"At most one field, %s, and %s will be set at the same time.",
+				strings.Join(fields[0:len(fields)-1], ", "), fields[len(fields)-1],
+			)
+		}
 		def.Fields = append(def.Fields, &ast.FieldDefinition{
-			Name:        strcase.ToLowerCamel(string(f.Desc.Name())),
+			Name:        getFieldName(f),
 			Type:        ft.TypeAST(),
 			Directives:  inputFieldDirectivesAST(f, ft),
-			Description: protoutil.FormatComments(f.Comments),
+			Description: desc,
 		})
 	}
 

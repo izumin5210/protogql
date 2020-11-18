@@ -1,16 +1,16 @@
 type Task @proto(fullName: "testapi.todo.Task", package: "testapi.todo", name: "Task", goPackage: "apis/go/todo", goName: "Task") {
-	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
-	title: String! @protoField(name: "title", type: "string", goName: "Title", goTypeName: "string")
-	status: TaskStatus! @protoField(name: "status", type: "testapi.todo.Task.Status", goName: "Status", goTypeName: "Task_Status", goTypePackage: "apis/go/todo")
-	assigneeIds: [Int!]! @protoField(name: "assignee_ids", type: "uint64", goName: "AssigneeIds", goTypeName: "uint64")
-	authorId: Int! @protoField(name: "author_id", type: "uint64", goName: "AuthorId", goTypeName: "uint64")
+	id: Int! @protoField(name: "id", goName: "Id", type: "uint64", goTypeName: "uint64")
+	title: String! @protoField(name: "title", goName: "Title", type: "string", goTypeName: "string")
+	status: TaskStatus! @protoField(name: "status", goName: "Status", type: "testapi.todo.Task.Status", goTypeName: "Task_Status", goTypePackage: "apis/go/todo")
+	assigneeIds: [Int!]! @protoField(name: "assignee_ids", goName: "AssigneeIds", type: "uint64", goTypeName: "uint64")
+	authorId: Int! @protoField(name: "author_id", goName: "AuthorId", type: "uint64", goTypeName: "uint64")
 }
 input TaskInput @proto(fullName: "testapi.todo.Task", package: "testapi.todo", name: "Task", goPackage: "apis/go/todo", goName: "Task") {
-	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
-	title: String! @protoField(name: "title", type: "string", goName: "Title", goTypeName: "string")
-	status: TaskStatus! @protoField(name: "status", type: "testapi.todo.Task.Status", goName: "Status", goTypeName: "Task_Status", goTypePackage: "apis/go/todo")
-	assigneeIds: [Int!]! @protoField(name: "assignee_ids", type: "uint64", goName: "AssigneeIds", goTypeName: "uint64")
-	authorId: Int! @protoField(name: "author_id", type: "uint64", goName: "AuthorId", goTypeName: "uint64")
+	id: Int! @protoField(name: "id", goName: "Id", type: "uint64", goTypeName: "uint64")
+	title: String! @protoField(name: "title", goName: "Title", type: "string", goTypeName: "string")
+	status: TaskStatus! @protoField(name: "status", goName: "Status", type: "testapi.todo.Task.Status", goTypeName: "Task_Status", goTypePackage: "apis/go/todo")
+	assigneeIds: [Int!]! @protoField(name: "assignee_ids", goName: "AssigneeIds", type: "uint64", goTypeName: "uint64")
+	authorId: Int! @protoField(name: "author_id", goName: "AuthorId", type: "uint64", goTypeName: "uint64")
 }
 enum TaskStatus @proto(fullName: "testapi.todo.Task.Status", package: "testapi.todo", name: "Status", goPackage: "apis/go/todo", goName: "Task_Status") {
 	STATUS_UNSPECIFIED

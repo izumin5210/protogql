@@ -26,11 +26,21 @@
 	func {{ $obj.FuncNameFromProto }}(in *{{ $obj.PbGoTypeName }}) *{{ $obj.GoTypeName }} {
 		out := &{{ $obj.GoTypeName }}{
 			{{- range $f := $obj.Fields }}
-				{{- with ($f.FromProtoStatement "in") }}
-					{{ $f.GoFieldName }}: {{ . }},
+				{{- if not $f.IsOneofMember }}
+					{{- with ($f.FromProtoStatement "in") }}
+						{{ $f.GoFieldName }}: {{ . }},
+					{{- end }}
 				{{- end }}
 			{{- end }}
 		}
+
+		{{- range $f := $obj.Fields }}
+			{{- if $f.IsOneofMember }}
+				if m := in.Get{{ $f.PbGoFieldName }}(); m != nil{
+					out.{{ $f.GoFieldName }} = {{ $f.ProtoType.FuncNameFromProto }}(m)
+				}
+			{{- end }}
+		{{- end }}
 
 		return out
 	}
@@ -46,11 +56,24 @@
 	func {{ $obj.FuncNameToProto }}(in *{{ $obj.GoTypeName }}) *{{ $obj.PbGoTypeName }} {
 		out := &{{ $obj.PbGoTypeName }}{
 			{{- range $f := $obj.Fields }}
-				{{- with ($f.ToProtoStatement "in") }}
-					{{ $f.PbGoFieldName }}: {{ . }},
+				{{- if not $f.IsOneof }}
+					{{- with ($f.ToProtoStatement "in") }}
+						{{ $f.PbGoFieldName }}: {{ . }},
+					{{- end }}
 				{{- end }}
 			{{- end }}
 		}
+
+		{{- range $f := $obj.Fields }}
+			{{- with $f.OneofMembers }}
+				switch m := in.{{ $f.GoFieldName }}.(type) {
+				{{- range $member := . }}
+				case *{{ $member.GoTypeName }}:
+					out.{{ $f.PbGoFieldName }} = {{ $member.FuncNameToProto }}(m)
+				{{- end }}
+				}
+			{{- end }}
+		{{- end }}
 
 		return out
 	}
@@ -147,4 +170,34 @@
 		e.Proto = {{ $enum.PbGoTypeName }}({{ $enum.PbGoTypeName }}_value[str])
 		return nil
 	}
+{{ end }}
+
+{{- range $union := .UnionsFromProto }}
+	{{- with $union.Godoc }}
+		{{ . }}
+	{{- end }}
+	type {{ $union.GoTypeName }} interface {
+		Is{{ $union.GoTypeName }}()
+	}
+
+	{{- range $member := $union.Members }}
+		func (*{{ $member.GoTypeName }}) Is{{ $union.GoTypeName }}() {}
+	{{ end }}
+
+	func {{ $union.FuncNameFromProto }}(in interface{}) {{ $union.GoTypeName }} {
+		switch m := in.(type) {
+		{{- range $member := $union.Members }}
+		case *{{ $member.PbGoTypeName }}:
+			return {{ $member.FuncNameFromProto }}(m.{{ $member.PbGoTypeFieldName }})
+		{{- end }}
+		default:
+			panic("not supported")
+		}
+	}
+
+	{{- range $member := $union.Members }}
+		func {{ $member.FuncNameToProto }}(in *{{ $member.GoTypeName }}) *{{ $member.PbGoTypeName }} {
+			return &{{ $member.PbGoTypeName }}{{"{"}}{{ $member.Type.FuncNameToProto }}(in){{"}"}}
+		}
+	{{ end }}
 {{ end }}

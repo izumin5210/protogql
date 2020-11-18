@@ -2,15 +2,21 @@
 A character from the Star Wars universe
 """
 type Character @proto(fullName: "testapi.starwars.Character", package: "testapi.starwars", name: "Character", goPackage: "apis/go/starwars", goName: "Character") {
-	human: Human! @protoField(name: "human", type: "testapi.starwars.Human", goName: "Human", goTypeName: "Human", goTypePackage: "apis/go/starwars")
-	droid: Droid! @protoField(name: "droid", type: "testapi.starwars.Droid", goName: "Droid", goTypeName: "Droid", goTypePackage: "apis/go/starwars")
+	character: CharacterCharacter! @protoField(name: "character", goName: "Character", oneofName: "character", oneofGoName: "Character", type: "testapi.starwars.Character.character", goTypeName: "Character_Character", goTypePackage: "apis/go/starwars")
 }
+union CharacterCharacter @proto(fullName: "testapi.starwars.Character.character", package: "testapi.starwars", name: "character", goPackage: "apis/go/starwars", goName: "Character_Character", oneof: {fields:[{name:"Human",goName:"Character_Human"},{name:"Droid",goName:"Character_Droid"}]}) = Human | Droid
 """
 A character from the Star Wars universe
 """
 input CharacterInput @proto(fullName: "testapi.starwars.Character", package: "testapi.starwars", name: "Character", goPackage: "apis/go/starwars", goName: "Character") {
-	human: HumanInput! @protoField(name: "human", type: "testapi.starwars.Human", goName: "Human", goTypeName: "Human", goTypePackage: "apis/go/starwars")
-	droid: DroidInput! @protoField(name: "droid", type: "testapi.starwars.Droid", goName: "Droid", goTypeName: "Droid", goTypePackage: "apis/go/starwars")
+	"""
+	At most one field, `human`, and `droid` will be set at the same time.
+	"""
+	human: HumanInput @protoField(name: "human", goName: "Human", oneofName: "character", oneofGoName: "Character", type: "testapi.starwars.Human", goTypeName: "Human", goTypePackage: "apis/go/starwars")
+	"""
+	At most one field, `human`, and `droid` will be set at the same time.
+	"""
+	droid: DroidInput @protoField(name: "droid", goName: "Droid", oneofName: "character", oneofGoName: "Character", type: "testapi.starwars.Droid", goTypeName: "Droid", goTypePackage: "apis/go/starwars")
 }
 """
 An autonomous mechanical character in the Star Wars universe
@@ -19,23 +25,23 @@ type Droid @proto(fullName: "testapi.starwars.Droid", package: "testapi.starwars
 	"""
 	The ID of the droid
 	"""
-	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
+	id: Int! @protoField(name: "id", goName: "Id", type: "uint64", goTypeName: "uint64")
 	"""
 	What others call this droid
 	"""
-	name: String! @protoField(name: "name", type: "string", goName: "Name", goTypeName: "string")
+	name: String! @protoField(name: "name", goName: "Name", type: "string", goTypeName: "string")
 	"""
 	This droid's friends, or an empty list if they have none
 	"""
-	friends: [Character!]! @protoField(name: "friends", type: "testapi.starwars.Character", goName: "Friends", goTypeName: "Character", goTypePackage: "apis/go/starwars")
+	friends: [Character!]! @protoField(name: "friends", goName: "Friends", type: "testapi.starwars.Character", goTypeName: "Character", goTypePackage: "apis/go/starwars")
 	"""
 	The movies this droid appears in
 	"""
-	appearsIn: [Episode!]! @protoField(name: "appears_in", type: "testapi.starwars.Episode", goName: "AppearsIn", goTypeName: "Episode", goTypePackage: "apis/go/starwars")
+	appearsIn: [Episode!]! @protoField(name: "appears_in", goName: "AppearsIn", type: "testapi.starwars.Episode", goTypeName: "Episode", goTypePackage: "apis/go/starwars")
 	"""
 	This droid's primary function
 	"""
-	primaryFunction: String! @protoField(name: "primary_function", type: "string", goName: "PrimaryFunction", goTypeName: "string")
+	primaryFunction: String! @protoField(name: "primary_function", goName: "PrimaryFunction", type: "string", goTypeName: "string")
 }
 """
 An autonomous mechanical character in the Star Wars universe
@@ -44,23 +50,23 @@ input DroidInput @proto(fullName: "testapi.starwars.Droid", package: "testapi.st
 	"""
 	The ID of the droid
 	"""
-	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
+	id: Int! @protoField(name: "id", goName: "Id", type: "uint64", goTypeName: "uint64")
 	"""
 	What others call this droid
 	"""
-	name: String! @protoField(name: "name", type: "string", goName: "Name", goTypeName: "string")
+	name: String! @protoField(name: "name", goName: "Name", type: "string", goTypeName: "string")
 	"""
 	This droid's friends, or an empty list if they have none
 	"""
-	friends: [CharacterInput!]! @protoField(name: "friends", type: "testapi.starwars.Character", goName: "Friends", goTypeName: "Character", goTypePackage: "apis/go/starwars")
+	friends: [CharacterInput!]! @protoField(name: "friends", goName: "Friends", type: "testapi.starwars.Character", goTypeName: "Character", goTypePackage: "apis/go/starwars")
 	"""
 	The movies this droid appears in
 	"""
-	appearsIn: [Episode!]! @protoField(name: "appears_in", type: "testapi.starwars.Episode", goName: "AppearsIn", goTypeName: "Episode", goTypePackage: "apis/go/starwars")
+	appearsIn: [Episode!]! @protoField(name: "appears_in", goName: "AppearsIn", type: "testapi.starwars.Episode", goTypeName: "Episode", goTypePackage: "apis/go/starwars")
 	"""
 	This droid's primary function
 	"""
-	primaryFunction: String! @protoField(name: "primary_function", type: "string", goName: "PrimaryFunction", goTypeName: "string")
+	primaryFunction: String! @protoField(name: "primary_function", goName: "PrimaryFunction", type: "string", goTypeName: "string")
 }
 """
 A humanoid creature from the Star Wars universe
@@ -69,31 +75,31 @@ type Human @proto(fullName: "testapi.starwars.Human", package: "testapi.starwars
 	"""
 	The ID of the human
 	"""
-	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
+	id: Int! @protoField(name: "id", goName: "Id", type: "uint64", goTypeName: "uint64")
 	"""
 	What this human calls themselves
 	"""
-	name: String! @protoField(name: "name", type: "string", goName: "Name", goTypeName: "string")
+	name: String! @protoField(name: "name", goName: "Name", type: "string", goTypeName: "string")
 	"""
 	The home planet of the human, or null if unknown
 	"""
-	homePlanet: String! @protoField(name: "homePlanet", type: "string", goName: "HomePlanet", goTypeName: "string")
+	homePlanet: String! @protoField(name: "homePlanet", goName: "HomePlanet", type: "string", goTypeName: "string")
 	"""
 	Mass in kilograms, or null if unknown
 	"""
-	mass: Float! @protoField(name: "mass", type: "float", goName: "Mass", goTypeName: "float32")
+	mass: Float! @protoField(name: "mass", goName: "Mass", type: "float", goTypeName: "float32")
 	"""
 	This human's friends, or an empty list if they have none
 	"""
-	friends: [Character!]! @protoField(name: "friends", type: "testapi.starwars.Character", goName: "Friends", goTypeName: "Character", goTypePackage: "apis/go/starwars")
+	friends: [Character!]! @protoField(name: "friends", goName: "Friends", type: "testapi.starwars.Character", goTypeName: "Character", goTypePackage: "apis/go/starwars")
 	"""
 	The movies this human appears in
 	"""
-	appearsIn: [Episode!]! @protoField(name: "appears_in", type: "testapi.starwars.Episode", goName: "AppearsIn", goTypeName: "Episode", goTypePackage: "apis/go/starwars")
+	appearsIn: [Episode!]! @protoField(name: "appears_in", goName: "AppearsIn", type: "testapi.starwars.Episode", goTypeName: "Episode", goTypePackage: "apis/go/starwars")
 	"""
 	A list of starships this person has piloted, or an empty list if none
 	"""
-	tarships: [Starship!]! @protoField(name: "tarships", type: "testapi.starwars.Starship", goName: "Tarships", goTypeName: "Starship", goTypePackage: "apis/go/starwars")
+	tarships: [Starship!]! @protoField(name: "tarships", goName: "Tarships", type: "testapi.starwars.Starship", goTypeName: "Starship", goTypePackage: "apis/go/starwars")
 }
 """
 A humanoid creature from the Star Wars universe
@@ -102,30 +108,30 @@ input HumanInput @proto(fullName: "testapi.starwars.Human", package: "testapi.st
 	"""
 	The ID of the human
 	"""
-	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
+	id: Int! @protoField(name: "id", goName: "Id", type: "uint64", goTypeName: "uint64")
 	"""
 	What this human calls themselves
 	"""
-	name: String! @protoField(name: "name", type: "string", goName: "Name", goTypeName: "string")
+	name: String! @protoField(name: "name", goName: "Name", type: "string", goTypeName: "string")
 	"""
 	The home planet of the human, or null if unknown
 	"""
-	homePlanet: String! @protoField(name: "homePlanet", type: "string", goName: "HomePlanet", goTypeName: "string")
+	homePlanet: String! @protoField(name: "homePlanet", goName: "HomePlanet", type: "string", goTypeName: "string")
 	"""
 	Mass in kilograms, or null if unknown
 	"""
-	mass: Float! @protoField(name: "mass", type: "float", goName: "Mass", goTypeName: "float32")
+	mass: Float! @protoField(name: "mass", goName: "Mass", type: "float", goTypeName: "float32")
 	"""
 	This human's friends, or an empty list if they have none
 	"""
-	friends: [CharacterInput!]! @protoField(name: "friends", type: "testapi.starwars.Character", goName: "Friends", goTypeName: "Character", goTypePackage: "apis/go/starwars")
+	friends: [CharacterInput!]! @protoField(name: "friends", goName: "Friends", type: "testapi.starwars.Character", goTypeName: "Character", goTypePackage: "apis/go/starwars")
 	"""
 	The movies this human appears in
 	"""
-	appearsIn: [Episode!]! @protoField(name: "appears_in", type: "testapi.starwars.Episode", goName: "AppearsIn", goTypeName: "Episode", goTypePackage: "apis/go/starwars")
+	appearsIn: [Episode!]! @protoField(name: "appears_in", goName: "AppearsIn", type: "testapi.starwars.Episode", goTypeName: "Episode", goTypePackage: "apis/go/starwars")
 	"""
 	A list of starships this person has piloted, or an empty list if none
 	"""
-	tarships: [StarshipInput!]! @protoField(name: "tarships", type: "testapi.starwars.Starship", goName: "Tarships", goTypeName: "Starship", goTypePackage: "apis/go/starwars")
+	tarships: [StarshipInput!]! @protoField(name: "tarships", goName: "Tarships", type: "testapi.starwars.Starship", goTypeName: "Starship", goTypePackage: "apis/go/starwars")
 }
 
