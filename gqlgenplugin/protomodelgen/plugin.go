@@ -524,10 +524,6 @@ func (f *FieldFromProto) IsOneofMember() bool {
 	return f.proto != nil && f.proto.OneofName != "" && f.proto.OneofName != f.proto.Name
 }
 
-func (f *FieldFromProto) PbGoOneofName() string {
-	return f.proto.OneofGoName
-}
-
 func (f *FieldFromProto) isList() bool {
 	return gqlutil.IsListType(f.gql.Type)
 }
@@ -735,14 +731,6 @@ func (u *UnionFromProto) GoTypeName() string {
 	return u.def.Name
 }
 
-func (u *UnionFromProto) PbGoOneofMethodName() string {
-	return "is" + u.proto.GoName
-}
-
-func (u *UnionFromProto) PbGoTypeName() string {
-	return u.GoTypeName() + "_Proto"
-}
-
 func (u *UnionFromProto) Godoc() string {
 	return goutil.ToComment(u.def.Description)
 }
@@ -751,17 +739,10 @@ func (u *UnionFromProto) FuncNameFromProto() string {
 	return u.GoTypeName() + "FromProto"
 }
 
-func (u *UnionFromProto) FuncNameFromRepeatedProto() string {
-	return u.GoTypeName() + "ListFromRepeatedProto"
-}
-
-func (u *UnionFromProto) FuncNameToProto() string {
-	return u.GoTypeName() + "ToProto"
-}
-
-func (u *UnionFromProto) FuncNameToRepeatedProto() string {
-	return u.GoTypeName() + "ListToRepeatedProto"
-}
+func (u *UnionFromProto) PbGoTypeName() string              { panic("unreachable") }
+func (u *UnionFromProto) FuncNameFromRepeatedProto() string { panic("unreachable") }
+func (u *UnionFromProto) FuncNameToProto() string           { panic("unreachable") }
+func (u *UnionFromProto) FuncNameToRepeatedProto() string   { panic("unreachable") }
 
 func (u *UnionFromProto) Members() []*UnionMemberFromProto {
 	members := make([]*UnionMemberFromProto, len(u.proto.Oneof.Fields))
