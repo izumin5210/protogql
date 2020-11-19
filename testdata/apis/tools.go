@@ -6,6 +6,7 @@ package tools
 
 // tool dependencies
 import (
+	_ "github.com/izumin5210/remixer/cmd/protoc-gen-graphql"
 	_ "google.golang.org/protobuf/cmd/protoc-gen-go"
 )
 
@@ -13,3 +14,4 @@ import (
 //  go generate ./tools.go
 //
 //go:generate go build -v -o=./bin/protoc-gen-go google.golang.org/protobuf/cmd/protoc-gen-go
+//go:generate go build -v -o=./bin/protoc-gen-graphql github.com/izumin5210/remixer/cmd/protoc-gen-graphql
