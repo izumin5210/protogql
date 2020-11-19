@@ -31,7 +31,10 @@ execProtoc() {
   for protoDir in ./proto/*; do
     protoc -I proto -I ../.. --include_source_info --include_imports --descriptor_set_out=${protoDir}/descriptor_set.pb ${protoDir}/*.proto
     protoc -I proto -I ../.. --plugin=protoc-gen-graphql='./bin/protoc-gen-graphql' --graphql_out=graphql  ${protoDir}/*.proto
-    protoc -I proto -I ../.. --go_out=.. ${protoDir}/*.proto
+    protoc -I proto -I ../.. \
+      --plugin=protoc-gen-go='./bin/protoc-gen-go'           --go_out=go      --go_opt=paths=source_relative \
+      --plugin=protoc-gen-go-grpc='./bin/protoc-gen-go-grpc' --go-grpc_out=go --go-grpc_opt=paths=source_relative \
+      ${protoDir}/*.proto
   done
 }
 
