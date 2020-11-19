@@ -2,27 +2,27 @@
 
 package model
 
-type CreateTaskInput struct {
-	Title string `json:"title"`
+type CreateHelloInput struct {
+	Message string `json:"message"`
 }
 
-type CreateTaskPayload struct {
-	Task *Task `json:"task"`
+type CreateHelloPayload struct {
+	Hello *Hello `json:"hello"`
 }
 
-type TaskByUserEdge struct {
-	Node   *Task  `json:"node"`
+type HelloByUserEdge struct {
+	Node   *Hello `json:"node"`
 	Cursor string `json:"cursor"`
 }
 
-type TasksByUserConnection struct {
-	TotalCount int                            `json:"totalCount"`
-	Edges      []*TaskByUserEdge              `json:"edges"`
-	Nodes      []*Task                        `json:"nodes"`
-	PageInfo   *TasksByUserConnectionPageInfo `json:"pageInfo"`
+type HellosByUserConnection struct {
+	TotalCount int                             `json:"totalCount"`
+	Edges      []*HelloByUserEdge              `json:"edges"`
+	Nodes      []*Hello                        `json:"nodes"`
+	PageInfo   *HellosByUserConnectionPageInfo `json:"pageInfo"`
 }
 
-type TasksByUserConnectionPageInfo struct {
+type HellosByUserConnectionPageInfo struct {
 	EndCursor   string `json:"endCursor"`
 	HasNextPage bool   `json:"hasNextPage"`
 }

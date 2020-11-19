@@ -7,8 +7,8 @@ import (
 	"testapp/graph"
 )
 
-// User returns graph.UserResolver implementation.
-func (r *Resolver) User() graph.UserResolver { return &userResolver{r} }
+// Hello returns graph.HelloResolver implementation.
+func (r *Resolver) Hello() graph.HelloResolver { return &helloResolver{r} }
 
-type userResolver struct{ *Resolver }
+type helloResolver struct{ *Resolver }
 

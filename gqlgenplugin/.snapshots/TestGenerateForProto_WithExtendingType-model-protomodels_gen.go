@@ -3,119 +3,109 @@
 package model
 
 import (
-	todo_pb "apis/go/todo"
-	user_pb "apis/go/user"
+	hello_pb "apis/go/hello"
 	"fmt"
 	"io"
 	"strconv"
 )
 
-type Task struct {
-	ID          uint64
-	Title       string
-	Status      *TaskStatus
-	AssigneeIds []uint64
-	AuthorID    uint64
-	Assignees   []*User
-	Author      *User
+type Hello struct {
+	ID            uint64
+	Message       string
+	UserID        uint64
+	ReplyHelloIds []uint64
+	User          *User
 }
 
-func TaskListFromRepeatedProto(in []*todo_pb.Task) []*Task {
-	out := make([]*Task, len(in))
+func HelloListFromRepeatedProto(in []*hello_pb.Hello) []*Hello {
+	out := make([]*Hello, len(in))
 	for i, m := range in {
-		out[i] = TaskFromProto(m)
+		out[i] = HelloFromProto(m)
 	}
 	return out
 }
 
-func TaskFromProto(in *todo_pb.Task) *Task {
-	out := &Task{
-		ID:          in.GetId(),
-		Title:       in.GetTitle(),
-		Status:      TaskStatusFromProto(in.GetStatus()),
-		AssigneeIds: in.GetAssigneeIds(),
-		AuthorID:    in.GetAuthorId(),
+func HelloFromProto(in *hello_pb.Hello) *Hello {
+	out := &Hello{
+		ID:            in.GetId(),
+		Message:       in.GetMessage(),
+		UserID:        in.GetUserId(),
+		ReplyHelloIds: in.GetReplyHelloIds(),
 	}
 
 	return out
 }
 
-func TaskListToRepeatedProto(in []*Task) []*todo_pb.Task {
-	out := make([]*todo_pb.Task, len(in))
+func HelloListToRepeatedProto(in []*Hello) []*hello_pb.Hello {
+	out := make([]*hello_pb.Hello, len(in))
 	for i, m := range in {
-		out[i] = TaskToProto(m)
+		out[i] = HelloToProto(m)
 	}
 	return out
 }
 
-func TaskToProto(in *Task) *todo_pb.Task {
-	out := &todo_pb.Task{
-		Id:          in.ID,
-		Title:       in.Title,
-		Status:      TaskStatusToProto(in.Status),
-		AssigneeIds: in.AssigneeIds,
-		AuthorId:    in.AuthorID,
+func HelloToProto(in *Hello) *hello_pb.Hello {
+	out := &hello_pb.Hello{
+		Id:            in.ID,
+		Message:       in.Message,
+		UserId:        in.UserID,
+		ReplyHelloIds: in.ReplyHelloIds,
 	}
 
 	return out
 }
 
-type TaskInput struct {
-	ID          uint64
-	Title       string
-	Status      *TaskStatus
-	AssigneeIds []uint64
-	AuthorID    uint64
+type HelloInput struct {
+	ID            uint64
+	Message       string
+	UserID        uint64
+	ReplyHelloIds []uint64
 }
 
-func TaskInputListFromRepeatedProto(in []*todo_pb.Task) []*TaskInput {
-	out := make([]*TaskInput, len(in))
+func HelloInputListFromRepeatedProto(in []*hello_pb.Hello) []*HelloInput {
+	out := make([]*HelloInput, len(in))
 	for i, m := range in {
-		out[i] = TaskInputFromProto(m)
+		out[i] = HelloInputFromProto(m)
 	}
 	return out
 }
 
-func TaskInputFromProto(in *todo_pb.Task) *TaskInput {
-	out := &TaskInput{
-		ID:          in.GetId(),
-		Title:       in.GetTitle(),
-		Status:      TaskStatusFromProto(in.GetStatus()),
-		AssigneeIds: in.GetAssigneeIds(),
-		AuthorID:    in.GetAuthorId(),
+func HelloInputFromProto(in *hello_pb.Hello) *HelloInput {
+	out := &HelloInput{
+		ID:            in.GetId(),
+		Message:       in.GetMessage(),
+		UserID:        in.GetUserId(),
+		ReplyHelloIds: in.GetReplyHelloIds(),
 	}
 
 	return out
 }
 
-func TaskInputListToRepeatedProto(in []*TaskInput) []*todo_pb.Task {
-	out := make([]*todo_pb.Task, len(in))
+func HelloInputListToRepeatedProto(in []*HelloInput) []*hello_pb.Hello {
+	out := make([]*hello_pb.Hello, len(in))
 	for i, m := range in {
-		out[i] = TaskInputToProto(m)
+		out[i] = HelloInputToProto(m)
 	}
 	return out
 }
 
-func TaskInputToProto(in *TaskInput) *todo_pb.Task {
-	out := &todo_pb.Task{
-		Id:          in.ID,
-		Title:       in.Title,
-		Status:      TaskStatusToProto(in.Status),
-		AssigneeIds: in.AssigneeIds,
-		AuthorId:    in.AuthorID,
+func HelloInputToProto(in *HelloInput) *hello_pb.Hello {
+	out := &hello_pb.Hello{
+		Id:            in.ID,
+		Message:       in.Message,
+		UserId:        in.UserID,
+		ReplyHelloIds: in.ReplyHelloIds,
 	}
 
 	return out
 }
 
 type User struct {
-	ID            uint64
-	FullName      string
-	Role          *UserRole
-	AssignedTasks []*Task
+	ID   uint64
+	Name string
 }
 
-func UserListFromRepeatedProto(in []*user_pb.User) []*User {
+func UserListFromRepeatedProto(in []*hello_pb.User) []*User {
 	out := make([]*User, len(in))
 	for i, m := range in {
 		out[i] = UserFromProto(m)
@@ -123,41 +113,38 @@ func UserListFromRepeatedProto(in []*user_pb.User) []*User {
 	return out
 }
 
-func UserFromProto(in *user_pb.User) *User {
+func UserFromProto(in *hello_pb.User) *User {
 	out := &User{
-		ID:       in.GetId(),
-		FullName: in.GetFullName(),
-		Role:     UserRoleFromProto(in.GetRole()),
+		ID:   in.GetId(),
+		Name: in.GetName(),
 	}
 
 	return out
 }
 
-func UserListToRepeatedProto(in []*User) []*user_pb.User {
-	out := make([]*user_pb.User, len(in))
+func UserListToRepeatedProto(in []*User) []*hello_pb.User {
+	out := make([]*hello_pb.User, len(in))
 	for i, m := range in {
 		out[i] = UserToProto(m)
 	}
 	return out
 }
 
-func UserToProto(in *User) *user_pb.User {
-	out := &user_pb.User{
-		Id:       in.ID,
-		FullName: in.FullName,
-		Role:     UserRoleToProto(in.Role),
+func UserToProto(in *User) *hello_pb.User {
+	out := &hello_pb.User{
+		Id:   in.ID,
+		Name: in.Name,
 	}
 
 	return out
 }
 
 type UserInput struct {
-	ID       uint64
-	FullName string
-	Role     *UserRole
+	ID   uint64
+	Name string
 }
 
-func UserInputListFromRepeatedProto(in []*user_pb.User) []*UserInput {
+func UserInputListFromRepeatedProto(in []*hello_pb.User) []*UserInput {
 	out := make([]*UserInput, len(in))
 	for i, m := range in {
 		out[i] = UserInputFromProto(m)
@@ -165,81 +152,37 @@ func UserInputListFromRepeatedProto(in []*user_pb.User) []*UserInput {
 	return out
 }
 
-func UserInputFromProto(in *user_pb.User) *UserInput {
+func UserInputFromProto(in *hello_pb.User) *UserInput {
 	out := &UserInput{
-		ID:       in.GetId(),
-		FullName: in.GetFullName(),
-		Role:     UserRoleFromProto(in.GetRole()),
+		ID:   in.GetId(),
+		Name: in.GetName(),
 	}
 
 	return out
 }
 
-func UserInputListToRepeatedProto(in []*UserInput) []*user_pb.User {
-	out := make([]*user_pb.User, len(in))
+func UserInputListToRepeatedProto(in []*UserInput) []*hello_pb.User {
+	out := make([]*hello_pb.User, len(in))
 	for i, m := range in {
 		out[i] = UserInputToProto(m)
 	}
 	return out
 }
 
-func UserInputToProto(in *UserInput) *user_pb.User {
-	out := &user_pb.User{
-		Id:       in.ID,
-		FullName: in.FullName,
-		Role:     UserRoleToProto(in.Role),
+func UserInputToProto(in *UserInput) *hello_pb.User {
+	out := &hello_pb.User{
+		Id:   in.ID,
+		Name: in.Name,
 	}
 
 	return out
-}
-
-type TaskStatus struct {
-	Proto todo_pb.Task_Status
-}
-
-func TaskStatusListFromRepeatedProto(in []todo_pb.Task_Status) []*TaskStatus {
-	out := make([]*TaskStatus, len(in))
-	for i, m := range in {
-		out[i] = TaskStatusFromProto(m)
-	}
-	return out
-}
-
-func TaskStatusFromProto(in todo_pb.Task_Status) *TaskStatus {
-	return &TaskStatus{Proto: in}
-}
-
-func TaskStatusListToRepeatedProto(in []*TaskStatus) []todo_pb.Task_Status {
-	out := make([]todo_pb.Task_Status, len(in))
-	for i, m := range in {
-		out[i] = TaskStatusToProto(m)
-	}
-	return out
-}
-
-func TaskStatusToProto(in *TaskStatus) todo_pb.Task_Status {
-	return in.Proto
-}
-
-func (e TaskStatus) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.Proto.String()))
-}
-
-func (e *TaskStatus) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	e.Proto = todo_pb.Task_Status(todo_pb.Task_Status_value[str])
-	return nil
 }
 
 type UserRole struct {
-	Proto user_pb.User_Role
+	Proto hello_pb.User_Role
 }
 
-func UserRoleListFromRepeatedProto(in []user_pb.User_Role) []*UserRole {
+func UserRoleListFromRepeatedProto(in []hello_pb.User_Role) []*UserRole {
 	out := make([]*UserRole, len(in))
 	for i, m := range in {
 		out[i] = UserRoleFromProto(m)
@@ -247,19 +190,19 @@ func UserRoleListFromRepeatedProto(in []user_pb.User_Role) []*UserRole {
 	return out
 }
 
-func UserRoleFromProto(in user_pb.User_Role) *UserRole {
+func UserRoleFromProto(in hello_pb.User_Role) *UserRole {
 	return &UserRole{Proto: in}
 }
 
-func UserRoleListToRepeatedProto(in []*UserRole) []user_pb.User_Role {
-	out := make([]user_pb.User_Role, len(in))
+func UserRoleListToRepeatedProto(in []*UserRole) []hello_pb.User_Role {
+	out := make([]hello_pb.User_Role, len(in))
 	for i, m := range in {
 		out[i] = UserRoleToProto(m)
 	}
 	return out
 }
 
-func UserRoleToProto(in *UserRole) user_pb.User_Role {
+func UserRoleToProto(in *UserRole) hello_pb.User_Role {
 	return in.Proto
 }
 
@@ -273,7 +216,7 @@ func (e *UserRole) UnmarshalGQL(v interface{}) error {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	e.Proto = user_pb.User_Role(user_pb.User_Role_value[str])
+	e.Proto = hello_pb.User_Role(hello_pb.User_Role_value[str])
 	return nil
 }
 

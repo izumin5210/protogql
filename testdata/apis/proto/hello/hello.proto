@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package testapi.hello;
+
+option go_package = "apis/go/hello;hello_pb";
+
+message Hello {
+  uint64 id = 1;
+  string message = 2;
+  uint64 user_id = 3;
+  repeated uint64 reply_hello_ids = 4;
+}
+
+message User {
+  uint64 id = 2;
+  string name = 1;
+
+  enum Role {
+    ROLE_UNSPECIFIED = 0;
+    ROLE_ADMIN = 1;
+  }
+}
