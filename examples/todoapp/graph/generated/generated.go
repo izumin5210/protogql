@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
-	"todo/graph/model"
+	"todoapp/graph/model"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -45,12 +45,15 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	CreateTaskPayload struct {
+		Task func(childComplexity int) int
+	}
+
 	Mutation struct {
-		Nop func(childComplexity int) int
+		CreateTask func(childComplexity int, input model.CreateTaskInput) int
 	}
 
 	Query struct {
-		Nop   func(childComplexity int) int
 		Tasks func(childComplexity int) int
 	}
 
@@ -72,10 +75,9 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	Nop(ctx context.Context) (*bool, error)
+	CreateTask(ctx context.Context, input model.CreateTaskInput) (*model.CreateTaskPayload, error)
 }
 type QueryResolver interface {
-	Nop(ctx context.Context) (*bool, error)
 	Tasks(ctx context.Context) ([]*model.Task, error)
 }
 type TaskResolver interface {
@@ -98,19 +100,24 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "Mutation.nop":
-		if e.complexity.Mutation.Nop == nil {
+	case "CreateTaskPayload.task":
+		if e.complexity.CreateTaskPayload.Task == nil {
 			break
 		}
 
-		return e.complexity.Mutation.Nop(childComplexity), true
+		return e.complexity.CreateTaskPayload.Task(childComplexity), true
 
-	case "Query.nop":
-		if e.complexity.Query.Nop == nil {
+	case "Mutation.createTask":
+		if e.complexity.Mutation.CreateTask == nil {
 			break
 		}
 
-		return e.complexity.Query.Nop(childComplexity), true
+		args, err := ec.field_Mutation_createTask_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateTask(childComplexity, args["input"].(model.CreateTaskInput)), true
 
 	case "Query.tasks":
 		if e.complexity.Query.Tasks == nil {
@@ -253,7 +260,22 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "graph/types/todo/task.pb.graphqls", Input: `type Task @proto(fullName: "testapi.todo.Task", package: "testapi.todo", name: "Task", goPackage: "apis/go/todo", goName: "Task") {
+	{Name: "graph/schemas/types/user/user.pb.graphqls", Input: `type User @proto(fullName: "testapi.user.User", package: "testapi.user", name: "User", goPackage: "apis/go/user", goName: "User") {
+	id: Int! @protoField(name: "id", goName: "Id", type: "uint64", goTypeName: "uint64")
+	fullName: String! @protoField(name: "full_name", goName: "FullName", type: "string", goTypeName: "string")
+	role: UserRole! @protoField(name: "role", goName: "Role", type: "testapi.user.User.Role", goTypeName: "User_Role", goTypePackage: "apis/go/user")
+}
+input UserInput @proto(fullName: "testapi.user.User", package: "testapi.user", name: "User", goPackage: "apis/go/user", goName: "User") {
+	id: Int! @protoField(name: "id", goName: "Id", type: "uint64", goTypeName: "uint64")
+	fullName: String! @protoField(name: "full_name", goName: "FullName", type: "string", goTypeName: "string")
+	role: UserRole! @protoField(name: "role", goName: "Role", type: "testapi.user.User.Role", goTypeName: "User_Role", goTypePackage: "apis/go/user")
+}
+enum UserRole @proto(fullName: "testapi.user.User.Role", package: "testapi.user", name: "Role", goPackage: "apis/go/user", goName: "User_Role") {
+	ROLE_UNSPECIFIED
+	ADMIN
+}
+`, BuiltIn: false},
+	{Name: "graph/schemas/types/todo/task.pb.graphqls", Input: `type Task @proto(fullName: "testapi.todo.Task", package: "testapi.todo", name: "Task", goPackage: "apis/go/todo", goName: "Task") {
 	id: Int! @protoField(name: "id", goName: "Id", type: "uint64", goTypeName: "uint64")
 	title: String! @protoField(name: "title", goName: "Title", type: "string", goTypeName: "string")
 	status: TaskStatus! @protoField(name: "status", goName: "Status", type: "testapi.todo.Task.Status", goTypeName: "Task_Status", goTypePackage: "apis/go/todo")
@@ -274,40 +296,36 @@ enum TaskStatus @proto(fullName: "testapi.todo.Task.Status", package: "testapi.t
 	DONE
 }
 `, BuiltIn: false},
-	{Name: "graph/types/user/user.pb.graphqls", Input: `type User @proto(fullName: "testapi.user.User", package: "testapi.user", name: "User", goPackage: "apis/go/user", goName: "User") {
-	id: Int! @protoField(name: "id", goName: "Id", type: "uint64", goTypeName: "uint64")
-	fullName: String! @protoField(name: "full_name", goName: "FullName", type: "string", goTypeName: "string")
-	role: UserRole! @protoField(name: "role", goName: "Role", type: "testapi.user.User.Role", goTypeName: "User_Role", goTypePackage: "apis/go/user")
-}
-input UserInput @proto(fullName: "testapi.user.User", package: "testapi.user", name: "User", goPackage: "apis/go/user", goName: "User") {
-	id: Int! @protoField(name: "id", goName: "Id", type: "uint64", goTypeName: "uint64")
-	fullName: String! @protoField(name: "full_name", goName: "FullName", type: "string", goTypeName: "string")
-	role: UserRole! @protoField(name: "role", goName: "Role", type: "testapi.user.User.Role", goTypeName: "User_Role", goTypePackage: "apis/go/user")
-}
-enum UserRole @proto(fullName: "testapi.user.User.Role", package: "testapi.user", name: "Role", goPackage: "apis/go/user", goName: "User_Role") {
-	ROLE_UNSPECIFIED
-	ADMIN
-}
-`, BuiltIn: false},
-	{Name: "graph/schema.graphqls", Input: `directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
+	{Name: "graph/schemas/schemas.graphql", Input: `directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
 directive @proto(fullName: String!, package: String!, name: String!, goPackage: String!, goName: String!) on OBJECT | INPUT_OBJECT | ENUM
-directive @protoField(name: String!, type: String!, goName: String!, goTypeName: String!, goTypePackage: String) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
-
-type Query {
-  nop: Boolean
+directive @protoField(name: String!, type: String!, goName: String!, goTypeName: String!, goTypePackage: String, oneofName: String, oneofGoName: String) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+input ProtoOneof {
+  fields: [ProtoOneofField!]!
 }
-
-type Mutation {
-  nop: Boolean
+input ProtoOneofField {
+  name: String!
+  goName: String!
 }
 `, BuiltIn: false},
-	{Name: "graph/task.graphqls", Input: `extend type Query {
+	{Name: "graph/schemas/todo.graphql", Input: `extend type Query {
   tasks: [Task!]!
+}
+
+extend type Mutation {
+  createTask(input: CreateTaskInput!): CreateTaskPayload!
 }
 
 extend type Task {
   assignees: [User!]!
   author: User!
+}
+
+input CreateTaskInput {
+  task: TaskInput!
+}
+
+type CreateTaskPayload {
+  task: Task!
 }
 `, BuiltIn: false},
 }
@@ -316,6 +334,21 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_createTask_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.CreateTaskInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNCreateTaskInput2todoappᚋgraphᚋmodelᚐCreateTaskInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -370,7 +403,42 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Mutation_nop(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _CreateTaskPayload_task(ctx context.Context, field graphql.CollectedField, obj *model.CreateTaskPayload) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "CreateTaskPayload",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Task, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Task)
+	fc.Result = res
+	return ec.marshalNTask2ᚖtodoappᚋgraphᚋmodelᚐTask(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_createTask(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -386,52 +454,30 @@ func (ec *executionContext) _Mutation_nop(ctx context.Context, field graphql.Col
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createTask_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Nop(rctx)
+		return ec.resolvers.Mutation().CreateTask(rctx, args["input"].(model.CreateTaskInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*bool)
-	fc.Result = res
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Query_nop(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
 		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Nop(rctx)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
 		return graphql.Null
 	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*bool)
+	res := resTmp.(*model.CreateTaskPayload)
 	fc.Result = res
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+	return ec.marshalNCreateTaskPayload2ᚖtodoappᚋgraphᚋmodelᚐCreateTaskPayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_tasks(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -466,7 +512,7 @@ func (ec *executionContext) _Query_tasks(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.([]*model.Task)
 	fc.Result = res
-	return ec.marshalNTask2ᚕᚖtodoᚋgraphᚋmodelᚐTaskᚄ(ctx, field.Selections, res)
+	return ec.marshalNTask2ᚕᚖtodoappᚋgraphᚋmodelᚐTaskᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -642,7 +688,7 @@ func (ec *executionContext) _Task_status(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.(*model.TaskStatus)
 	fc.Result = res
-	return ec.marshalNTaskStatus2ᚖtodoᚋgraphᚋmodelᚐTaskStatus(ctx, field.Selections, res)
+	return ec.marshalNTaskStatus2ᚖtodoappᚋgraphᚋmodelᚐTaskStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Task_assigneeIds(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
@@ -747,7 +793,7 @@ func (ec *executionContext) _Task_assignees(ctx context.Context, field graphql.C
 	}
 	res := resTmp.([]*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚕᚖtodoᚋgraphᚋmodelᚐUserᚄ(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚕᚖtodoappᚋgraphᚋmodelᚐUserᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Task_author(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
@@ -782,7 +828,7 @@ func (ec *executionContext) _Task_author(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖtodoᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖtodoappᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
@@ -887,7 +933,7 @@ func (ec *executionContext) _User_role(ctx context.Context, field graphql.Collec
 	}
 	res := resTmp.(*model.UserRole)
 	fc.Result = res
-	return ec.marshalNUserRole2ᚖtodoᚋgraphᚋmodelᚐUserRole(ctx, field.Selections, res)
+	return ec.marshalNUserRole2ᚖtodoappᚋgraphᚋmodelᚐUserRole(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -1977,6 +2023,74 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputCreateTaskInput(ctx context.Context, obj interface{}) (model.CreateTaskInput, error) {
+	var it model.CreateTaskInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "task":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("task"))
+			it.Task, err = ec.unmarshalNTaskInput2ᚖtodoappᚋgraphᚋmodelᚐTaskInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputProtoOneof(ctx context.Context, obj interface{}) (model.ProtoOneof, error) {
+	var it model.ProtoOneof
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "fields":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fields"))
+			it.Fields, err = ec.unmarshalNProtoOneofField2ᚕᚖtodoappᚋgraphᚋmodelᚐProtoOneofFieldᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputProtoOneofField(ctx context.Context, obj interface{}) (model.ProtoOneofField, error) {
+	var it model.ProtoOneofField
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "goName":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("goName"))
+			it.GoName, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputTaskInput(ctx context.Context, obj interface{}) (model.TaskInput, error) {
 	var it model.TaskInput
 	var asMap = obj.(map[string]interface{})
@@ -2003,7 +2117,7 @@ func (ec *executionContext) unmarshalInputTaskInput(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
-			it.Status, err = ec.unmarshalNTaskStatus2ᚖtodoᚋgraphᚋmodelᚐTaskStatus(ctx, v)
+			it.Status, err = ec.unmarshalNTaskStatus2ᚖtodoappᚋgraphᚋmodelᚐTaskStatus(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2055,7 +2169,7 @@ func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("role"))
-			it.Role, err = ec.unmarshalNUserRole2ᚖtodoᚋgraphᚋmodelᚐUserRole(ctx, v)
+			it.Role, err = ec.unmarshalNUserRole2ᚖtodoappᚋgraphᚋmodelᚐUserRole(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2073,6 +2187,33 @@ func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj int
 
 // region    **************************** object.gotpl ****************************
 
+var createTaskPayloadImplementors = []string{"CreateTaskPayload"}
+
+func (ec *executionContext) _CreateTaskPayload(ctx context.Context, sel ast.SelectionSet, obj *model.CreateTaskPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, createTaskPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CreateTaskPayload")
+		case "task":
+			out.Values[i] = ec._CreateTaskPayload_task(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -2088,8 +2229,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "nop":
-			out.Values[i] = ec._Mutation_nop(ctx, field)
+		case "createTask":
+			out.Values[i] = ec._Mutation_createTask(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2116,17 +2260,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "nop":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_nop(ctx, field)
-				return res
-			})
 		case "tasks":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -2528,6 +2661,25 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalNCreateTaskInput2todoappᚋgraphᚋmodelᚐCreateTaskInput(ctx context.Context, v interface{}) (model.CreateTaskInput, error) {
+	res, err := ec.unmarshalInputCreateTaskInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCreateTaskPayload2todoappᚋgraphᚋmodelᚐCreateTaskPayload(ctx context.Context, sel ast.SelectionSet, v model.CreateTaskPayload) graphql.Marshaler {
+	return ec._CreateTaskPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCreateTaskPayload2ᚖtodoappᚋgraphᚋmodelᚐCreateTaskPayload(ctx context.Context, sel ast.SelectionSet, v *model.CreateTaskPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._CreateTaskPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNInt2uint64(ctx context.Context, v interface{}) (uint64, error) {
 	res, err := types.UnmarshalUint64(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -2573,6 +2725,32 @@ func (ec *executionContext) marshalNInt2ᚕuint64ᚄ(ctx context.Context, sel as
 	return ret
 }
 
+func (ec *executionContext) unmarshalNProtoOneofField2ᚕᚖtodoappᚋgraphᚋmodelᚐProtoOneofFieldᚄ(ctx context.Context, v interface{}) ([]*model.ProtoOneofField, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]*model.ProtoOneofField, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNProtoOneofField2ᚖtodoappᚋgraphᚋmodelᚐProtoOneofField(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNProtoOneofField2ᚖtodoappᚋgraphᚋmodelᚐProtoOneofField(ctx context.Context, v interface{}) (*model.ProtoOneofField, error) {
+	res, err := ec.unmarshalInputProtoOneofField(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -2588,7 +2766,7 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNTask2ᚕᚖtodoᚋgraphᚋmodelᚐTaskᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Task) graphql.Marshaler {
+func (ec *executionContext) marshalNTask2ᚕᚖtodoappᚋgraphᚋmodelᚐTaskᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Task) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -2612,7 +2790,7 @@ func (ec *executionContext) marshalNTask2ᚕᚖtodoᚋgraphᚋmodelᚐTaskᚄ(ct
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNTask2ᚖtodoᚋgraphᚋmodelᚐTask(ctx, sel, v[i])
+			ret[i] = ec.marshalNTask2ᚖtodoappᚋgraphᚋmodelᚐTask(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -2625,7 +2803,7 @@ func (ec *executionContext) marshalNTask2ᚕᚖtodoᚋgraphᚋmodelᚐTaskᚄ(ct
 	return ret
 }
 
-func (ec *executionContext) marshalNTask2ᚖtodoᚋgraphᚋmodelᚐTask(ctx context.Context, sel ast.SelectionSet, v *model.Task) graphql.Marshaler {
+func (ec *executionContext) marshalNTask2ᚖtodoappᚋgraphᚋmodelᚐTask(ctx context.Context, sel ast.SelectionSet, v *model.Task) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -2635,13 +2813,18 @@ func (ec *executionContext) marshalNTask2ᚖtodoᚋgraphᚋmodelᚐTask(ctx cont
 	return ec._Task(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNTaskStatus2ᚖtodoᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, v interface{}) (*model.TaskStatus, error) {
+func (ec *executionContext) unmarshalNTaskInput2ᚖtodoappᚋgraphᚋmodelᚐTaskInput(ctx context.Context, v interface{}) (*model.TaskInput, error) {
+	res, err := ec.unmarshalInputTaskInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNTaskStatus2ᚖtodoappᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, v interface{}) (*model.TaskStatus, error) {
 	var res = new(model.TaskStatus)
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNTaskStatus2ᚖtodoᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, sel ast.SelectionSet, v *model.TaskStatus) graphql.Marshaler {
+func (ec *executionContext) marshalNTaskStatus2ᚖtodoappᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, sel ast.SelectionSet, v *model.TaskStatus) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -2651,11 +2834,11 @@ func (ec *executionContext) marshalNTaskStatus2ᚖtodoᚋgraphᚋmodelᚐTaskSta
 	return v
 }
 
-func (ec *executionContext) marshalNUser2todoᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2todoappᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUser2ᚕᚖtodoᚋgraphᚋmodelᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚕᚖtodoappᚋgraphᚋmodelᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -2679,7 +2862,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖtodoᚋgraphᚋmodelᚐUserᚄ(ct
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNUser2ᚖtodoᚋgraphᚋmodelᚐUser(ctx, sel, v[i])
+			ret[i] = ec.marshalNUser2ᚖtodoappᚋgraphᚋmodelᚐUser(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -2692,7 +2875,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖtodoᚋgraphᚋmodelᚐUserᚄ(ct
 	return ret
 }
 
-func (ec *executionContext) marshalNUser2ᚖtodoᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚖtodoappᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -2702,13 +2885,13 @@ func (ec *executionContext) marshalNUser2ᚖtodoᚋgraphᚋmodelᚐUser(ctx cont
 	return ec._User(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNUserRole2ᚖtodoᚋgraphᚋmodelᚐUserRole(ctx context.Context, v interface{}) (*model.UserRole, error) {
+func (ec *executionContext) unmarshalNUserRole2ᚖtodoappᚋgraphᚋmodelᚐUserRole(ctx context.Context, v interface{}) (*model.UserRole, error) {
 	var res = new(model.UserRole)
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNUserRole2ᚖtodoᚋgraphᚋmodelᚐUserRole(ctx context.Context, sel ast.SelectionSet, v *model.UserRole) graphql.Marshaler {
+func (ec *executionContext) marshalNUserRole2ᚖtodoappᚋgraphᚋmodelᚐUserRole(ctx context.Context, sel ast.SelectionSet, v *model.UserRole) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")

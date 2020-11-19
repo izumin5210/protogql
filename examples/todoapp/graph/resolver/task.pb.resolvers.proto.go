@@ -1,3 +1,3 @@
-package graph
+package resolver
 
 type taskProtoResolver struct{ *Resolver }

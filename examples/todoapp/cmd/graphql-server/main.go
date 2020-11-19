@@ -10,13 +10,13 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 
-	"todo/graph"
-	"todo/graph/generated"
+	"todoapp/graph/generated"
+	"todoapp/graph/resolver"
 )
 
 func main() {
 	cfg := generated.Config{
-		Resolvers: new(graph.Resolver),
+		Resolvers: new(resolver.Resolver),
 	}
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(cfg))
 	srv.SetRecoverFunc(func(ctx context.Context, err interface{}) (userMessage error) {

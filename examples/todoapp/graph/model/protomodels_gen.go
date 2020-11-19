@@ -192,6 +192,70 @@ func UserInputToProto(in *UserInput) *user_pb.User {
 	return out
 }
 
+type CreateTaskInput_Proto struct {
+	Task *todo_pb.Task
+}
+
+func CreateTaskInputListFromRepeatedProto(in []*CreateTaskInput_Proto) []*CreateTaskInput {
+	out := make([]*CreateTaskInput, len(in))
+	for i, m := range in {
+		out[i] = CreateTaskInputFromProto(m)
+	}
+	return out
+}
+
+func CreateTaskInputFromProto(in *CreateTaskInput_Proto) *CreateTaskInput {
+	return &CreateTaskInput{
+		Task: TaskInputFromProto(in.Task),
+	}
+}
+
+func CreateTaskInputListToRepeatedProto(in []*CreateTaskInput) []*CreateTaskInput_Proto {
+	out := make([]*CreateTaskInput_Proto, len(in))
+	for i, m := range in {
+		out[i] = CreateTaskInputToProto(m)
+	}
+	return out
+}
+
+func CreateTaskInputToProto(in *CreateTaskInput) *CreateTaskInput_Proto {
+	return &CreateTaskInput_Proto{
+		Task: TaskInputToProto(in.Task),
+	}
+}
+
+type CreateTaskPayload_Proto struct {
+	Task *todo_pb.Task
+}
+
+func CreateTaskPayloadListFromRepeatedProto(in []*CreateTaskPayload_Proto) []*CreateTaskPayload {
+	out := make([]*CreateTaskPayload, len(in))
+	for i, m := range in {
+		out[i] = CreateTaskPayloadFromProto(m)
+	}
+	return out
+}
+
+func CreateTaskPayloadFromProto(in *CreateTaskPayload_Proto) *CreateTaskPayload {
+	return &CreateTaskPayload{
+		Task: TaskFromProto(in.Task),
+	}
+}
+
+func CreateTaskPayloadListToRepeatedProto(in []*CreateTaskPayload) []*CreateTaskPayload_Proto {
+	out := make([]*CreateTaskPayload_Proto, len(in))
+	for i, m := range in {
+		out[i] = CreateTaskPayloadToProto(m)
+	}
+	return out
+}
+
+func CreateTaskPayloadToProto(in *CreateTaskPayload) *CreateTaskPayload_Proto {
+	return &CreateTaskPayload_Proto{
+		Task: TaskToProto(in.Task),
+	}
+}
+
 type TaskStatus struct {
 	Proto todo_pb.Task_Status
 }

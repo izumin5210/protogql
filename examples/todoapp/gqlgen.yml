@@ -1,8 +1,8 @@
 # Where are all the schema files located? globs are supported eg  src/**/*.graphqls
 schema:
-  - graph/types/todo/*.graphqls
-  - graph/types/user/*.graphqls
-  - graph/*.graphqls
+  - graph/schemas/types/user/*.graphqls
+  - graph/schemas/types/todo/*.graphqls
+  - graph/schemas/*.graphql
 
 # Where should the generated server code go?
 exec:
@@ -22,8 +22,8 @@ model:
 # Where should the resolver implementations go?
 resolver:
   layout: follow-schema
-  dir: graph
-  package: graph
+  dir: graph/resolver
+  package: resolver
 
 # Optional: turn on use `gqlgen:"fieldName"` tags in your models
 # struct_tag: json
@@ -37,7 +37,7 @@ resolver:
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.
 autobind:
-  - "todo/graph/model"
+  - "todoapp/graph/model"
 
 # This section declares type mapping between the GraphQL and go type systems
 #
