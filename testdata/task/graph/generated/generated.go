@@ -254,18 +254,18 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 
 var sources = []*ast.Source{
 	{Name: "graph/types/todo/task.pb.graphqls", Input: `type Task @proto(fullName: "testapi.todo.Task", package: "testapi.todo", name: "Task", goPackage: "apis/go/todo", goName: "Task") {
-	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
-	title: String! @protoField(name: "title", type: "string", goName: "Title", goTypeName: "string")
-	status: TaskStatus! @protoField(name: "status", type: "testapi.todo.Task.Status", goName: "Status", goTypeName: "Task_Status", goTypePackage: "apis/go/todo")
-	assigneeIds: [Int!]! @protoField(name: "assignee_ids", type: "uint64", goName: "AssigneeIds", goTypeName: "uint64")
-	authorId: Int! @protoField(name: "author_id", type: "uint64", goName: "AuthorId", goTypeName: "uint64")
+	id: Int! @protoField(name: "id", goName: "Id", type: "uint64", goTypeName: "uint64")
+	title: String! @protoField(name: "title", goName: "Title", type: "string", goTypeName: "string")
+	status: TaskStatus! @protoField(name: "status", goName: "Status", type: "testapi.todo.Task.Status", goTypeName: "Task_Status", goTypePackage: "apis/go/todo")
+	assigneeIds: [Int!]! @protoField(name: "assignee_ids", goName: "AssigneeIds", type: "uint64", goTypeName: "uint64")
+	authorId: Int! @protoField(name: "author_id", goName: "AuthorId", type: "uint64", goTypeName: "uint64")
 }
 input TaskInput @proto(fullName: "testapi.todo.Task", package: "testapi.todo", name: "Task", goPackage: "apis/go/todo", goName: "Task") {
-	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
-	title: String! @protoField(name: "title", type: "string", goName: "Title", goTypeName: "string")
-	status: TaskStatus! @protoField(name: "status", type: "testapi.todo.Task.Status", goName: "Status", goTypeName: "Task_Status", goTypePackage: "apis/go/todo")
-	assigneeIds: [Int!]! @protoField(name: "assignee_ids", type: "uint64", goName: "AssigneeIds", goTypeName: "uint64")
-	authorId: Int! @protoField(name: "author_id", type: "uint64", goName: "AuthorId", goTypeName: "uint64")
+	id: Int! @protoField(name: "id", goName: "Id", type: "uint64", goTypeName: "uint64")
+	title: String! @protoField(name: "title", goName: "Title", type: "string", goTypeName: "string")
+	status: TaskStatus! @protoField(name: "status", goName: "Status", type: "testapi.todo.Task.Status", goTypeName: "Task_Status", goTypePackage: "apis/go/todo")
+	assigneeIds: [Int!]! @protoField(name: "assignee_ids", goName: "AssigneeIds", type: "uint64", goTypeName: "uint64")
+	authorId: Int! @protoField(name: "author_id", goName: "AuthorId", type: "uint64", goTypeName: "uint64")
 }
 enum TaskStatus @proto(fullName: "testapi.todo.Task.Status", package: "testapi.todo", name: "Status", goPackage: "apis/go/todo", goName: "Task_Status") {
 	STATUS_UNSPECIFIED
@@ -275,14 +275,14 @@ enum TaskStatus @proto(fullName: "testapi.todo.Task.Status", package: "testapi.t
 }
 `, BuiltIn: false},
 	{Name: "graph/types/user/user.pb.graphqls", Input: `type User @proto(fullName: "testapi.user.User", package: "testapi.user", name: "User", goPackage: "apis/go/user", goName: "User") {
-	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
-	fullName: String! @protoField(name: "full_name", type: "string", goName: "FullName", goTypeName: "string")
-	role: UserRole! @protoField(name: "role", type: "testapi.user.User.Role", goName: "Role", goTypeName: "User_Role", goTypePackage: "apis/go/user")
+	id: Int! @protoField(name: "id", goName: "Id", type: "uint64", goTypeName: "uint64")
+	fullName: String! @protoField(name: "full_name", goName: "FullName", type: "string", goTypeName: "string")
+	role: UserRole! @protoField(name: "role", goName: "Role", type: "testapi.user.User.Role", goTypeName: "User_Role", goTypePackage: "apis/go/user")
 }
 input UserInput @proto(fullName: "testapi.user.User", package: "testapi.user", name: "User", goPackage: "apis/go/user", goName: "User") {
-	id: Int! @protoField(name: "id", type: "uint64", goName: "Id", goTypeName: "uint64")
-	fullName: String! @protoField(name: "full_name", type: "string", goName: "FullName", goTypeName: "string")
-	role: UserRole! @protoField(name: "role", type: "testapi.user.User.Role", goName: "Role", goTypeName: "User_Role", goTypePackage: "apis/go/user")
+	id: Int! @protoField(name: "id", goName: "Id", type: "uint64", goTypeName: "uint64")
+	fullName: String! @protoField(name: "full_name", goName: "FullName", type: "string", goTypeName: "string")
+	role: UserRole! @protoField(name: "role", goName: "Role", type: "testapi.user.User.Role", goTypeName: "User_Role", goTypePackage: "apis/go/user")
 }
 enum UserRole @proto(fullName: "testapi.user.User.Role", package: "testapi.user", name: "Role", goPackage: "apis/go/user", goName: "User_Role") {
 	ROLE_UNSPECIFIED

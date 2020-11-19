@@ -1,0 +1,24 @@
+type Hello @proto(fullName: "testapi.hello.Hello", package: "testapi.hello", name: "Hello", goPackage: "apis/go/hello", goName: "Hello") {
+	id: Int! @protoField(name: "id", goName: "Id", type: "uint64", goTypeName: "uint64")
+	message: String! @protoField(name: "message", goName: "Message", type: "string", goTypeName: "string")
+	userId: Int! @protoField(name: "user_id", goName: "UserId", type: "uint64", goTypeName: "uint64")
+	replyHelloIds: [Int!]! @protoField(name: "reply_hello_ids", goName: "ReplyHelloIds", type: "uint64", goTypeName: "uint64")
+}
+input HelloInput @proto(fullName: "testapi.hello.Hello", package: "testapi.hello", name: "Hello", goPackage: "apis/go/hello", goName: "Hello") {
+	id: Int! @protoField(name: "id", goName: "Id", type: "uint64", goTypeName: "uint64")
+	message: String! @protoField(name: "message", goName: "Message", type: "string", goTypeName: "string")
+	userId: Int! @protoField(name: "user_id", goName: "UserId", type: "uint64", goTypeName: "uint64")
+	replyHelloIds: [Int!]! @protoField(name: "reply_hello_ids", goName: "ReplyHelloIds", type: "uint64", goTypeName: "uint64")
+}
+type User @proto(fullName: "testapi.hello.User", package: "testapi.hello", name: "User", goPackage: "apis/go/hello", goName: "User") {
+	id: Int! @protoField(name: "id", goName: "Id", type: "uint64", goTypeName: "uint64")
+	name: String! @protoField(name: "name", goName: "Name", type: "string", goTypeName: "string")
+}
+input UserInput @proto(fullName: "testapi.hello.User", package: "testapi.hello", name: "User", goPackage: "apis/go/hello", goName: "User") {
+	id: Int! @protoField(name: "id", goName: "Id", type: "uint64", goTypeName: "uint64")
+	name: String! @protoField(name: "name", goName: "Name", type: "string", goTypeName: "string")
+}
+enum UserRole @proto(fullName: "testapi.hello.User.Role", package: "testapi.hello", name: "Role", goPackage: "apis/go/hello", goName: "User_Role") {
+	ROLE_UNSPECIFIED
+	ROLE_ADMIN
+}
