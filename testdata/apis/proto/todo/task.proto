@@ -6,6 +6,7 @@ option go_package = "apis/go/todo;todo_pb";
 
 service TaskService {
   rpc ListTasks(ListTasksRequest) returns (ListTasksResponse);
+  rpc CreateTask(CreateTaskRequest) returns (CreateTaskResponse);
 }
 
 message Task {
@@ -33,4 +34,12 @@ message ListTasksResponse {
   repeated Task tasks = 1;
   int32 total_size = 2;
   string next_page_token = 3;
+}
+
+message CreateTaskRequest {
+  Task task = 1;
+}
+
+message CreateTaskResponse {
+  Task task = 1;
 }

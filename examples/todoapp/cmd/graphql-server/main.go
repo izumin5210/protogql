@@ -5,18 +5,25 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"os"
 	"runtime/debug"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 
+	"todoapp/graph"
 	"todoapp/graph/generated"
-	"todoapp/graph/resolver"
 )
 
 func main() {
+	app, cleanup, err := graph.NewApp(context.Background())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer cleanup()
+
 	cfg := generated.Config{
-		Resolvers: new(resolver.Resolver),
+		Resolvers: app.Resolver,
 	}
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(cfg))
 	srv.SetRecoverFunc(func(ctx context.Context, err interface{}) (userMessage error) {
@@ -28,5 +35,5 @@ func main() {
 
 	http.Handle("/", playground.Handler("Todo", "/query"))
 	http.Handle("/query", srv)
-	log.Fatal(http.ListenAndServe(":8081", nil))
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("GRAPHQL_PORT"), nil))
 }

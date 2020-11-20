@@ -8,11 +8,24 @@ import (
 )
 
 func (r *mutationProtoResolver) CreateTask(ctx context.Context, input model.CreateTaskInput) (*model.CreateTaskPayload_Proto, error) {
-	panic("not implemented")
+	req := &todo_pb.CreateTaskRequest{
+		Task: model.TaskInputToProto(input.Task),
+	}
+	resp, err := r.TaskClient.CreateTask(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return &model.CreateTaskPayload_Proto{
+		Task: resp.GetTask(),
+	}, nil
 }
 
 func (r *queryProtoResolver) Tasks(ctx context.Context) ([]*todo_pb.Task, error) {
-	panic("not implemented")
+	resp, err := r.TaskClient.ListTasks(ctx, new(todo_pb.ListTasksRequest))
+	if err != nil {
+		return nil, err
+	}
+	return resp.GetTasks(), nil
 }
 
 func (r *taskProtoResolver) Assignees(ctx context.Context, obj *todo_pb.Task) ([]*user_pb.User, error) {

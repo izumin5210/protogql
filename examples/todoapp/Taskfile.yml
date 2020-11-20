@@ -1,0 +1,27 @@
+# https://taskfile.dev
+
+version: '3'
+
+dotenv: ['.env']
+
+output: prefixed
+
+tasks:
+  default:
+    deps:
+      - todo-server
+      - graphql-server
+
+  todo-server:
+    cmds:
+      - go run ./cmd/todo-server
+
+  graphql-server:
+    deps:
+      - gqlgen
+    cmds:
+      - go run ./cmd/graphql-server
+
+  gqlgen:
+    cmds:
+      - go run ./cmd/gqlgen

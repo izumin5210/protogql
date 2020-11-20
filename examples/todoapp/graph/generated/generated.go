@@ -307,7 +307,7 @@ input ProtoOneofField {
   goName: String!
 }
 `, BuiltIn: false},
-	{Name: "graph/schemas/todo.graphql", Input: `extend type Query {
+	{Name: "graph/schemas/task.graphql", Input: `extend type Query {
   tasks: [Task!]!
 }
 
