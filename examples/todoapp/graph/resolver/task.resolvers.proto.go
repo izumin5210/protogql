@@ -4,7 +4,11 @@ import (
 	todo_pb "apis/go/todo"
 	user_pb "apis/go/user"
 	"context"
+	"todoapp/graph/loader"
 	"todoapp/graph/model"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/pkg/errors"
 )
 
 func (r *mutationProtoResolver) CreateTask(ctx context.Context, input model.CreateTaskInput) (*model.CreateTaskPayload_Proto, error) {
@@ -29,11 +33,19 @@ func (r *queryProtoResolver) Tasks(ctx context.Context) ([]*todo_pb.Task, error)
 }
 
 func (r *taskProtoResolver) Assignees(ctx context.Context, obj *todo_pb.Task) ([]*user_pb.User, error) {
-	panic("not implemented")
+	users, errs := loader.For(ctx).UserByID(ctx).LoadAll(obj.GetAssigneeIds())
+	if len(errs) != 0 {
+		return nil, multierror.Append(nil, errs...)
+	}
+	return users, nil
 }
 
 func (r *taskProtoResolver) Author(ctx context.Context, obj *todo_pb.Task) (*user_pb.User, error) {
-	panic("not implemented")
+	user, err := loader.For(ctx).UserByID(ctx).Load(obj.GetAuthorId())
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return user, nil
 }
 
 type mutationProtoResolver struct{ *Resolver }

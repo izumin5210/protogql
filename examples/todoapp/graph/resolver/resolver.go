@@ -2,6 +2,7 @@ package resolver
 
 import (
 	todo_pb "apis/go/todo"
+	user_pb "apis/go/user"
 )
 
 // This file will not be regenerated automatically.
@@ -10,4 +11,5 @@ import (
 
 type Resolver struct {
 	TaskClient todo_pb.TaskServiceClient
+	UserClient user_pb.UserServiceClient
 }

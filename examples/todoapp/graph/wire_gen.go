@@ -7,6 +7,7 @@ package graph
 
 import (
 	"context"
+	"todoapp/graph/loader"
 	"todoapp/graph/resolver"
 )
 
@@ -17,13 +18,24 @@ func NewApp(contextContext context.Context) (*App, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
+	userServiceClient, cleanup2, err := provideUserClient()
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
 	resolverResolver := &resolver.Resolver{
 		TaskClient: taskServiceClient,
+		UserClient: userServiceClient,
+	}
+	loaders := &loader.Loaders{
+		userClient: userServiceClient,
 	}
 	app := &App{
 		Resolver: resolverResolver,
+		Loaders:  loaders,
 	}
 	return app, func() {
+		cleanup2()
 		cleanup()
 	}, nil
 }

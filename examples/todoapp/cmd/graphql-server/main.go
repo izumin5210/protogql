@@ -34,6 +34,6 @@ func main() {
 	})
 
 	http.Handle("/", playground.Handler("Todo", "/query"))
-	http.Handle("/query", srv)
+	http.Handle("/query", app.Loaders.Middleware(srv))
 	log.Fatal(http.ListenAndServe(":"+os.Getenv("GRAPHQL_PORT"), nil))
 }

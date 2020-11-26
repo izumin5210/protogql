@@ -8,6 +8,7 @@ package tools
 import (
 	_ "github.com/go-task/task/v3/cmd/task"
 	_ "github.com/google/wire/cmd/wire"
+	_ "github.com/vektah/dataloaden"
 )
 
 // If you want to use tools, please run the following command:
@@ -15,3 +16,4 @@ import (
 //
 //go:generate go build -v -o=./bin/task github.com/go-task/task/v3/cmd/task
 //go:generate go build -v -o=./bin/wire github.com/google/wire/cmd/wire
+//go:generate go build -v -o=./bin/dataloaden github.com/vektah/dataloaden

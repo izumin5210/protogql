@@ -9,8 +9,13 @@ output: prefixed
 tasks:
   default:
     deps:
+      - user-server
       - todo-server
       - graphql-server
+
+  user-server:
+    cmds:
+      - go run ./cmd/user-server
 
   todo-server:
     cmds:
