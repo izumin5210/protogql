@@ -22,7 +22,7 @@ func provideTaskClient() (todo_pb.TaskServiceClient, func(), error) {
 }
 
 func provideUserClient() (user_pb.UserServiceClient, func(), error) {
-	conn, err := grpc.Dial("localhost:"+os.Getenv("TASK_PORT"), grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial("localhost:"+os.Getenv("USER_PORT"), grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		return nil, nil, err
 	}

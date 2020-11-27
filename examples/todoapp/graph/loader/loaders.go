@@ -7,7 +7,7 @@ import (
 )
 
 type Loaders struct {
-	userClient user_pb.UserServiceClient
+	UserClient user_pb.UserServiceClient
 }
 
 type loaderCtxKey struct{}

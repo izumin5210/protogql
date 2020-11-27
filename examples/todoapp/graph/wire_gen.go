@@ -28,7 +28,7 @@ func NewApp(contextContext context.Context) (*App, func(), error) {
 		UserClient: userServiceClient,
 	}
 	loaders := &loader.Loaders{
-		userClient: userServiceClient,
+		UserClient: userServiceClient,
 	}
 	app := &App{
 		Resolver: resolverResolver,

@@ -10,7 +10,7 @@ func (l *Loaders) UserByID(ctx context.Context) *UserLoader {
 	return NewUserLoader(UserLoaderConfig{
 		Fetch: func(keys []uint64) ([]*user_pb.User, []error) {
 			req := &user_pb.BatchGetUsersRequest{UserIds: keys}
-			resp, err := l.userClient.BatchGetUsers(ctx, req)
+			resp, err := l.UserClient.BatchGetUsers(ctx, req)
 			if err != nil {
 				return nil, []error{err}
 			}

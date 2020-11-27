@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log"
 	"net"
 	"os"
@@ -9,6 +8,8 @@ import (
 	user_pb "apis/go/user"
 
 	"google.golang.org/grpc"
+
+	"todoapp/user"
 )
 
 func main() {
@@ -17,21 +18,8 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-	user_pb.RegisterUserServiceServer(s, NewUserServiceServer())
+	user_pb.RegisterUserServiceServer(s, user.NewUserServiceServer())
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
-}
-
-func NewUserServiceServer() user_pb.UserServiceServer {
-	return new(userServer)
-}
-
-type userServer struct {
-	user_pb.UserServiceServer
-}
-
-func (s *userServer) BatchGetUsers(ctx context.Context, in *user_pb.BatchGetUsersRequest) (*user_pb.BatchGetUsersResponse, error) {
-	resp := new(user_pb.BatchGetUsersResponse)
-	return resp, nil
 }

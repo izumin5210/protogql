@@ -34,8 +34,9 @@ func (r *queryProtoResolver) Tasks(ctx context.Context) ([]*todo_pb.Task, error)
 
 func (r *taskProtoResolver) Assignees(ctx context.Context, obj *todo_pb.Task) ([]*user_pb.User, error) {
 	users, errs := loader.For(ctx).UserByID(ctx).LoadAll(obj.GetAssigneeIds())
-	if len(errs) != 0 {
-		return nil, multierror.Append(nil, errs...)
+	err := multierror.Append(nil, errs...).ErrorOrNil()
+	if err != nil {
+		return nil, err
 	}
 	return users, nil
 }
