@@ -42,7 +42,7 @@ initGoMod() {
   for pbgoDir in ./go/*; do
     pushd $pbgoDir
     go mod init apis/go/$(basename $pbgoDir)
-    echo 'replace github.com/izumin5210/remixer => ../../../..' >> go.mod
+    echo 'replace github.com/izumin5210/protogql => ../../../..' >> go.mod
     go mod tidy
     popd
   done

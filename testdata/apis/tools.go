@@ -6,7 +6,7 @@ package tools
 
 // tool dependencies
 import (
-	_ "github.com/izumin5210/remixer/cmd/protoc-gen-graphql"
+	_ "github.com/izumin5210/protogql/cmd/protoc-gen-graphql"
 	_ "google.golang.org/grpc/cmd/protoc-gen-go-grpc"
 	_ "google.golang.org/protobuf/cmd/protoc-gen-go"
 )
@@ -14,6 +14,6 @@ import (
 // If you want to use tools, please run the following command:
 //  go generate ./tools.go
 //
-//go:generate go build -v -o=./bin/protoc-gen-graphql github.com/izumin5210/remixer/cmd/protoc-gen-graphql
+//go:generate go build -v -o=./bin/protoc-gen-graphql github.com/izumin5210/protogql/cmd/protoc-gen-graphql
 //go:generate go build -v -o=./bin/protoc-gen-go-grpc google.golang.org/grpc/cmd/protoc-gen-go-grpc
 //go:generate go build -v -o=./bin/protoc-gen-go google.golang.org/protobuf/cmd/protoc-gen-go

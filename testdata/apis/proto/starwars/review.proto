@@ -11,13 +11,13 @@ option go_package = "apis/go/starwars;starwars_pb";
 
 service ReviewService {
   rpc ListReviews(ListReviewsRequest) returns (ListReviewsResponse) {
-    option (remixer.graphql_query) = {
+    option (protogql.graphql_query) = {
       name: "reviews"
       output: "reviews"
     };
   }
   rpc CreateReview(CreateReviewRequest) returns (Review) {
-    option (remixer.graphql_mutation) = {
+    option (protogql.graphql_mutation) = {
       name: "createReview"
     };
   }

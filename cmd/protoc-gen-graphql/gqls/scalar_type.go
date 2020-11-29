@@ -7,7 +7,7 @@ import (
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/reflect/protoreflect"
 
-	"github.com/izumin5210/remixer/codegen/protoutil"
+	"github.com/izumin5210/protogql/codegen/protoutil"
 )
 
 var (

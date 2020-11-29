@@ -1,4 +1,4 @@
-module github.com/izumin5210/remixer/e2e
+module github.com/izumin5210/protogql/e2e
 
 go 1.15
 
@@ -14,6 +14,6 @@ require (
 replace (
 	apis/go/todo => ../testdata/apis/go/todo
 	apis/go/user => ../testdata/apis/go/user
-	github.com/izumin5210/remixer => ../
+	github.com/izumin5210/protogql => ../
 	todoapp => ../examples/todoapp
 )

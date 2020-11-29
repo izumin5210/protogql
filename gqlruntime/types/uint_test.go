@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/izumin5210/remixer/gqlruntime/types"
+	"github.com/izumin5210/protogql/gqlruntime/types"
 )
 
 func TestUint32(t *testing.T) {

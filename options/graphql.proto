@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package remixer;
+package protogql;
 
-option go_package = "github.com/izumin5210/remixer/options";
+option go_package = "github.com/izumin5210/protogql/options";
 
 import "google/protobuf/descriptor.proto";
 

@@ -1,4 +1,4 @@
-module github.com/izumin5210/remixer
+module github.com/izumin5210/protogql
 
 go 1.15
 

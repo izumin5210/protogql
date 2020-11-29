@@ -2,7 +2,7 @@ module apis/go/hello
 
 go 1.15
 
-replace github.com/izumin5210/remixer => ../../../..
+replace github.com/izumin5210/protogql => ../../../..
 
 require (
 	github.com/golang/protobuf v1.4.3

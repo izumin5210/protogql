@@ -274,7 +274,7 @@ var file_graphql_proto_extTypes = []protoimpl.ExtensionInfo{
 		ExtendedType:  (*descriptor.MethodOptions)(nil),
 		ExtensionType: (*GraphqlQueryOptions)(nil),
 		Field:         2056,
-		Name:          "remixer.graphql_query",
+		Name:          "protogql.graphql_query",
 		Tag:           "bytes,2056,opt,name=graphql_query",
 		Filename:      "graphql.proto",
 	},
@@ -282,7 +282,7 @@ var file_graphql_proto_extTypes = []protoimpl.ExtensionInfo{
 		ExtendedType:  (*descriptor.MethodOptions)(nil),
 		ExtensionType: (*GraphqlMutationOptions)(nil),
 		Field:         2057,
-		Name:          "remixer.graphql_mutation",
+		Name:          "protogql.graphql_mutation",
 		Tag:           "bytes,2057,opt,name=graphql_mutation",
 		Filename:      "graphql.proto",
 	},
@@ -290,7 +290,7 @@ var file_graphql_proto_extTypes = []protoimpl.ExtensionInfo{
 		ExtendedType:  (*descriptor.FieldOptions)(nil),
 		ExtensionType: (*GraphqlFieldOptions)(nil),
 		Field:         2056,
-		Name:          "remixer.graphql_field",
+		Name:          "protogql.graphql_field",
 		Tag:           "bytes,2056,opt,name=graphql_field",
 		Filename:      "graphql.proto",
 	},
@@ -298,7 +298,7 @@ var file_graphql_proto_extTypes = []protoimpl.ExtensionInfo{
 		ExtendedType:  (*descriptor.MessageOptions)(nil),
 		ExtensionType: (*GraphqlMessageOptions)(nil),
 		Field:         2056,
-		Name:          "remixer.graphql_object",
+		Name:          "protogql.graphql_object",
 		Tag:           "bytes,2056,opt,name=graphql_object",
 		Filename:      "graphql.proto",
 	},
@@ -306,7 +306,7 @@ var file_graphql_proto_extTypes = []protoimpl.ExtensionInfo{
 		ExtendedType:  (*descriptor.OneofOptions)(nil),
 		ExtensionType: (*GraphqlOneofInterfaceOptions)(nil),
 		Field:         2056,
-		Name:          "remixer.graphql_interface",
+		Name:          "protogql.graphql_interface",
 		Tag:           "bytes,2056,opt,name=graphql_interface",
 		Filename:      "graphql.proto",
 	},
@@ -314,27 +314,27 @@ var file_graphql_proto_extTypes = []protoimpl.ExtensionInfo{
 
 // Extension fields to descriptor.MethodOptions.
 var (
-	// optional remixer.GraphqlQueryOptions graphql_query = 2056;
+	// optional protogql.GraphqlQueryOptions graphql_query = 2056;
 	E_GraphqlQuery = &file_graphql_proto_extTypes[0]
-	// optional remixer.GraphqlMutationOptions graphql_mutation = 2057;
+	// optional protogql.GraphqlMutationOptions graphql_mutation = 2057;
 	E_GraphqlMutation = &file_graphql_proto_extTypes[1]
 )
 
 // Extension fields to descriptor.FieldOptions.
 var (
-	// optional remixer.GraphqlFieldOptions graphql_field = 2056;
+	// optional protogql.GraphqlFieldOptions graphql_field = 2056;
 	E_GraphqlField = &file_graphql_proto_extTypes[2]
 )
 
 // Extension fields to descriptor.MessageOptions.
 var (
-	// optional remixer.GraphqlMessageOptions graphql_object = 2056;
+	// optional protogql.GraphqlMessageOptions graphql_object = 2056;
 	E_GraphqlObject = &file_graphql_proto_extTypes[3]
 )
 
 // Extension fields to descriptor.OneofOptions.
 var (
-	// optional remixer.GraphqlOneofInterfaceOptions graphql_interface = 2056;
+	// optional protogql.GraphqlOneofInterfaceOptions graphql_interface = 2056;
 	E_GraphqlInterface = &file_graphql_proto_extTypes[4]
 )
 
@@ -414,27 +414,27 @@ func file_graphql_proto_rawDescGZIP() []byte {
 
 var file_graphql_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_graphql_proto_goTypes = []interface{}{
-	(*GraphqlQueryOptions)(nil),          // 0: remixer.GraphqlQueryOptions
-	(*GraphqlMutationOptions)(nil),       // 1: remixer.GraphqlMutationOptions
-	(*GraphqlFieldOptions)(nil),          // 2: remixer.GraphqlFieldOptions
-	(*GraphqlMessageOptions)(nil),        // 3: remixer.GraphqlMessageOptions
-	(*GraphqlOneofInterfaceOptions)(nil), // 4: remixer.GraphqlOneofInterfaceOptions
+	(*GraphqlQueryOptions)(nil),          // 0: protogql.GraphqlQueryOptions
+	(*GraphqlMutationOptions)(nil),       // 1: protogql.GraphqlMutationOptions
+	(*GraphqlFieldOptions)(nil),          // 2: protogql.GraphqlFieldOptions
+	(*GraphqlMessageOptions)(nil),        // 3: protogql.GraphqlMessageOptions
+	(*GraphqlOneofInterfaceOptions)(nil), // 4: protogql.GraphqlOneofInterfaceOptions
 	(*descriptor.MethodOptions)(nil),     // 5: google.protobuf.MethodOptions
 	(*descriptor.FieldOptions)(nil),      // 6: google.protobuf.FieldOptions
 	(*descriptor.MessageOptions)(nil),    // 7: google.protobuf.MessageOptions
 	(*descriptor.OneofOptions)(nil),      // 8: google.protobuf.OneofOptions
 }
 var file_graphql_proto_depIdxs = []int32{
-	5,  // 0: remixer.graphql_query:extendee -> google.protobuf.MethodOptions
-	5,  // 1: remixer.graphql_mutation:extendee -> google.protobuf.MethodOptions
-	6,  // 2: remixer.graphql_field:extendee -> google.protobuf.FieldOptions
-	7,  // 3: remixer.graphql_object:extendee -> google.protobuf.MessageOptions
-	8,  // 4: remixer.graphql_interface:extendee -> google.protobuf.OneofOptions
-	0,  // 5: remixer.graphql_query:type_name -> remixer.GraphqlQueryOptions
-	1,  // 6: remixer.graphql_mutation:type_name -> remixer.GraphqlMutationOptions
-	2,  // 7: remixer.graphql_field:type_name -> remixer.GraphqlFieldOptions
-	3,  // 8: remixer.graphql_object:type_name -> remixer.GraphqlMessageOptions
-	4,  // 9: remixer.graphql_interface:type_name -> remixer.GraphqlOneofInterfaceOptions
+	5,  // 0: protogql.graphql_query:extendee -> google.protobuf.MethodOptions
+	5,  // 1: protogql.graphql_mutation:extendee -> google.protobuf.MethodOptions
+	6,  // 2: protogql.graphql_field:extendee -> google.protobuf.FieldOptions
+	7,  // 3: protogql.graphql_object:extendee -> google.protobuf.MessageOptions
+	8,  // 4: protogql.graphql_interface:extendee -> google.protobuf.OneofOptions
+	0,  // 5: protogql.graphql_query:type_name -> protogql.GraphqlQueryOptions
+	1,  // 6: protogql.graphql_mutation:type_name -> protogql.GraphqlMutationOptions
+	2,  // 7: protogql.graphql_field:type_name -> protogql.GraphqlFieldOptions
+	3,  // 8: protogql.graphql_object:type_name -> protogql.GraphqlMessageOptions
+	4,  // 9: protogql.graphql_interface:type_name -> protogql.GraphqlOneofInterfaceOptions
 	10, // [10:10] is the sub-list for method output_type
 	10, // [10:10] is the sub-list for method input_type
 	5,  // [5:10] is the sub-list for extension type_name
