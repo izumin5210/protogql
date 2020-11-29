@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package testapi.starwars;
 
-import "options/graphql.proto";
 // import "testdata/starwars/type.proto";
 
 option go_package = "apis/go/starwars;starwars_pb";
@@ -10,16 +9,12 @@ option go_package = "apis/go/starwars;starwars_pb";
 // https://github.com/apollographql/apollo-tooling/blob/apollo%402.30.3/__fixtures__/starwars/schema.graphql
 
 service StarshipService {
-  rpc GetStarship(GetStarshipRequest) returns (Starship) {
-    option (protogql.graphql_query) = {
-      name: "starship"
-    };
-  }
+  rpc GetStarship(GetStarshipRequest) returns (Starship);
 }
 
 message Starship {
   // The ID of the starship
-  uint64 id = 1 [(protogql.graphql_field).id = true];
+  uint64 id = 1;
   // The name of the starship
   string name = 2;
 
@@ -29,5 +24,5 @@ message Starship {
 }
 
 message GetStarshipRequest {
-  uint64 id = 1 [(protogql.graphql_field).id = true];
+  uint64 id = 1;
 }
