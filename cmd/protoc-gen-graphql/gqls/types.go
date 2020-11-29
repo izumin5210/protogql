@@ -4,7 +4,10 @@ import (
 	"github.com/pkg/errors"
 	"github.com/vektah/gqlparser/v2/ast"
 	"google.golang.org/protobuf/compiler/protogen"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
+
+	protogql_pb "github.com/izumin5210/protogql/protobuf/protogql"
 )
 
 type Type interface {
@@ -107,10 +110,20 @@ func (t *listType) Original() Type     { return t.Type }
 func nameWithParent(d protoreflect.Descriptor) string {
 	name := string(d.Name())
 	for parent := d.Parent(); parent != nil; parent = parent.Parent() {
-		if _, ok := parent.(protoreflect.MessageDescriptor); !ok {
+		switch pd := parent.(type) {
+		case protoreflect.MessageDescriptor:
+			name = string(pd.Name()) + name
+		case protoreflect.FileDescriptor:
+			ext, ok := proto.GetExtension(pd.Options(), protogql_pb.E_Schema).(*protogql_pb.GraphqlSchemaOptions)
+			if !ok {
+				break
+			}
+			if prefix := ext.GetTypePrefix(); prefix != "" {
+				name = prefix + name
+			}
+		default:
 			break
 		}
-		name = string(parent.Name()) + name
 	}
 	return name
 }

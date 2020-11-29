@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package testapi.extensions;
+
+import "protogql/graphql.proto";
+
+option go_package = "apis/go/extensions;extensions_pb";
+option (protogql.schema) = {
+  type_prefix: "TestPrefix";
+};
+
+message PrefixedMessage {
+  message InnerMessage {
+    string body = 1;
+  }
+
+  string body = 1;
+}
+
+enum PrefixedEnum {
+  PREFIXED_ENUM_UNSPECIFIED = 0;
+  PREFIXED_FOO = 1;
+  PREFIXED_BAR = 2;
+}

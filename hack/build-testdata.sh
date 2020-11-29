@@ -30,7 +30,7 @@ init() {
 }
 
 protocw() {
-  $SCRIPTS_DIR/protocw -I proto -I ../.. "$@"
+  $SCRIPTS_DIR/protocw -I proto -I ../../protobuf/include "$@"
 }
 
 execProtoc() {

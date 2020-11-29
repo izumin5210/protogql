@@ -1,0 +1,15 @@
+syntax = "proto3";	
+
+package protogql;	
+
+option go_package = "github.com/izumin5210/protogql/protobuf/protogql;protogql_pb";	
+
+import "google/protobuf/descriptor.proto";	
+
+message GraphqlSchemaOptions {	
+  string type_prefix = 1;	
+}	
+
+extend google.protobuf.FileOptions {	
+  GraphqlSchemaOptions schema = 2056;	
+}	
