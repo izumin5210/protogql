@@ -6,6 +6,8 @@ set -o pipefail
 
 cd $(dirname $0)/..
 
+SCRIPTS_DIR=$(pwd)/hack
+
 pushd() {
     command pushd "$@" > /dev/null
 }
@@ -27,11 +29,15 @@ init() {
   go generate ./tools.go
 }
 
+protocw() {
+  $SCRIPTS_DIR/protocw -I proto -I ../.. "$@"
+}
+
 execProtoc() {
   for protoDir in ./proto/*; do
-    protoc -I proto -I ../.. --include_source_info --include_imports --descriptor_set_out=${protoDir}/descriptor_set.pb ${protoDir}/*.proto
-    protoc -I proto -I ../.. --plugin=protoc-gen-graphql='./bin/protoc-gen-graphql' --graphql_out=graphql  ${protoDir}/*.proto
-    protoc -I proto -I ../.. \
+    protocw --include_source_info --include_imports --descriptor_set_out=${protoDir}/descriptor_set.pb ${protoDir}/*.proto
+    protocw --plugin=protoc-gen-graphql='./bin/protoc-gen-graphql' --graphql_out=graphql  ${protoDir}/*.proto
+    protocw \
       --plugin=protoc-gen-go='./bin/protoc-gen-go'           --go_out=go      --go_opt=paths=source_relative \
       --plugin=protoc-gen-go-grpc='./bin/protoc-gen-go-grpc' --go-grpc_out=go --go-grpc_opt=paths=source_relative \
       ${protoDir}/*.proto
