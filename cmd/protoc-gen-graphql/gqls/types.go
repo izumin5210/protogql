@@ -114,15 +114,10 @@ func nameWithParent(d protoreflect.Descriptor) string {
 		case protoreflect.MessageDescriptor:
 			name = string(pd.Name()) + name
 		case protoreflect.FileDescriptor:
-			ext, ok := proto.GetExtension(pd.Options(), protogql_pb.E_Schema).(*protogql_pb.GraphqlSchemaOptions)
-			if !ok {
-				break
-			}
+			ext := proto.GetExtension(pd.Options(), protogql_pb.E_Schema).(*protogql_pb.GraphqlSchemaOptions)
 			if prefix := ext.GetTypePrefix(); prefix != "" {
 				name = prefix + name
 			}
-		default:
-			break
 		}
 	}
 	return name
