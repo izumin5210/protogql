@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package testapi.starwars;
 
-import "options/graphql.proto";
 import "starwars/starship.proto";
 import "starwars/type.proto";
 
@@ -11,34 +10,14 @@ option go_package = "apis/go/starwars;starwars_pb";
 // https://github.com/apollographql/apollo-tooling/blob/apollo%402.30.3/__fixtures__/starwars/schema.graphql
 
 service CharacterService {
-  rpc GetCharacter(GetCharacterRequest) returns (Character) {
-    option (protogql.graphql_query) = {
-      name: "character"
-    };
-  }
-  rpc GetDroid(GetDroidRequest) returns (Droid) {
-    option (protogql.graphql_query) = {
-      name: "droid"
-    };
-  }
-  rpc GetHuman(GetHumanRequest) returns (Human) {
-    option (protogql.graphql_query) = {
-      name: "human"
-    };
-  }
+  rpc GetCharacter(GetCharacterRequest) returns (Character);
+  rpc GetDroid(GetDroidRequest) returns (Droid);
+  rpc GetHuman(GetHumanRequest) returns (Human);
 }
 
 // A character from the Star Wars universe
 message Character {
-  option (protogql.graphql_object) = {
-    delegate_to: "character";
-  };
-
   oneof character {
-    option (protogql.graphql_interface) = {
-      fields: ["id", "name", "friends", "friends_connection", "appears_in"];
-    };
-
     Human human = 1;
     Droid droid = 2;
   }
@@ -47,7 +26,7 @@ message Character {
 // A humanoid creature from the Star Wars universe
 message Human {
   // The ID of the human
-  uint64 id = 1 [(protogql.graphql_field).id = true];
+  uint64 id = 1;
   // What this human calls themselves
   string name = 2;
   // The home planet of the human, or null if unknown
@@ -74,7 +53,7 @@ message Human {
 // An autonomous mechanical character in the Star Wars universe
 message Droid {
   // The ID of the droid
-  uint64 id = 1 [(protogql.graphql_field).id = true];
+  uint64 id = 1;
   // What others call this droid
   string name = 2;
 
@@ -92,15 +71,15 @@ message Droid {
 
 message GetCharacterRequest {
   // The ID of the character
-  uint64 id = 1 [(protogql.graphql_field).id = true];
+  uint64 id = 1;
 }
 
 message GetHumanRequest {
   // The ID of the human
-  uint64 id = 1 [(protogql.graphql_field).id = true];
+  uint64 id = 1;
 }
 
 message GetDroidRequest {
   // The ID of the droid
-  uint64 id = 1 [(protogql.graphql_field).id = true];
+  uint64 id = 1;
 }

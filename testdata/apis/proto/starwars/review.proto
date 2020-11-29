@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package testapi.starwars;
 
-import "options/graphql.proto";
 import "starwars/type.proto";
 
 option go_package = "apis/go/starwars;starwars_pb";
@@ -10,17 +9,8 @@ option go_package = "apis/go/starwars;starwars_pb";
 // https://github.com/apollographql/apollo-tooling/blob/apollo%402.30.3/__fixtures__/starwars/schema.graphql
 
 service ReviewService {
-  rpc ListReviews(ListReviewsRequest) returns (ListReviewsResponse) {
-    option (protogql.graphql_query) = {
-      name: "reviews"
-      output: "reviews"
-    };
-  }
-  rpc CreateReview(CreateReviewRequest) returns (Review) {
-    option (protogql.graphql_mutation) = {
-      name: "createReview"
-    };
-  }
+  rpc ListReviews(ListReviewsRequest) returns (ListReviewsResponse);
+  rpc CreateReview(CreateReviewRequest) returns (Review);
 }
 
 // Represents a review for a movie

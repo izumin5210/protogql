@@ -3,27 +3,13 @@ syntax = "proto3";
 package testapi.user;
 
 import "google/protobuf/empty.proto";
-import "options/graphql.proto";
 
 option go_package = "apis/go/user;user_pb";
 
 service UserService {
-  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
-    option (protogql.graphql_query) = {
-      name: "users"
-      output: "users"
-    };
-  }
-  rpc FollowUser(FollowUserRequest) returns (google.protobuf.Empty) {
-    option (protogql.graphql_mutation) = {
-      name: "followUser"
-    };
-  }
-  rpc UnfollowUser(UnfollowUserRequest) returns (google.protobuf.Empty) {
-    option (protogql.graphql_mutation) = {
-      name: "unfollowUser"
-    };
-  }
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  rpc FollowUser(FollowUserRequest) returns (google.protobuf.Empty);
+  rpc UnfollowUser(UnfollowUserRequest) returns (google.protobuf.Empty);
   rpc BatchGetUsers(BatchGetUsersRequest) returns (BatchGetUsersResponse);
 }
 
