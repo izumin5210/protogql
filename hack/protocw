@@ -6,7 +6,7 @@ set -o pipefail
 
 ROOT_DIR=$(dirname $0)/..
 
-PROTOC_VERSION='3.13.0'
+PROTOC_VERSION='3.14.0'
 PROTOC_DIR=$ROOT_DIR/tmp/protoc-${PROTOC_VERSION}
 PROTOC_BIN=$PROTOC_DIR/bin/protoc
 
