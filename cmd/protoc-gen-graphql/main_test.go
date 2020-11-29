@@ -19,6 +19,7 @@ func TestProcessor(t *testing.T) {
 	testGenerate(t, "wktypes")
 	testGenerate(t, "oneof")
 	testGenerate(t, "comments")
+	testGenerate(t, "extensions")
 	testGenerate(t, "starwars")
 }
 

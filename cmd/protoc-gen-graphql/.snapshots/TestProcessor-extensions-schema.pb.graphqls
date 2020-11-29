@@ -1,0 +1,18 @@
+enum TestPrefixPrefixedEnum @proto(fullName: "testapi.extensions.PrefixedEnum", package: "testapi.extensions", name: "PrefixedEnum", goPackage: "apis/go/extensions", goName: "PrefixedEnum") {
+	PREFIXED_ENUM_UNSPECIFIED
+	PREFIXED_FOO
+	PREFIXED_BAR
+}
+type TestPrefixPrefixedMessage @proto(fullName: "testapi.extensions.PrefixedMessage", package: "testapi.extensions", name: "PrefixedMessage", goPackage: "apis/go/extensions", goName: "PrefixedMessage") {
+	body: String! @protoField(name: "body", goName: "Body", type: "string", goTypeName: "string")
+}
+type TestPrefixPrefixedMessageInnerMessage @proto(fullName: "testapi.extensions.PrefixedMessage.InnerMessage", package: "testapi.extensions", name: "InnerMessage", goPackage: "apis/go/extensions", goName: "PrefixedMessage_InnerMessage") {
+	body: String! @protoField(name: "body", goName: "Body", type: "string", goTypeName: "string")
+}
+input TestPrefixPrefixedMessageInnerMessageInput @proto(fullName: "testapi.extensions.PrefixedMessage.InnerMessage", package: "testapi.extensions", name: "InnerMessage", goPackage: "apis/go/extensions", goName: "PrefixedMessage_InnerMessage") {
+	body: String! @protoField(name: "body", goName: "Body", type: "string", goTypeName: "string")
+}
+input TestPrefixPrefixedMessageInput @proto(fullName: "testapi.extensions.PrefixedMessage", package: "testapi.extensions", name: "PrefixedMessage", goPackage: "apis/go/extensions", goName: "PrefixedMessage") {
+	body: String! @protoField(name: "body", goName: "Body", type: "string", goTypeName: "string")
+}
+
