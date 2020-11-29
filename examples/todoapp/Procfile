@@ -1,0 +1,2 @@
+graphql: go run ./cmd/graphql-server
+todo: go run ./cmd/todo-server
