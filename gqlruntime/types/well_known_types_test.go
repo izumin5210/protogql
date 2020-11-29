@@ -8,7 +8,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/golang/protobuf/ptypes/wrappers"
-	"github.com/izumin5210/remixer/gqlruntime/types"
+	"github.com/izumin5210/protogql/gqlruntime/types"
 )
 
 func TestTimestampValue(t *testing.T) {

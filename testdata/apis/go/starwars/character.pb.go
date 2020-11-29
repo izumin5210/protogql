@@ -8,7 +8,7 @@ package starwars_pb
 
 import (
 	proto "github.com/golang/protobuf/proto"
-	_ "github.com/izumin5210/remixer/options"
+	_ "github.com/izumin5210/protogql/options"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"

@@ -7,9 +7,9 @@ import (
 	"github.com/99designs/gqlgen/api"
 	"github.com/99designs/gqlgen/codegen/config"
 
-	"github.com/izumin5210/remixer/gqlgenplugin"
-	"github.com/izumin5210/remixer/gqlgenplugin/protomodelgen"
-	"github.com/izumin5210/remixer/gqlgenplugin/protoresolvergen"
+	"github.com/izumin5210/protogql/gqlgenplugin"
+	"github.com/izumin5210/protogql/gqlgenplugin/protomodelgen"
+	"github.com/izumin5210/protogql/gqlgenplugin/protoresolvergen"
 )
 
 func main() {

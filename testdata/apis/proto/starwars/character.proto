@@ -12,17 +12,17 @@ option go_package = "apis/go/starwars;starwars_pb";
 
 service CharacterService {
   rpc GetCharacter(GetCharacterRequest) returns (Character) {
-    option (remixer.graphql_query) = {
+    option (protogql.graphql_query) = {
       name: "character"
     };
   }
   rpc GetDroid(GetDroidRequest) returns (Droid) {
-    option (remixer.graphql_query) = {
+    option (protogql.graphql_query) = {
       name: "droid"
     };
   }
   rpc GetHuman(GetHumanRequest) returns (Human) {
-    option (remixer.graphql_query) = {
+    option (protogql.graphql_query) = {
       name: "human"
     };
   }
@@ -30,12 +30,12 @@ service CharacterService {
 
 // A character from the Star Wars universe
 message Character {
-  option (remixer.graphql_object) = {
+  option (protogql.graphql_object) = {
     delegate_to: "character";
   };
 
   oneof character {
-    option (remixer.graphql_interface) = {
+    option (protogql.graphql_interface) = {
       fields: ["id", "name", "friends", "friends_connection", "appears_in"];
     };
 
@@ -47,7 +47,7 @@ message Character {
 // A humanoid creature from the Star Wars universe
 message Human {
   // The ID of the human
-  uint64 id = 1 [(remixer.graphql_field).id = true];
+  uint64 id = 1 [(protogql.graphql_field).id = true];
   // What this human calls themselves
   string name = 2;
   // The home planet of the human, or null if unknown
@@ -74,7 +74,7 @@ message Human {
 // An autonomous mechanical character in the Star Wars universe
 message Droid {
   // The ID of the droid
-  uint64 id = 1 [(remixer.graphql_field).id = true];
+  uint64 id = 1 [(protogql.graphql_field).id = true];
   // What others call this droid
   string name = 2;
 
@@ -92,15 +92,15 @@ message Droid {
 
 message GetCharacterRequest {
   // The ID of the character
-  uint64 id = 1 [(remixer.graphql_field).id = true];
+  uint64 id = 1 [(protogql.graphql_field).id = true];
 }
 
 message GetHumanRequest {
   // The ID of the human
-  uint64 id = 1 [(remixer.graphql_field).id = true];
+  uint64 id = 1 [(protogql.graphql_field).id = true];
 }
 
 message GetDroidRequest {
   // The ID of the droid
-  uint64 id = 1 [(remixer.graphql_field).id = true];
+  uint64 id = 1 [(protogql.graphql_field).id = true];
 }

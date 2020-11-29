@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/iancoleman/strcase"
-	"github.com/izumin5210/remixer/codegen/protoutil"
+	"github.com/izumin5210/protogql/codegen/protoutil"
 	"github.com/vektah/gqlparser/v2/ast"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/reflect/protoreflect"

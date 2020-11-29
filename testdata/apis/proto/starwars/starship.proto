@@ -11,7 +11,7 @@ option go_package = "apis/go/starwars;starwars_pb";
 
 service StarshipService {
   rpc GetStarship(GetStarshipRequest) returns (Starship) {
-    option (remixer.graphql_query) = {
+    option (protogql.graphql_query) = {
       name: "starship"
     };
   }
@@ -19,7 +19,7 @@ service StarshipService {
 
 message Starship {
   // The ID of the starship
-  uint64 id = 1 [(remixer.graphql_field).id = true];
+  uint64 id = 1 [(protogql.graphql_field).id = true];
   // The name of the starship
   string name = 2;
 
@@ -29,5 +29,5 @@ message Starship {
 }
 
 message GetStarshipRequest {
-  uint64 id = 1 [(remixer.graphql_field).id = true];
+  uint64 id = 1 [(protogql.graphql_field).id = true];
 }

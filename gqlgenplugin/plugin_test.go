@@ -9,10 +9,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/izumin5210/remixer/gqlgenplugin"
-	"github.com/izumin5210/remixer/gqlgenplugin/protomodelgen"
-	"github.com/izumin5210/remixer/gqlgenplugin/protoresolvergen"
-	"github.com/izumin5210/remixer/gqlgentest"
+	"github.com/izumin5210/protogql/gqlgenplugin"
+	"github.com/izumin5210/protogql/gqlgenplugin/protomodelgen"
+	"github.com/izumin5210/protogql/gqlgenplugin/protoresolvergen"
+	"github.com/izumin5210/protogql/gqlgentest"
 )
 
 func TestGenerateForProto(t *testing.T) {
@@ -33,7 +33,7 @@ directive @protoField(name: String!, type: String!, goName: String!, goTypeName:
 extend type Query {
   hello: Hello!
 }`)
-	gqlgentest.AddGoModReplace("github.com/izumin5210/remixer", rootDir)
+	gqlgentest.AddGoModReplace("github.com/izumin5210/protogql", rootDir)
 	gqlgentest.AddGoModReplace("apis/go/hello", filepath.Join(testdataDir, "apis", "go", "hello"))
 
 	gqlgentest.Run(t, func(t *testing.T, err error) {
@@ -78,7 +78,7 @@ extend type Hello {
 extend type Query {
   hello: Hello!
 }`)
-	gqlgentest.AddGoModReplace("github.com/izumin5210/remixer", rootDir)
+	gqlgentest.AddGoModReplace("github.com/izumin5210/protogql", rootDir)
 	gqlgentest.AddGoModReplace("apis/go/hello", filepath.Join(testdataDir, "apis", "go", "hello"))
 
 	gqlgentest.Run(t, func(t *testing.T, err error) {
@@ -118,7 +118,7 @@ directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
 directive @proto(fullName: String!, package: String!, name: String!, goPackage: String!, goName: String!) on OBJECT | INPUT_OBJECT | ENUM
 directive @protoField(name: String!, type: String!, goName: String!, goTypeName: String!, goTypePackage: String) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
 `)
-	gqlgentest.AddGoModReplace("github.com/izumin5210/remixer", rootDir)
+	gqlgentest.AddGoModReplace("github.com/izumin5210/protogql", rootDir)
 	gqlgentest.AddGoModReplace("apis/go/comments", filepath.Join(testdataDir, "apis", "go", "comments"))
 
 	gqlgentest.Run(t, func(t *testing.T, err error) {
@@ -154,7 +154,7 @@ scalar DateTime
 extend type Query {
   hello: [Hello!]!
 }`)
-	gqlgentest.AddGoModReplace("github.com/izumin5210/remixer", rootDir)
+	gqlgentest.AddGoModReplace("github.com/izumin5210/protogql", rootDir)
 	gqlgentest.AddGoModReplace("apis/go/wktypes", filepath.Join(testdataDir, "apis", "go", "wktypes"))
 
 	gqlgentest.Run(t, func(t *testing.T, err error) {
@@ -202,7 +202,7 @@ input ProtoOneofField {
 extend type Query {
   entries: [Entry!]!
 }`)
-	gqlgentest.AddGoModReplace("github.com/izumin5210/remixer", rootDir)
+	gqlgentest.AddGoModReplace("github.com/izumin5210/protogql", rootDir)
 	gqlgentest.AddGoModReplace("apis/go/oneof", filepath.Join(testdataDir, "apis", "go", "oneof"))
 
 	gqlgentest.Run(t, func(t *testing.T, err error) {
@@ -249,7 +249,7 @@ extend type Hello {
 extend type Query {
   hello: Hello!
 }`)
-	gqlgentest.AddGoModReplace("github.com/izumin5210/remixer", rootDir)
+	gqlgentest.AddGoModReplace("github.com/izumin5210/protogql", rootDir)
 	gqlgentest.AddGoModReplace("apis/go/hello", filepath.Join(testdataDir, "apis", "go", "hello"))
 
 	gqlgentest.Run(t, func(t *testing.T, err error) {
@@ -361,7 +361,7 @@ extend type Query {
 extend type Mutation {
   createHello(input: CreateHelloInput): CreateHelloPayload!
 }`)
-	gqlgentest.AddGoModReplace("github.com/izumin5210/remixer", rootDir)
+	gqlgentest.AddGoModReplace("github.com/izumin5210/protogql", rootDir)
 	gqlgentest.AddGoModReplace("apis/go/hello", filepath.Join(testdataDir, "apis", "go", "hello"))
 
 	gqlgentest.Run(t, func(t *testing.T, err error) {

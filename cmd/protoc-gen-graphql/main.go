@@ -7,7 +7,7 @@ import (
 	"github.com/vektah/gqlparser/v2/formatter"
 	"google.golang.org/protobuf/compiler/protogen"
 
-	"github.com/izumin5210/remixer/cmd/protoc-gen-graphql/gqls"
+	"github.com/izumin5210/protogql/cmd/protoc-gen-graphql/gqls"
 )
 
 func main() {

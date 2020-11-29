@@ -13,8 +13,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/vektah/gqlparser/v2/ast"
 
-	"github.com/izumin5210/remixer/codegen/goutil"
-	"github.com/izumin5210/remixer/codegen/gqlutil"
+	"github.com/izumin5210/protogql/codegen/goutil"
+	"github.com/izumin5210/protogql/codegen/gqlutil"
 )
 
 type Plugin struct {
@@ -80,38 +80,38 @@ func (p *Plugin) MutateConfig(cfg *config.Config) error {
 
 	for _, name := range []string{"Int", "ID"} {
 		model := cfg.Models[name]
-		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime/types.Uint32")
-		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime/types.Uint64")
+		model.Model = append(model.Model, "github.com/izumin5210/protogql/gqlruntime/types.Uint32")
+		model.Model = append(model.Model, "github.com/izumin5210/protogql/gqlruntime/types.Uint64")
 		cfg.Models[name] = model
 	}
 
 	{
 		model := cfg.Models["Int"]
-		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime/types.Int32Value")
-		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime/types.Int64Value")
-		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime/types.UInt32Value")
-		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime/types.UInt64Value")
+		model.Model = append(model.Model, "github.com/izumin5210/protogql/gqlruntime/types.Int32Value")
+		model.Model = append(model.Model, "github.com/izumin5210/protogql/gqlruntime/types.Int64Value")
+		model.Model = append(model.Model, "github.com/izumin5210/protogql/gqlruntime/types.UInt32Value")
+		model.Model = append(model.Model, "github.com/izumin5210/protogql/gqlruntime/types.UInt64Value")
 		cfg.Models["Int"] = model
 	}
 	{
 		model := cfg.Models["Float"]
-		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime/types.FloatValue")
-		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime/types.DoubleValue")
+		model.Model = append(model.Model, "github.com/izumin5210/protogql/gqlruntime/types.FloatValue")
+		model.Model = append(model.Model, "github.com/izumin5210/protogql/gqlruntime/types.DoubleValue")
 		cfg.Models["Float"] = model
 	}
 	{
 		model := cfg.Models["Boolean"]
-		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime/types.BoolValue")
+		model.Model = append(model.Model, "github.com/izumin5210/protogql/gqlruntime/types.BoolValue")
 		cfg.Models["Boolean"] = model
 	}
 	{
 		model := cfg.Models["String"]
-		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime/types.StringValue")
+		model.Model = append(model.Model, "github.com/izumin5210/protogql/gqlruntime/types.StringValue")
 		cfg.Models["String"] = model
 	}
 	{
 		model := cfg.Models["DateTime"]
-		model.Model = append(model.Model, "github.com/izumin5210/remixer/gqlruntime/types.Timestamp")
+		model.Model = append(model.Model, "github.com/izumin5210/protogql/gqlruntime/types.Timestamp")
 		cfg.Models["DateTime"] = model
 	}
 

@@ -9,18 +9,18 @@ option go_package = "apis/go/user;user_pb";
 
 service UserService {
   rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
-    option (remixer.graphql_query) = {
+    option (protogql.graphql_query) = {
       name: "users"
       output: "users"
     };
   }
   rpc FollowUser(FollowUserRequest) returns (google.protobuf.Empty) {
-    option (remixer.graphql_mutation) = {
+    option (protogql.graphql_mutation) = {
       name: "followUser"
     };
   }
   rpc UnfollowUser(UnfollowUserRequest) returns (google.protobuf.Empty) {
-    option (remixer.graphql_mutation) = {
+    option (protogql.graphql_mutation) = {
       name: "unfollowUser"
     };
   }
