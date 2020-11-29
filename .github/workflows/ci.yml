@@ -31,7 +31,7 @@ jobs:
     - name: Test
       run: |
         go test -v -race \
-          -coverpkg $(go list ./... | grep -E -v 'github.com/izumin5210/protogql/(gqlgentest|options)' | paste -s -d,) \
+          -coverpkg $(go list ./... | grep -E -v 'github.com/izumin5210/protogql/gqlgentest' | paste -s -d,) \
           -coverprofile coverage.out \
           -covermode atomic \
           ./...
