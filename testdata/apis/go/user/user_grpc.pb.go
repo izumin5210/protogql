@@ -4,10 +4,10 @@ package user_pb
 
 import (
 	context "context"
-	empty "github.com/golang/protobuf/ptypes/empty"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -19,8 +19,8 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
 	ListUsers(ctx context.Context, in *ListUsersRequest, opts ...grpc.CallOption) (*ListUsersResponse, error)
-	FollowUser(ctx context.Context, in *FollowUserRequest, opts ...grpc.CallOption) (*empty.Empty, error)
-	UnfollowUser(ctx context.Context, in *UnfollowUserRequest, opts ...grpc.CallOption) (*empty.Empty, error)
+	FollowUser(ctx context.Context, in *FollowUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UnfollowUser(ctx context.Context, in *UnfollowUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	BatchGetUsers(ctx context.Context, in *BatchGetUsersRequest, opts ...grpc.CallOption) (*BatchGetUsersResponse, error)
 }
 
@@ -41,8 +41,8 @@ func (c *userServiceClient) ListUsers(ctx context.Context, in *ListUsersRequest,
 	return out, nil
 }
 
-func (c *userServiceClient) FollowUser(ctx context.Context, in *FollowUserRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
-	out := new(empty.Empty)
+func (c *userServiceClient) FollowUser(ctx context.Context, in *FollowUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/testapi.user.UserService/FollowUser", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -50,8 +50,8 @@ func (c *userServiceClient) FollowUser(ctx context.Context, in *FollowUserReques
 	return out, nil
 }
 
-func (c *userServiceClient) UnfollowUser(ctx context.Context, in *UnfollowUserRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
-	out := new(empty.Empty)
+func (c *userServiceClient) UnfollowUser(ctx context.Context, in *UnfollowUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/testapi.user.UserService/UnfollowUser", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -73,8 +73,8 @@ func (c *userServiceClient) BatchGetUsers(ctx context.Context, in *BatchGetUsers
 // for forward compatibility
 type UserServiceServer interface {
 	ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error)
-	FollowUser(context.Context, *FollowUserRequest) (*empty.Empty, error)
-	UnfollowUser(context.Context, *UnfollowUserRequest) (*empty.Empty, error)
+	FollowUser(context.Context, *FollowUserRequest) (*emptypb.Empty, error)
+	UnfollowUser(context.Context, *UnfollowUserRequest) (*emptypb.Empty, error)
 	BatchGetUsers(context.Context, *BatchGetUsersRequest) (*BatchGetUsersResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
@@ -86,10 +86,10 @@ type UnimplementedUserServiceServer struct {
 func (UnimplementedUserServiceServer) ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListUsers not implemented")
 }
-func (UnimplementedUserServiceServer) FollowUser(context.Context, *FollowUserRequest) (*empty.Empty, error) {
+func (UnimplementedUserServiceServer) FollowUser(context.Context, *FollowUserRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FollowUser not implemented")
 }
-func (UnimplementedUserServiceServer) UnfollowUser(context.Context, *UnfollowUserRequest) (*empty.Empty, error) {
+func (UnimplementedUserServiceServer) UnfollowUser(context.Context, *UnfollowUserRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnfollowUser not implemented")
 }
 func (UnimplementedUserServiceServer) BatchGetUsers(context.Context, *BatchGetUsersRequest) (*BatchGetUsersResponse, error) {

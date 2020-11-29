@@ -5,20 +5,20 @@ package model
 import (
 	wktypes_pb "apis/go/wktypes"
 
-	"github.com/golang/protobuf/ptypes/timestamp"
-	"github.com/golang/protobuf/ptypes/wrappers"
+	"google.golang.org/protobuf/types/known/timestamppb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 type Hello struct {
-	Timestamp   *timestamp.Timestamp
-	Int32Value  *wrappers.Int32Value
-	Int64Value  *wrappers.Int64Value
-	Uint32Value *wrappers.UInt32Value
-	Uint64Value *wrappers.UInt64Value
-	FloatValue  *wrappers.FloatValue
-	DoubleValue *wrappers.DoubleValue
-	BoolValue   *wrappers.BoolValue
-	StringValue *wrappers.StringValue
+	Timestamp   *timestamppb.Timestamp
+	Int32Value  *wrapperspb.Int32Value
+	Int64Value  *wrapperspb.Int64Value
+	Uint32Value *wrapperspb.UInt32Value
+	Uint64Value *wrapperspb.UInt64Value
+	FloatValue  *wrapperspb.FloatValue
+	DoubleValue *wrapperspb.DoubleValue
+	BoolValue   *wrapperspb.BoolValue
+	StringValue *wrapperspb.StringValue
 }
 
 func HelloListFromRepeatedProto(in []*wktypes_pb.Hello) []*Hello {
@@ -70,15 +70,15 @@ func HelloToProto(in *Hello) *wktypes_pb.Hello {
 }
 
 type HelloInput struct {
-	Timestamp   *timestamp.Timestamp
-	Int32Value  *wrappers.Int32Value
-	Int64Value  *wrappers.Int64Value
-	Uint32Value *wrappers.UInt32Value
-	Uint64Value *wrappers.UInt64Value
-	FloatValue  *wrappers.FloatValue
-	DoubleValue *wrappers.DoubleValue
-	BoolValue   *wrappers.BoolValue
-	StringValue *wrappers.StringValue
+	Timestamp   *timestamppb.Timestamp
+	Int32Value  *wrapperspb.Int32Value
+	Int64Value  *wrapperspb.Int64Value
+	Uint32Value *wrapperspb.UInt32Value
+	Uint64Value *wrapperspb.UInt64Value
+	FloatValue  *wrapperspb.FloatValue
+	DoubleValue *wrapperspb.DoubleValue
+	BoolValue   *wrapperspb.BoolValue
+	StringValue *wrapperspb.StringValue
 }
 
 func HelloInputListFromRepeatedProto(in []*wktypes_pb.Hello) []*HelloInput {
