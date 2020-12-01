@@ -223,8 +223,24 @@
 		}
 	{{ end }}
 
+	func {{ $union.FuncNameFromRepeatedProto }}(in []*{{ $union.GoWrapperTypeName }}) []{{ $union.GoTypeName }} {
+		out := make([]{{ $union.GoTypeName }}, len(in))
+		for i, m := range in {
+			out[i] = {{ $union.FuncNameFromProto }}(m)
+		}
+		return out
+	}
+
 	func {{ $union.FuncNameFromProto }}(in *{{ $union.GoWrapperTypeName }}) {{ $union.GoTypeName }} {
 		return in.Raw
+	}
+
+	func {{ $union.FuncNameToRepeatedProto }}(in []{{ $union.GoTypeName }}) []*{{ $union.GoWrapperTypeName }} {
+		out := make([]*{{ $union.GoWrapperTypeName }}, len(in))
+		for i, m := range in {
+			out[i] = {{ $union.FuncNameToProto }}(m)
+		}
+		return out
 	}
 
 	func {{ $union.FuncNameToProto }}(in {{ $union.GoTypeName }}) *{{ $union.GoWrapperTypeName }} {

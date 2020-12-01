@@ -313,8 +313,24 @@ func (u *CreateHelloPayload_Proto) GetUserError() *UserError {
 	return nil
 }
 
+func CreateHelloPayloadListFromRepeatedProto(in []*CreateHelloPayload_Proto) []CreateHelloPayload {
+	out := make([]CreateHelloPayload, len(in))
+	for i, m := range in {
+		out[i] = CreateHelloPayloadFromProto(m)
+	}
+	return out
+}
+
 func CreateHelloPayloadFromProto(in *CreateHelloPayload_Proto) CreateHelloPayload {
 	return in.Raw
+}
+
+func CreateHelloPayloadListToRepeatedProto(in []CreateHelloPayload) []*CreateHelloPayload_Proto {
+	out := make([]*CreateHelloPayload_Proto, len(in))
+	for i, m := range in {
+		out[i] = CreateHelloPayloadToProto(m)
+	}
+	return out
 }
 
 func CreateHelloPayloadToProto(in CreateHelloPayload) *CreateHelloPayload_Proto {
