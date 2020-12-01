@@ -774,7 +774,6 @@ func (e *EnumFromProto) FuncNameToRepeatedProto() string {
 
 type UnionMemberType interface {
 	Type() Type
-	UnionType() Type
 }
 
 type UnionFromProto struct {
@@ -892,16 +891,6 @@ func (u *UnionHasProto) Members() []UnionMemberType {
 	return members
 }
 
-func (u *UnionHasProto) ProtoMembers() []*UnionMemberHasProto {
-	members := make([]*UnionMemberHasProto, 0, len(u.def.Types))
-	for _, m := range u.Members() {
-		if mp, ok := m.(*UnionMemberHasProto); ok {
-			members = append(members, mp)
-		}
-	}
-	return members
-}
-
 type PlainUnionMember struct {
 	typ   Type
 	union Type
@@ -911,10 +900,6 @@ func (m *PlainUnionMember) Type() Type {
 	return m.typ
 }
 
-func (m *PlainUnionMember) UnionType() Type {
-	return m.union
-}
-
 type UnionMemberHasProto struct {
 	typ   ProtoLikeType
 	union *UnionHasProto
@@ -922,8 +907,4 @@ type UnionMemberHasProto struct {
 
 func (m *UnionMemberHasProto) Type() Type {
 	return m.typ
-}
-
-func (m *UnionMemberHasProto) UnionType() Type {
-	return m.union
 }
