@@ -385,6 +385,69 @@ extend type Mutation {
 	})
 }
 
+func TestGenerateForProto_WithPlainGqlUnionHasProtoObject(t *testing.T) {
+	rootDir := getModuleRoot()
+	testdataDir := filepath.Join(rootDir, "testdata")
+
+	gqlgentest := gqlgentest.New(t)
+	gqlgentest.AddGqlGenOption(
+		gqlgenplugin.AddPluginBefore(protomodelgen.New(), "modelgen"),
+		gqlgenplugin.AddPluginBefore(protoresolvergen.New(), "resolvergen"),
+	)
+	gqlgentest.AddGqlSchemaFile(t, filepath.Join(testdataDir, "apis", "graphql", "hello", "*.graphqls"))
+	gqlgentest.AddGqlSchema("schema.graphqls", `
+directive @grpc(service: String!, rpc: String!) on FIELD_DEFINITION
+directive @proto(fullName: String!, package: String!, name: String!, goPackage: String!, goName: String!) on OBJECT | INPUT_OBJECT | ENUM
+directive @protoField(name: String!, type: String!, goName: String!, goTypeName: String!, goTypePackage: String) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+scalar DateTime`)
+	gqlgentest.AddGqlSchema("hello.graphqls", `
+input CreateHelloInput {
+  message: String!
+}
+
+union CreateHelloPayload = Hello | HelloMessageInvalid | UserError
+
+type CreateHelloSuccess {
+  hello: Hello!
+}
+
+type HelloMessageInvalid {
+  hello: Hello!
+  message: String!
+}
+
+type UserError {
+  message: String!
+  path: [String!]!
+}
+
+extend type Mutation {
+  createHello(input: CreateHelloInput): CreateHelloPayload!
+}`)
+	gqlgentest.AddGoModReplace("github.com/izumin5210/protogql", rootDir)
+	gqlgentest.AddGoModReplace("apis/go/hello", filepath.Join(testdataDir, "apis", "go", "hello"))
+
+	gqlgentest.Run(t, func(t *testing.T, err error) {
+		if err != nil {
+			t.Errorf("failed to generate code: %v", err)
+		}
+
+		if entries, err := filepath.Glob("**/*"); err != nil {
+			t.Errorf("failed to search files: %v", err)
+		} else if got, want := len(entries), 6; got != want {
+			t.Errorf("found %d files, want %d", got, want)
+		}
+
+		gqlgentest.SnapshotFile(t,
+			"model/models_gen.go",
+			"model/protomodels_gen.go",
+			"resolver/resolver.go",
+			"resolver/hello.resolvers.go",
+			"resolver/hello.resolvers.proto.go",
+		)
+	})
+}
+
 func getModuleRoot() string {
 	_, filename, _, _ := runtime.Caller(1)
 	return filepath.Clean(filepath.Join(filepath.Dir(filename), ".."))

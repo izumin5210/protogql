@@ -31,25 +31,35 @@ func hasProto(def *ast.Definition, defMap map[string]*ast.Definition, cache map[
 
 	switch def.Kind {
 	case ast.Object, ast.InputObject:
-		for _, f := range def.Fields {
-			childDef, ok := defMap[f.Type.Name()]
-			if !ok {
-				continue
-			}
-			ok, err := hasProto(childDef, defMap, cache)
-			if err != nil {
-				return false, errors.WithStack(err)
-			}
-			if ok {
-				return true, nil
-			}
+		types := make([]string, len(def.Fields))
+		for i, f := range def.Fields {
+			types[i] = f.Type.Name()
 		}
-		return false, nil
+		return typesHasProto(types, defMap, cache)
 	case ast.Scalar:
 		return false, nil
-	case ast.Enum, ast.Interface, ast.Union:
+	case ast.Union:
+		return typesHasProto(def.Types, defMap, cache)
+	case ast.Enum, ast.Interface:
 		panic("not supported")
 	default:
 		panic("unreachable")
 	}
+}
+
+func typesHasProto(types []string, defMap map[string]*ast.Definition, cache map[string]bool) (resp bool, err error) {
+	for _, t := range types {
+		childDef, ok := defMap[t]
+		if !ok {
+			continue
+		}
+		ok, err := hasProto(childDef, defMap, cache)
+		if err != nil {
+			return false, errors.WithStack(err)
+		}
+		if ok {
+			return true, nil
+		}
+	}
+	return false, nil
 }
