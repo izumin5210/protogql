@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"text/template"
 
 	"github.com/99designs/gqlgen/codegen"
 	"github.com/99designs/gqlgen/codegen/config"
@@ -27,6 +28,31 @@ func New() *Plugin {
 var (
 	_ plugin.ConfigMutator = (*Plugin)(nil)
 	_ plugin.CodeGenerator = (*Plugin)(nil)
+
+	funcs = template.FuncMap{
+		"goWrapperTypeName": func(t Type) string {
+			switch t := t.(type) {
+			case ProtoType:
+				return t.PbGoTypeName()
+			case ProtoWrapperType:
+				return t.GoWrapperTypeName()
+			default:
+				return t.GoTypeName()
+			}
+		},
+		"unwrapStatement": func(t Type, varName string) string {
+			switch t := t.(type) {
+			case ProtoLikeType:
+				return fmt.Sprintf("%s(%s)", t.FuncNameToProto(), varName)
+			default:
+				return varName
+			}
+		},
+		"isProtoType": func(t Type) bool {
+			_, ok := t.(ProtoType)
+			return ok
+		},
+	}
 )
 
 func (p *Plugin) Name() string { return "protomodelgen" }
@@ -119,6 +145,7 @@ func (p *Plugin) MutateConfig(cfg *config.Config) error {
 		PackageName:     cfg.Model.Package,
 		Filename:        filepath.Join(cfg.Model.Dir(), "protomodels_gen.go"),
 		Data:            reg,
+		Funcs:           funcs,
 		GeneratedHeader: true,
 		Packages:        cfg.Packages,
 	})
@@ -135,6 +162,7 @@ func (p *Plugin) GenerateCode(data *codegen.Data) error {
 		Filename:        filepath.Join(data.Config.Model.Dir(), "protomodels_gen.go"),
 		Data:            reg,
 		GeneratedHeader: true,
+		Funcs:           funcs,
 		Packages:        data.Config.Packages,
 	})
 }
@@ -145,6 +173,7 @@ type Registry struct {
 	plainObjects     map[string]*PlainObject
 	enumsFromProto   map[string]*EnumFromProto
 	unionsFromProto  map[string]*UnionFromProto
+	unionsHasProto   map[string]*UnionHasProto
 	data             *codegen.Data
 }
 
@@ -163,6 +192,7 @@ func createRegistry(data *codegen.Data, schema *ast.Schema) (*Registry, error) {
 		plainObjects:     map[string]*PlainObject{},
 		enumsFromProto:   map[string]*EnumFromProto{},
 		unionsFromProto:  map[string]*UnionFromProto{},
+		unionsHasProto:   map[string]*UnionHasProto{},
 		data:             data,
 	}
 
@@ -209,6 +239,8 @@ func createRegistry(data *codegen.Data, schema *ast.Schema) (*Registry, error) {
 			}
 			if proto != nil {
 				reg.unionsFromProto[def.Name] = &UnionFromProto{def: def, proto: proto, registry: reg}
+			} else if ok, err := gqlutil.HasProto(def, schema.Types); err == nil && ok {
+				reg.unionsHasProto[def.Name] = &UnionHasProto{def: def, registry: reg}
 			} else {
 				panic("Plain GraphQL Unions is not supported yet")
 			}
@@ -253,6 +285,9 @@ func (r *Registry) FindProtoLikeType(name string) ProtoLikeType {
 	}
 	if obj, ok := r.objectsHasProto[name]; ok {
 		return obj
+	}
+	if union, ok := r.unionsHasProto[name]; ok {
+		return union
 	}
 
 	return nil
@@ -314,11 +349,27 @@ func (r *Registry) UnionsFromProto() []*UnionFromProto {
 	return unions
 }
 
+func (r *Registry) UnionsHasProto() []*UnionHasProto {
+	unions := make([]*UnionHasProto, 0, len(r.unionsHasProto))
+	for _, u := range r.unionsHasProto {
+		unions = append(unions, u)
+	}
+
+	sort.Slice(unions, func(i, j int) bool { return unions[i].GoTypeName() < unions[j].GoTypeName() })
+
+	return unions
+}
+
 type ProtoType interface {
-	Type
 	ProtoLikeType
 	PbGoTypeName() string
 }
+
+type ProtoWrapperType interface {
+	ProtoLikeType
+	GoWrapperTypeName() string
+}
+
 type ProtoLikeType interface {
 	Type
 	FuncNameFromProto() string
@@ -721,6 +772,11 @@ func (e *EnumFromProto) FuncNameToRepeatedProto() string {
 	return e.GoTypeName() + "ListToRepeatedProto"
 }
 
+type UnionMemberType interface {
+	Type() Type
+	UnionType() Type
+}
+
 type UnionFromProto struct {
 	def      *ast.Definition
 	proto    *gqlutil.ProtoDirective
@@ -786,4 +842,88 @@ func (m *UnionMemberFromProto) FuncNameToProto() string {
 
 func (m *UnionMemberFromProto) Type() ProtoType {
 	return m.typ
+}
+
+type UnionHasProto struct {
+	def      *ast.Definition
+	registry *Registry
+}
+
+func (u *UnionHasProto) GoTypeName() string {
+	return u.def.Name
+}
+
+func (u *UnionHasProto) GoWrapperTypeName() string {
+	return u.GoTypeName() + "_Proto"
+}
+
+func (u *UnionHasProto) FuncNameFromProto() string {
+	return u.GoTypeName() + "FromProto"
+}
+
+func (u *UnionHasProto) FuncNameFromRepeatedProto() string {
+	return u.GoTypeName() + "ListFromRepeatedProto"
+}
+
+func (u *UnionHasProto) FuncNameToProto() string {
+	return u.GoTypeName() + "ToProto"
+}
+
+func (u *UnionHasProto) FuncNameToRepeatedProto() string {
+	return u.GoTypeName() + "ListToRepeatedProto"
+}
+
+func (u *UnionHasProto) Godoc() string {
+	return goutil.ToComment(u.def.Description)
+}
+
+func (u *UnionHasProto) Members() []UnionMemberType {
+	members := make([]UnionMemberType, len(u.def.Types))
+	for i, t := range u.def.Types {
+		switch typ := u.registry.FindType(t).(type) {
+		case ProtoLikeType:
+			members[i] = &UnionMemberHasProto{typ: typ}
+		case Type:
+			members[i] = &PlainUnionMember{typ: typ}
+		default:
+			panic("unreachable")
+		}
+	}
+	return members
+}
+
+func (u *UnionHasProto) ProtoMembers() []*UnionMemberHasProto {
+	members := make([]*UnionMemberHasProto, 0, len(u.def.Types))
+	for _, m := range u.Members() {
+		if mp, ok := m.(*UnionMemberHasProto); ok {
+			members = append(members, mp)
+		}
+	}
+	return members
+}
+
+type PlainUnionMember struct {
+	typ   Type
+	union Type
+}
+
+func (m *PlainUnionMember) Type() Type {
+	return m.typ
+}
+
+func (m *PlainUnionMember) UnionType() Type {
+	return m.union
+}
+
+type UnionMemberHasProto struct {
+	typ   ProtoLikeType
+	union *UnionHasProto
+}
+
+func (m *UnionMemberHasProto) Type() Type {
+	return m.typ
+}
+
+func (m *UnionMemberHasProto) UnionType() Type {
+	return m.union
 }

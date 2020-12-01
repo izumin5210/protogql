@@ -201,3 +201,33 @@
 		}
 	{{ end }}
 {{ end }}
+
+{{- range $union := .UnionsHasProto }}
+	{{- with $union.Godoc }}
+		{{ . }}
+	{{- end }}
+	type {{ $union.GoWrapperTypeName }} struct {
+		Raw {{ $union.GoTypeName }}
+	}
+
+	{{- range $member := $union.Members }}
+		{{- if isProtoType $member.Type }}
+			func (*{{ $member.Type.GoTypeName }}) Is{{ $union.GoTypeName }}() {}
+		{{- end }}
+
+		func (u *{{ $union.GoWrapperTypeName }}) Get{{ $member.Type.GoTypeName }}() *{{ goWrapperTypeName $member.Type }}{
+			if m, ok := u.Raw.(*{{ $member.Type.GoTypeName }}); ok {
+				return {{ unwrapStatement $member.Type "m" }}
+			}
+			return nil
+		}
+	{{ end }}
+
+	func {{ $union.FuncNameFromProto }}(in *{{ $union.GoWrapperTypeName }}) {{ $union.GoTypeName }} {
+		return in.Raw
+	}
+
+	func {{ $union.FuncNameToProto }}(in {{ $union.GoTypeName }}) *{{ $union.GoWrapperTypeName }} {
+		return &{{ $union.GoWrapperTypeName }}{{"{"}}Raw: in{{"}"}}
+	}
+{{ end }}

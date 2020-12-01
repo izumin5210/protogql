@@ -47,7 +47,22 @@ func hasProto(def *ast.Definition, defMap map[string]*ast.Definition, cache map[
 		return false, nil
 	case ast.Scalar:
 		return false, nil
-	case ast.Enum, ast.Interface, ast.Union:
+	case ast.Union:
+		for _, t := range def.Types {
+			childDef, ok := defMap[t]
+			if !ok {
+				continue
+			}
+			ok, err := hasProto(childDef, defMap, cache)
+			if err != nil {
+				return false, errors.WithStack(err)
+			}
+			if ok {
+				return true, nil
+			}
+		}
+		return false, nil
+	case ast.Enum, ast.Interface:
 		panic("not supported")
 	default:
 		panic("unreachable")

@@ -232,7 +232,8 @@ func (r *Resolver) ShortProtoResolverDeclaration() (string, error) {
 	var result string
 	if proto == nil {
 		typeDef := r.GQLTypeDefinition
-		if typeDef.Kind == ast.Object || typeDef.Kind == ast.InputObject {
+		switch typeDef.Kind {
+		case ast.Object, ast.InputObject, ast.Union:
 			if ok, err := gqlutil.HasProto(typeDef, r.file.schema.Types); err == nil && ok {
 				result = fmt.Sprintf("*%s.%s", templates.CurrentImports.Lookup(r.file.modelCfg.ImportPath()), typeDef.Name+"_Proto")
 			}
