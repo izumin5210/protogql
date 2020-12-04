@@ -25,9 +25,18 @@ var (
 	_ plugin.CodeGenerator = (*Plugin)(nil)
 
 	funcs = template.FuncMap{
-		"goWrapperTypeName": types.GoWrapperTypeName,
-		"unwrapStatement":   types.UnwrapStatement,
-		"isProtoType":       types.IsProtoType,
+		"goWrapperType":                  types.GoWrapperType,
+		"unwrapStatement":                types.UnwrapStatement,
+		"isFromProto":                    types.IsFromProto,
+		"fromProtoFunc":                  types.FromProtoFuncName,
+		"fromProtoFuncSignature":         types.FromProtoFuncSignature,
+		"fromRepeatedProtoFunc":          types.FromRepeatedProtoFuncName,
+		"fromRepeatedProtoFuncSignature": types.FromRepeatedProtoFuncSignature,
+		"toProtoFunc":                    types.ToProtoFuncName,
+		"toProtoFuncSignature":           types.ToProtoFuncSignature,
+		"toRepeatedProtoFunc":            types.ToRepeatedProtoFuncName,
+		"toRepeatedProtoFuncSignature":   types.ToRepeatedProtoFuncSignature,
+		"funcCall":                       types.FuncCallStatement,
 	}
 )
 
@@ -51,7 +60,7 @@ func (p *Plugin) MutateConfig(cfg *config.Config) error {
 	}
 
 	for _, typ := range models {
-		cfg.Models.Add(typ.GoTypeName(), cfg.Model.ImportPath()+"."+typ.GoTypeName())
+		cfg.Models.Add(typ.GoType().Name(), cfg.Model.ImportPath()+"."+typ.GoType().Name())
 	}
 	for _, obj := range reg.ObjectsFromProto() {
 		fields, err := obj.Fields()
@@ -73,7 +82,7 @@ func (p *Plugin) MutateConfig(cfg *config.Config) error {
 	}
 
 	for _, enum := range reg.EnumsFromProto() {
-		cfg.Models.Add(enum.GQLName(), cfg.Model.ImportPath()+"."+enum.GoTypeName())
+		cfg.Models.Add(enum.GQLName(), cfg.Model.ImportPath()+"."+enum.GoType().Name())
 	}
 
 	cfg.Directives["grpc"] = config.DirectiveConfig{SkipRuntime: true}

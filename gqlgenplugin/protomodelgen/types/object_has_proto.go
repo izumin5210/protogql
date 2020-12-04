@@ -11,17 +11,27 @@ import (
 	"github.com/izumin5210/protogql/codegen/gqlutil"
 )
 
+var (
+	_ ProtoType = (*ObjectHasProto)(nil)
+)
+
 type ObjectHasProto struct {
 	def      *ast.Definition
 	registry *Registry
 }
 
-func (o *ObjectHasProto) GoWrapperTypeName() string {
-	return o.GoTypeName() + "_Proto"
+func (u *ObjectHasProto) IsFromProto() bool { return false }
+
+func (o *ObjectHasProto) GQLName() string {
+	return o.def.Name
 }
 
-func (o *ObjectHasProto) GoTypeName() string {
-	return o.def.Name
+func (o *ObjectHasProto) ProtoGoType() GoType {
+	return newGoModelType(o.GoType().Name() + "_Proto")
+}
+
+func (o *ObjectHasProto) GoType() GoType {
+	return newGoModelType(o.def.Name)
 }
 
 func (o *ObjectHasProto) Godoc() string {
@@ -36,22 +46,6 @@ func (o *ObjectHasProto) Fields() ([]*FieldHasProto, error) {
 	}
 
 	return fields, nil
-}
-
-func (o *ObjectHasProto) FuncNameFromProto() string {
-	return o.GoTypeName() + "FromProto"
-}
-
-func (o *ObjectHasProto) FuncNameFromRepeatedProto() string {
-	return o.GoTypeName() + "ListFromRepeatedProto"
-}
-
-func (o *ObjectHasProto) FuncNameToProto() string {
-	return o.GoTypeName() + "ToProto"
-}
-
-func (o *ObjectHasProto) FuncNameToRepeatedProto() string {
-	return o.GoTypeName() + "ListToRepeatedProto"
 }
 
 func (o *ObjectHasProto) CodegenObject() *codegen.Object {
@@ -78,16 +72,13 @@ func (f *FieldHasProto) GoFieldTypeDefinition() string {
 		b.WriteString("[]")
 	}
 
-	if !f.isGoBuiltinType() {
-		b.WriteString("*")
-	}
-
 	switch typ := f.object.registry.FindType(f.gql.Type.Name()).(type) {
 	case ProtoType:
-		b.WriteString(typ.PbGoTypeName())
-	case *ObjectHasProto:
-		b.WriteString(typ.GoWrapperTypeName())
+		b.WriteString(typ.ProtoGoType().TypeString())
 	default:
+		if !f.isGoBuiltinType() {
+			b.WriteString("*")
+		}
 		for _, field := range f.object.CodegenObject().Fields {
 			if field.Name == f.gql.Name {
 				b.Reset()
@@ -103,11 +94,11 @@ func (f *FieldHasProto) GoFieldTypeDefinition() string {
 func (f *FieldHasProto) FromProtoStatement(receiver string) string {
 	var b strings.Builder
 
-	if typ := f.object.registry.FindProtoLikeType(f.gql.Type.Name()); typ != nil {
+	if typ := f.object.registry.FindProtoType(f.gql.Type.Name()); typ != nil {
 		if f.isList() {
-			b.WriteString(typ.FuncNameFromRepeatedProto())
+			b.WriteString(FromRepeatedProtoFuncName(typ))
 		} else {
-			b.WriteString(typ.FuncNameFromProto())
+			b.WriteString(FromProtoFuncName(typ))
 		}
 		b.WriteString("(")
 		b.WriteString(receiver)
@@ -126,11 +117,11 @@ func (f *FieldHasProto) FromProtoStatement(receiver string) string {
 func (f *FieldHasProto) ToProtoStatement(receiver string) string {
 	var b strings.Builder
 
-	if typ := f.object.registry.FindProtoLikeType(f.gql.Type.Name()); typ != nil {
+	if typ := f.object.registry.FindProtoType(f.gql.Type.Name()); typ != nil {
 		if f.isList() {
-			b.WriteString(typ.FuncNameToRepeatedProto())
+			b.WriteString(ToRepeatedProtoFuncName(typ))
 		} else {
-			b.WriteString(typ.FuncNameToProto())
+			b.WriteString(ToProtoFuncName(typ))
 		}
 		b.WriteString("(")
 		b.WriteString(receiver)

@@ -99,7 +99,7 @@ func createRegistry(data *codegen.Data, schema *ast.Schema) (*Registry, error) {
 }
 
 func (r *Registry) FindType(name string) Type {
-	if typ := r.FindProtoLikeType(name); typ != nil {
+	if typ := r.FindProtoType(name); typ != nil {
 		return typ
 	}
 	if obj, ok := r.plainObjects[name]; ok {
@@ -118,14 +118,6 @@ func (r *Registry) FindProtoType(name string) ProtoType {
 	}
 	if union, ok := r.unionsFromProto[name]; ok {
 		return union
-	}
-
-	return nil
-}
-
-func (r *Registry) FindProtoLikeType(name string) ProtoLikeType {
-	if typ := r.FindProtoType(name); typ != nil {
-		return typ
 	}
 	if obj, ok := r.objectsHasProto[name]; ok {
 		return obj
@@ -150,7 +142,7 @@ func (r *Registry) ObjectsFromProto() []*ObjectFromProto {
 		objs = append(objs, o)
 	}
 
-	sort.Slice(objs, func(i, j int) bool { return objs[i].GoTypeName() < objs[j].GoTypeName() })
+	sort.Slice(objs, func(i, j int) bool { return objs[i].GQLName() < objs[j].GQLName() })
 
 	return objs
 }
@@ -166,7 +158,7 @@ func (r *Registry) ObjectsHasProto() []*ObjectHasProto {
 		objs = append(objs, o)
 	}
 
-	sort.Slice(objs, func(i, j int) bool { return objs[i].GoTypeName() < objs[j].GoTypeName() })
+	sort.Slice(objs, func(i, j int) bool { return objs[i].GQLName() < objs[j].GQLName() })
 
 	return objs
 }
@@ -177,7 +169,7 @@ func (r *Registry) EnumsFromProto() []*EnumFromProto {
 		enums = append(enums, e)
 	}
 
-	sort.Slice(enums, func(i, j int) bool { return enums[i].GoTypeName() < enums[j].GoTypeName() })
+	sort.Slice(enums, func(i, j int) bool { return enums[i].GQLName() < enums[j].GQLName() })
 
 	return enums
 }
@@ -188,7 +180,7 @@ func (r *Registry) UnionsFromProto() []*UnionFromProto {
 		unions = append(unions, u)
 	}
 
-	sort.Slice(unions, func(i, j int) bool { return unions[i].GoTypeName() < unions[j].GoTypeName() })
+	sort.Slice(unions, func(i, j int) bool { return unions[i].GQLName() < unions[j].GQLName() })
 
 	return unions
 }
@@ -199,7 +191,7 @@ func (r *Registry) UnionsHasProto() []*UnionHasProto {
 		unions = append(unions, u)
 	}
 
-	sort.Slice(unions, func(i, j int) bool { return unions[i].GoTypeName() < unions[j].GoTypeName() })
+	sort.Slice(unions, func(i, j int) bool { return unions[i].GQLName() < unions[j].GQLName() })
 
 	return unions
 }

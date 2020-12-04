@@ -6,33 +6,27 @@ import (
 	"github.com/izumin5210/protogql/codegen/goutil"
 )
 
+var (
+	_ ProtoType = (*UnionHasProto)(nil)
+)
+
 type UnionHasProto struct {
 	def      *ast.Definition
 	registry *Registry
 }
 
-func (u *UnionHasProto) GoTypeName() string {
+func (u *UnionHasProto) IsFromProto() bool { return false }
+
+func (u *UnionHasProto) GQLName() string {
 	return u.def.Name
 }
 
-func (u *UnionHasProto) GoWrapperTypeName() string {
-	return u.GoTypeName() + "_Proto"
+func (u *UnionHasProto) GoType() GoType {
+	return newGoModelInterfaceType(u.def.Name)
 }
 
-func (u *UnionHasProto) FuncNameFromProto() string {
-	return u.GoTypeName() + "FromProto"
-}
-
-func (u *UnionHasProto) FuncNameFromRepeatedProto() string {
-	return u.GoTypeName() + "ListFromRepeatedProto"
-}
-
-func (u *UnionHasProto) FuncNameToProto() string {
-	return u.GoTypeName() + "ToProto"
-}
-
-func (u *UnionHasProto) FuncNameToRepeatedProto() string {
-	return u.GoTypeName() + "ListToRepeatedProto"
+func (u *UnionHasProto) ProtoGoType() GoType {
+	return newGoModelType(u.GoType().Name() + "_Proto")
 }
 
 func (u *UnionHasProto) Godoc() string {
@@ -43,7 +37,7 @@ func (u *UnionHasProto) Members() []UnionMemberType {
 	members := make([]UnionMemberType, len(u.def.Types))
 	for i, t := range u.def.Types {
 		switch typ := u.registry.FindType(t).(type) {
-		case ProtoLikeType:
+		case ProtoType:
 			members[i] = &UnionMemberHasProto{typ: typ}
 		case Type:
 			members[i] = &PlainUnionMember{typ: typ}
@@ -64,7 +58,7 @@ func (m *PlainUnionMember) Type() Type {
 }
 
 type UnionMemberHasProto struct {
-	typ   ProtoLikeType
+	typ   ProtoType
 	union *UnionHasProto
 }
 

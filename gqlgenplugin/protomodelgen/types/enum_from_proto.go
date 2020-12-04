@@ -1,13 +1,14 @@
 package types
 
 import (
-	"strings"
-
-	"github.com/99designs/gqlgen/codegen/templates"
 	"github.com/vektah/gqlparser/v2/ast"
 
 	"github.com/izumin5210/protogql/codegen/goutil"
 	"github.com/izumin5210/protogql/codegen/gqlutil"
+)
+
+var (
+	_ ProtoType = (*EnumFromProto)(nil)
 )
 
 type EnumFromProto struct {
@@ -15,40 +16,20 @@ type EnumFromProto struct {
 	proto *gqlutil.ProtoDirective
 }
 
+func (m *EnumFromProto) IsFromProto() bool { return true }
+
 func (e *EnumFromProto) GQLName() string {
 	return e.def.Name
 }
 
-func (e *EnumFromProto) GoTypeName() string {
-	return e.def.Name
+func (e *EnumFromProto) GoType() GoType {
+	return newGoModelType(e.def.Name)
 }
 
-func (e *EnumFromProto) PbGoTypeName() string {
-	var b strings.Builder
-
-	b.WriteString(templates.CurrentImports.Lookup(e.proto.GoPackage))
-	b.WriteString(".")
-	b.WriteString(e.proto.GoName)
-
-	return b.String()
+func (e *EnumFromProto) ProtoGoType() GoType {
+	return newGoInterfaceType(e.proto.GoPackage, e.proto.GoName)
 }
 
 func (e *EnumFromProto) Godoc() string {
 	return goutil.ToComment(e.def.Description)
-}
-
-func (e *EnumFromProto) FuncNameFromProto() string {
-	return e.GoTypeName() + "FromProto"
-}
-
-func (e *EnumFromProto) FuncNameFromRepeatedProto() string {
-	return e.GoTypeName() + "ListFromRepeatedProto"
-}
-
-func (e *EnumFromProto) FuncNameToProto() string {
-	return e.GoTypeName() + "ToProto"
-}
-
-func (e *EnumFromProto) FuncNameToRepeatedProto() string {
-	return e.GoTypeName() + "ListToRepeatedProto"
 }
