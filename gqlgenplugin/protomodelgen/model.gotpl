@@ -6,7 +6,7 @@
 	{{- with $obj.Godoc }}
 		{{ . }}
 	{{- end }}
-	type {{ $obj.GoTypeName }} struct {
+	type {{ $obj.GoType.Name }} struct {
 		{{- range $f := $obj.Fields }}
 			{{- with $f.Godoc }}
 				{{ . }}
@@ -15,16 +15,16 @@
 		{{- end }}
 	}
 
-	func {{ $obj.FuncNameFromRepeatedProto }}(in []*{{ $obj.PbGoTypeName }}) []*{{ $obj.GoTypeName }} {
-		out := make([]*{{ $obj.GoTypeName }}, len(in))
+	func {{ fromRepeatedProtoFuncSignature $obj }} {
+		out := make([]{{ $obj.GoType.TypeString }}, len(in))
 		for i, m := range in {
-			out[i] = {{ $obj.FuncNameFromProto }}(m)
+			out[i] = {{ funcCall (fromProtoFunc $obj) "m" }}
 		}
 		return out
 	}
 
-	func {{ $obj.FuncNameFromProto }}(in *{{ $obj.PbGoTypeName }}) *{{ $obj.GoTypeName }} {
-		out := &{{ $obj.GoTypeName }}{
+	func {{ fromProtoFuncSignature $obj }} {
+		out := &{{ $obj.GoType.QualifiedIdent }}{
 			{{- range $f := $obj.Fields }}
 				{{- if not $f.IsOneofMember }}
 					{{- with ($f.FromProtoStatement "in") }}
@@ -37,7 +37,7 @@
 		{{- range $f := $obj.Fields }}
 			{{- if $f.IsOneofMember }}
 				if m := in.Get{{ $f.PbGoFieldName }}(); m != nil{
-					out.{{ $f.GoFieldName }} = {{ $f.ProtoType.FuncNameFromProto }}(m)
+					out.{{ $f.GoFieldName }} = {{ funcCall (fromProtoFunc $f.ProtoType) "m" }}
 				}
 			{{- end }}
 		{{- end }}
@@ -45,16 +45,16 @@
 		return out
 	}
 
-	func {{ $obj.FuncNameToRepeatedProto }}(in []*{{ $obj.GoTypeName }}) []*{{ $obj.PbGoTypeName }} {
-		out := make([]*{{ $obj.PbGoTypeName }}, len(in))
+	func {{ toRepeatedProtoFuncSignature $obj }} {
+		out := make([]{{ $obj.ProtoGoType.TypeString }}, len(in))
 		for i, m := range in {
-			out[i] = {{ $obj.FuncNameToProto }}(m)
+			out[i] = {{ funcCall (toProtoFunc $obj) "m" }}
 		}
 		return out
 	}
 
-	func {{ $obj.FuncNameToProto }}(in *{{ $obj.GoTypeName }}) *{{ $obj.PbGoTypeName }} {
-		out := &{{ $obj.PbGoTypeName }}{
+	func {{ toProtoFuncSignature $obj }} {
+		out := &{{ $obj.ProtoGoType.QualifiedIdent }}{
 			{{- range $f := $obj.Fields }}
 				{{- if not $f.IsOneof }}
 					{{- with ($f.ToProtoStatement "in") }}
@@ -68,8 +68,8 @@
 			{{- with $f.OneofMembers }}
 				switch m := in.{{ $f.GoFieldName }}.(type) {
 				{{- range $member := . }}
-				case *{{ $member.GoTypeName }}:
-					out.{{ $f.PbGoFieldName }} = {{ $member.FuncNameToProto }}(m)
+				case {{ $member.GoType.TypeString }}:
+					out.{{ $f.PbGoFieldName }} = {{ funcCall (toProtoFunc $member) "m" }}
 				{{- end }}
 				}
 			{{- end }}
@@ -83,7 +83,7 @@
 	{{- with $obj.Godoc }}
 		{{ . }}
 	{{- end }}
-	type {{ $obj.GoWrapperTypeName }} struct {
+	type {{ $obj.ProtoGoType.Name }} struct {
 		{{- range $f := $obj.Fields }}
 			{{- with $f.Godoc }}
 				{{ . }}
@@ -92,32 +92,32 @@
 		{{- end }}
 	}
 
-	func {{ $obj.FuncNameFromRepeatedProto }}(in []*{{ $obj.GoWrapperTypeName }}) []*{{ $obj.GoTypeName }} {
-		out := make([]*{{ $obj.GoTypeName }}, len(in))
+	func {{ fromRepeatedProtoFuncSignature $obj }} {
+		out := make([]{{ $obj.GoType.TypeString }}, len(in))
 		for i, m := range in {
-			out[i] = {{ $obj.FuncNameFromProto }}(m)
+			out[i] = {{ funcCall (fromProtoFunc $obj) "m" }}
 		}
 		return out
 	}
 
-	func {{ $obj.FuncNameFromProto }}(in *{{ $obj.GoWrapperTypeName }}) *{{ $obj.GoTypeName }} {
-		return &{{ $obj.GoTypeName }}{
+	func {{ fromProtoFuncSignature $obj }} {
+		return &{{ $obj.GoType.QualifiedIdent }}{
 			{{- range $f := $obj.Fields }}
 				{{ $f.GoFieldName }}: {{ $f.FromProtoStatement "in" }},
 			{{- end }}
 		}
 	}
 
-	func {{ $obj.FuncNameToRepeatedProto }}(in []*{{ $obj.GoTypeName }}) []*{{ $obj.GoWrapperTypeName }}{
-		out := make([]*{{ $obj.GoWrapperTypeName }}, len(in))
+	func {{ toRepeatedProtoFuncSignature $obj }} {
+		out := make([]{{ $obj.ProtoGoType.TypeString  }}, len(in))
 		for i, m := range in {
-			out[i] = {{ $obj.FuncNameToProto }}(m)
+			out[i] = {{ funcCall (toProtoFunc $obj) "m" }}
 		}
 		return out
 	}
 
-	func {{ $obj.FuncNameToProto }}(in *{{ $obj.GoTypeName }}) *{{ $obj.GoWrapperTypeName }}{
-		return &{{ $obj.GoWrapperTypeName }}{
+	func {{ toProtoFuncSignature $obj }} {
+		return &{{ $obj.ProtoGoType.QualifiedIdent }}{
 			{{- range $f := $obj.Fields }}
 				{{ $f.GoFieldName }}: {{ $f.ToProtoStatement "in" }},
 			{{- end }}
@@ -129,45 +129,45 @@
 	{{- with $enum.Godoc }}
 		{{ . }}
 	{{- end }}
-	type {{ $enum.GoTypeName }} struct {
-		Proto {{ $enum.PbGoTypeName }}
+	type {{ $enum.GoType.Name }} struct {
+		Proto {{ $enum.ProtoGoType.TypeString }}
 	}
 
-	func {{ $enum.FuncNameFromRepeatedProto }}(in []{{ $enum.PbGoTypeName }}) []*{{ $enum.GoTypeName }} {
-		out := make([]*{{ $enum.GoTypeName }}, len(in))
+	func {{ fromRepeatedProtoFuncSignature $enum }} {
+		out := make([]{{ $enum.GoType.TypeString }}, len(in))
 		for i, m := range in {
-			out[i] = {{ $enum.FuncNameFromProto }}(m)
+			out[i] = {{ funcCall (fromProtoFunc $enum) "m" }}
 		}
 		return out
 	}
 
-	func {{ $enum.FuncNameFromProto }}(in {{ $enum.PbGoTypeName }}) *{{ $enum.GoTypeName }} {
-		return &{{ $enum.GoTypeName }}{Proto: in}
+	func {{ fromProtoFuncSignature $enum }} {
+		return &{{ $enum.GoType.QualifiedIdent }}{Proto: in}
 	}
 
-	func {{ $enum.FuncNameToRepeatedProto }}(in []*{{ $enum.GoTypeName }}) []{{ $enum.PbGoTypeName }} {
-		out := make([]{{ $enum.PbGoTypeName }}, len(in))
+	func {{ toRepeatedProtoFuncSignature $enum }} {
+		out := make([]{{ $enum.ProtoGoType.TypeString }}, len(in))
 		for i, m := range in {
-			out[i] = {{ $enum.FuncNameToProto }}(m)
+			out[i] = {{ funcCall (toProtoFunc $enum) "m" }}
 		}
 		return out
 	}
 
-	func {{ $enum.FuncNameToProto }}(in *{{ $enum.GoTypeName }}) {{ $enum.PbGoTypeName }} {
+	func {{ toProtoFuncSignature $enum }} {
 		return in.Proto
 	}
 
-	func (e {{ $enum.GoTypeName }}) MarshalGQL(w io.Writer) {
+	func (e {{ $enum.GoType.Name }}) MarshalGQL(w io.Writer) {
 		fmt.Fprint(w, strconv.Quote(e.Proto.String()))
 	}
 
-	func (e *{{ $enum.GoTypeName }}) UnmarshalGQL(v interface{}) error {
+	func (e *{{ $enum.GoType.Name }}) UnmarshalGQL(v interface{}) error {
 		str, ok := v.(string)
 		if !ok {
 			return fmt.Errorf("enums must be strings")
 		}
 
-		e.Proto = {{ $enum.PbGoTypeName }}({{ $enum.PbGoTypeName }}_value[str])
+		e.Proto = {{ funcCall $enum.ProtoGoType.TypeString (printf "%s_value[str]" $enum.ProtoGoType.TypeString) }}
 		return nil
 	}
 {{ end }}
@@ -176,19 +176,19 @@
 	{{- with $union.Godoc }}
 		{{ . }}
 	{{- end }}
-	type {{ $union.GoTypeName }} interface {
-		Is{{ $union.GoTypeName }}()
+	type {{ $union.GoType.Name }} interface {
+		Is{{ $union.GoType.Name }}()
 	}
 
 	{{- range $member := $union.Members }}
-		func (*{{ $member.GoTypeName }}) Is{{ $union.GoTypeName }}() {}
+		func (*{{ $member.GoType.Name }}) Is{{ $union.GoType.Name }}() {}
 	{{ end }}
 
-	func {{ $union.FuncNameFromProto }}(in interface{}) {{ $union.GoTypeName }} {
+	func {{ fromProtoFuncSignature $union }} {
 		switch m := in.(type) {
 		{{- range $member := $union.Members }}
-		case *{{ $member.PbGoTypeName }}:
-			return {{ $member.FuncNameFromProto }}(m.{{ $member.PbGoTypeFieldName }})
+		case {{ $member.ProtoGoType.TypeString }}:
+			return {{ funcCall (fromProtoFunc $member.Type) (printf "%s.%s" "m" $member.PbGoTypeFieldName) }}
 		{{- end }}
 		default:
 			panic("not supported")
@@ -196,8 +196,8 @@
 	}
 
 	{{- range $member := $union.Members }}
-		func {{ $member.FuncNameToProto }}(in *{{ $member.GoTypeName }}) *{{ $member.PbGoTypeName }} {
-			return &{{ $member.PbGoTypeName }}{{"{"}}{{ $member.Type.FuncNameToProto }}(in){{"}"}}
+		func {{ toProtoFuncSignature $member }} {
+			return &{{ $member.ProtoGoType.QualifiedIdent }}{{"{"}}{{ funcCall (toProtoFunc $member.Type) "in" }}{{"}"}}
 		}
 	{{ end }}
 {{ end }}
@@ -206,44 +206,44 @@
 	{{- with $union.Godoc }}
 		{{ . }}
 	{{- end }}
-	type {{ $union.GoWrapperTypeName }} struct {
-		Raw {{ $union.GoTypeName }}
+	type {{ $union.ProtoGoType.Name }} struct {
+		Raw {{ $union.GoType.TypeString }}
 	}
 
 	{{- range $member := $union.Members }}
-		{{- if isProtoType $member.Type }}
-			func (*{{ $member.Type.GoTypeName }}) Is{{ $union.GoTypeName }}() {}
+		{{- if isFromProto $member.Type }}
+			func (*{{ $member.Type.GoType.Name }}) Is{{ $union.GoType.Name }}() {}
 		{{- end }}
 
-		func (u *{{ $union.GoWrapperTypeName }}) Get{{ $member.Type.GoTypeName }}() *{{ goWrapperTypeName $member.Type }}{
-			if m, ok := u.Raw.(*{{ $member.Type.GoTypeName }}); ok {
+		func (u {{ $union.ProtoGoType.TypeString }}) Get{{ $member.Type.GoType.Name }}() {{ (goWrapperType $member.Type).TypeString }}{
+			if m, ok := u.Raw.({{ $member.Type.GoType.TypeString }}); ok {
 				return {{ unwrapStatement $member.Type "m" }}
 			}
 			return nil
 		}
 	{{ end }}
 
-	func {{ $union.FuncNameFromRepeatedProto }}(in []*{{ $union.GoWrapperTypeName }}) []{{ $union.GoTypeName }} {
-		out := make([]{{ $union.GoTypeName }}, len(in))
+	func {{ fromRepeatedProtoFuncSignature $union }} {
+		out := make([]{{ $union.GoType.Name }}, len(in))
 		for i, m := range in {
-			out[i] = {{ $union.FuncNameFromProto }}(m)
+			out[i] = {{ funcCall (fromProtoFunc $union) "m" }}
 		}
 		return out
 	}
 
-	func {{ $union.FuncNameFromProto }}(in *{{ $union.GoWrapperTypeName }}) {{ $union.GoTypeName }} {
+	func {{ fromProtoFuncSignature $union }} {
 		return in.Raw
 	}
 
-	func {{ $union.FuncNameToRepeatedProto }}(in []{{ $union.GoTypeName }}) []*{{ $union.GoWrapperTypeName }} {
-		out := make([]*{{ $union.GoWrapperTypeName }}, len(in))
+	func {{ toRepeatedProtoFuncSignature $union }} {
+		out := make([]{{ $union.ProtoGoType.TypeString }}, len(in))
 		for i, m := range in {
-			out[i] = {{ $union.FuncNameToProto }}(m)
+			out[i] = {{ funcCall (toProtoFunc $union) "m" }}
 		}
 		return out
 	}
 
-	func {{ $union.FuncNameToProto }}(in {{ $union.GoTypeName }}) *{{ $union.GoWrapperTypeName }} {
-		return &{{ $union.GoWrapperTypeName }}{{"{"}}Raw: in{{"}"}}
+	func {{ toProtoFuncSignature $union }} {
+		return &{{ $union.ProtoGoType.QualifiedIdent }}{{"{"}}Raw: in{{"}"}}
 	}
 {{ end }}
