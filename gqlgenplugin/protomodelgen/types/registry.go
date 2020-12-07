@@ -19,6 +19,7 @@ type Registry struct {
 	enumsFromProto   map[string]*EnumFromProto
 	unionsFromProto  map[string]*UnionFromProto
 	unionsHasProto   map[string]*UnionHasProto
+	plainInterfaces  map[string]*PlainInterface
 	data             *codegen.Data
 }
 
@@ -38,6 +39,7 @@ func createRegistry(data *codegen.Data, schema *ast.Schema) (*Registry, error) {
 		enumsFromProto:   map[string]*EnumFromProto{},
 		unionsFromProto:  map[string]*UnionFromProto{},
 		unionsHasProto:   map[string]*UnionHasProto{},
+		plainInterfaces:  map[string]*PlainInterface{},
 		data:             data,
 	}
 	for _, def := range schema.Types {
@@ -89,6 +91,9 @@ func createRegistry(data *codegen.Data, schema *ast.Schema) (*Registry, error) {
 				panic("Plain GraphQL Unions is not supported yet")
 			}
 
+		case ast.Interface:
+			reg.plainInterfaces[def.Name] = &PlainInterface{def: def}
+
 		default:
 			// TODO: not implemented
 			panic(fmt.Errorf("%s is not supported yet", def.Kind))
@@ -124,6 +129,14 @@ func (r *Registry) FindProtoType(name string) ProtoType {
 	}
 	if union, ok := r.unionsHasProto[name]; ok {
 		return union
+	}
+
+	return nil
+}
+
+func (r *Registry) FindInterfaceType(name string) Type {
+	if itf, ok := r.plainInterfaces[name]; ok {
+		return itf
 	}
 
 	return nil

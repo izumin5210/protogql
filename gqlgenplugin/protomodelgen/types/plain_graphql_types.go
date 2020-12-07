@@ -6,6 +6,7 @@ import (
 
 var (
 	_ Type = (*PlainObject)(nil)
+	_ Type = (*PlainInterface)(nil)
 )
 
 type PlainObject struct {
@@ -18,4 +19,16 @@ func (o *PlainObject) GQLName() string {
 
 func (o *PlainObject) GoType() GoType {
 	return newGoModelType(o.def.Name)
+}
+
+type PlainInterface struct {
+	def *ast.Definition
+}
+
+func (it *PlainInterface) GQLName() string {
+	return it.def.Name
+}
+
+func (it *PlainInterface) GoType() GoType {
+	return newGoModelInterfaceType(it.def.Name)
 }

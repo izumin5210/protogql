@@ -53,6 +53,20 @@ func (o *ObjectFromProto) ProtoGoType() GoType {
 	return newGoType(o.proto.GoPackage, o.proto.GoName)
 }
 
+func (o *ObjectFromProto) ImplementedInterfaces() ([]Type, error) {
+	types := make([]Type, len(o.def.Interfaces))
+
+	for i, ifName := range o.def.Interfaces {
+		typ := o.registry.FindInterfaceType(ifName)
+		if typ == nil {
+			return nil, errors.Errorf("interface %s was not found", ifName)
+		}
+		types[i] = typ
+	}
+
+	return types, nil
+}
+
 type FieldFromProto struct {
 	gql    *ast.FieldDefinition
 	proto  *gqlutil.ProtoFieldDirective

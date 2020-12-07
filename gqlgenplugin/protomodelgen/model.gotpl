@@ -15,6 +15,10 @@
 		{{- end }}
 	}
 
+	{{- range $itf := $obj.ImplementedInterfaces }}
+		func ({{ $obj.GoType.Name }}) Is{{ $itf.GoType.Name }}() {}
+	{{- end }}
+
 	func {{ fromRepeatedProtoFuncSignature $obj }} {
 		out := make([]{{ $obj.GoType.TypeString }}, len(in))
 		for i, m := range in {
@@ -91,6 +95,10 @@
 			{{ $f.GoFieldName }} {{ $f.GoFieldTypeDefinition }}
 		{{- end }}
 	}
+
+	{{- range $itf := $obj.ImplementedInterfaces }}
+		func ({{ $obj.ProtoGoType.Name }}) Is{{ $itf.GoType.Name }}() {}
+	{{- end }}
 
 	func {{ fromRepeatedProtoFuncSignature $obj }} {
 		out := make([]{{ $obj.GoType.TypeString }}, len(in))

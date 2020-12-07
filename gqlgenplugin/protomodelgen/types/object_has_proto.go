@@ -5,6 +5,7 @@ import (
 
 	"github.com/99designs/gqlgen/codegen"
 	"github.com/99designs/gqlgen/codegen/templates"
+	"github.com/pkg/errors"
 	"github.com/vektah/gqlparser/v2/ast"
 
 	"github.com/izumin5210/protogql/codegen/goutil"
@@ -46,6 +47,20 @@ func (o *ObjectHasProto) Fields() ([]*FieldHasProto, error) {
 	}
 
 	return fields, nil
+}
+
+func (o *ObjectHasProto) ImplementedInterfaces() ([]Type, error) {
+	types := make([]Type, len(o.def.Interfaces))
+
+	for i, ifName := range o.def.Interfaces {
+		typ := o.registry.FindInterfaceType(ifName)
+		if typ == nil {
+			return nil, errors.Errorf("interface %s was not found", ifName)
+		}
+		types[i] = typ
+	}
+
+	return types, nil
 }
 
 func (o *ObjectHasProto) CodegenObject() *codegen.Object {
